@@ -1,0 +1,3 @@
+[submodule "diode_clipper/CoreAudioML"]
+	path = diode_clipper/CoreAudioML
+	url = https://github.com/Alec-Wright/CoreAudioML.git
