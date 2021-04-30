@@ -34,7 +34,8 @@ class StateTrajectoryNetwork(nn.Module):
 
 def train():
     dataset = DataSet(data_dir='./')
-    dataset.create_subset('train', frame_len=44100)
+    segment_length = 44100
+    dataset.create_subset('train', frame_len=segment_length)
     dataset.create_subset('test')
     dataset.load_file('diodeclip', set_names=['train', 'test'], splits=[0.79, 0.21])
 
@@ -53,6 +54,7 @@ def train():
     # Training
     epochs = 100
     segments_in_a_batch = 40
+    samples_between_updates = 2048
 
     loss_history = torch.zeros((epochs,), device=device)
     gradient_norm_history = torch.zeros((epochs,), device=device)
@@ -72,15 +74,22 @@ def train():
             input_minibatch = input_data[:, minibatch_segment_indices, :]
             target_minibatch = target_data[:, minibatch_segment_indices, :]
             
-            optimizer.zero_grad()
+            start_id = 0
 
-            output_minibatch = stn(input_minibatch)
+            while start_id < segment_length:
+                end_id = min(start_id + samples_between_updates, segment_length)
+                
+                optimizer.zero_grad()
 
-            loss = criterion(output_minibatch, target_minibatch)
-            loss.backward()
-            optimizer.step()
+                output_minibatch = stn(input_minibatch[start_id:end_id, :, :])
 
-            stn.detach_hidden()
+                loss = criterion(output_minibatch, target_minibatch[start_id:end_id, :, :])
+                loss.backward()
+                optimizer.step()
+
+                stn.detach_hidden()
+
+                start_id += samples_between_updates
 
         print(f'Epochs {epoch+1}/{epochs}; Loss: {loss.item()}.')
 
@@ -96,11 +105,13 @@ def train():
     plt.plot(loss_history.cpu())
     plt.xlabel('Epochs')
     plt.ylabel('Loss (Normalized MSE)')
+    plt.savefig('./loss_rnn.png', bbox_inches='tight', dpi=300)
 
     plt.figure()
     plt.plot(gradient_norm_history.cpu())
     plt.xlabel('Epochs')
     plt.ylabel('Gradient L2 norm')
+    plt.savefig('./gradient_norm_rnn.png', bbox_inches='tight', dpi=300)
 
 def main():
     train()

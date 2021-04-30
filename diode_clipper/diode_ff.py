@@ -102,7 +102,7 @@ def train():
 
     print('Finished training.')
 
-    PATH = './diode_clipper_2x8tanhRNN.pth'
+    PATH = './diode_clipper_2x8tanhFF.pth'
     torch.save(stn.state_dict(), PATH)
 
     plt.figure()
