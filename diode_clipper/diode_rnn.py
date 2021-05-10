@@ -15,11 +15,13 @@ def normalized_mse_loss(output, target):
 class StateTrajectoryNetwork(nn.Module):
     def __init__(self, is_trained=False):
         super().__init__()
-        self.rnn = torch.nn.RNN(input_size=1, hidden_size=1, num_layers=2, nonlinearity='tanh', bias=False)
+        self.rnn = torch.nn.RNN(input_size=1, hidden_size=8, num_layers=2, nonlinearity='tanh', bias=False)
+        self.fcn = torch.nn.Linear(8, 1, bias=False)
         self.hidden = None
 
     def forward(self, x):
-        out, self.hidden = self.rnn(x, self.hidden)
+        rnn_out, self.hidden = self.rnn(x, self.hidden)
+        out = self.fcn(rnn_out)
         return out + x
 
     def initialize_state(self, batch_size, state_size):
