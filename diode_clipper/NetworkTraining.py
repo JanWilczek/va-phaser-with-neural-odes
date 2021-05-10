@@ -13,7 +13,8 @@ class NetworkTraining:
         self.initialization_length = -1
 
     def run(self):
-       for epoch in range(self.epochs):
+        """Run full network training."""
+        for epoch in range(self.epochs):
             self.train_epoch()
 
     def train_epoch(self):
