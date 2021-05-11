@@ -42,11 +42,14 @@ class NetworkTraining:
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
+                self.network.detach_hidden()
+
                 subsegment_start += self.samples_between_updates
                 epoch_loss += loss
 
                 torch.save(self.network.state_dict(), self.model_store_path)
                 
+            self.network.reset_hidden()
         return epoch_loss / (self.segment_length * self.segments_count)
 
 
