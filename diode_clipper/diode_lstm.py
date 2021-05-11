@@ -3,6 +3,7 @@ import socket
 from datetime import datetime
 from pathlib import Path
 import torch
+import torchaudio
 from torch.utils.tensorboard import SummaryWriter
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
@@ -22,11 +23,13 @@ def create_dataset():
     d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
 
     d.create_subset('test')
-    d.load_file('diodeclip', set_names='test')
+    d.load_file('test', set_names='test')
 
     return d
 
 if __name__ == '__main__':
+    run_name = get_run_name()
+    
     session = NetworkTraining()
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -37,11 +40,23 @@ if __name__ == '__main__':
     
     session.dataset = create_dataset()
 
-    session.epochs = 3
+    session.epochs = 100
     session.segments_in_a_batch = 40
     session.samples_between_updates = 2048
     session.initialization_length = 1000
-    session.model_store_path = Path('diode_clipper', 'models', 'lstm_8.pth').resolve()
-    session.writer = SummaryWriter(Path('diode_clipper', 'runs', 'lstm', get_run_name()))
+    session.model_store_path = Path('diode_clipper', 'runs', 'lstm', run_name, 'lstm_8.pth').resolve()
+    session.writer = SummaryWriter(Path('diode_clipper', 'runs', 'lstm', run_name))
 
     session.run()
+
+    session.network.to('cpu')
+    session.network.load_state_dict(torch.load(session.model_store_path))
+
+    test_output, test_loss = session.test()
+    print(f'Test loss: {test_loss}')
+    session.writer.add_scalar('Loss/test', test_loss, session.epochs)
+
+    test_output_path = Path('diode_clipper', 'runs', 'lstm', run_name, 'test_output.wav').resolve()
+    torchaudio.save(test_output_path, test_output[None, :, 0, 0], session.dataset.subsets['test'].fs)
+
+    session.writer.close()
