@@ -12,6 +12,15 @@
             "program": "${workspaceFolder}/diode_clipper/diode_rnn.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/diode_clipper"
+        },
+        {
+            "name": "Python: diode_lstm",
+            "type": "python",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/diode_clipper/diode_lstm.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
