@@ -6,23 +6,13 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from audio_utils import print_stats
+from models.StateTrajectoryNetwork import StateTrajectoryNetworkFF
 
 
 def normalized_mse_loss(output, target):
     minimum_value = 1e-5 * torch.ones_like(target)
     loss = torch.mean(torch.div((target - output) ** 2, torch.maximum(target ** 2, minimum_value)))
     return loss
-
-class StateTrajectoryNetworkFF(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.densely_connected_layers = nn.Sequential(nn.Linear(2, 8, bias=False), nn.Tanh(), nn.Linear(8, 8, bias=False), nn.Tanh(), nn.Linear(8, 1, bias=False))
-
-    def forward(self, x):
-        dense_output = self.densely_connected_layers(x)
-        output = dense_output[..., 0] + x[..., 1]
-        return output.unsqueeze(-1)
-
 
 def train():
     # Data pre-processing

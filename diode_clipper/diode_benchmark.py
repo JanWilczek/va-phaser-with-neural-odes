@@ -9,6 +9,7 @@ import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 import CoreAudioML.dataset as dataset
 from NetworkTraining import NetworkTraining
+from models.StateTrajectoryNetwork import StateTrajectoryNetworkFF
 
 
 def get_run_name():
@@ -29,23 +30,26 @@ def create_dataset():
 
 if __name__ == '__main__':
     run_name = get_run_name()
+    # run_directory = Path('diode_clipper', 'runs', 'lstm', run_name)
+    run_directory = Path('diode_clipper', 'runs', 'stn', run_name)
     
     session = NetworkTraining()
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
+    # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
+    session.network = StateTrajectoryNetworkFF()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     session.loss = training.ESRLoss()
     
     session.dataset = create_dataset()
 
-    session.epochs = 100
+    session.epochs = 2
     session.segments_in_a_batch = 40
     session.samples_between_updates = 2048
     session.initialization_length = 1000
-    session.model_store_path = Path('diode_clipper', 'runs', 'lstm', run_name, 'lstm_8.pth').resolve()
-    session.writer = SummaryWriter(Path('diode_clipper', 'runs', 'lstm', run_name))
+    session.model_store_path = (run_directory / 'stn_2.pth').resolve()
+    session.writer = SummaryWriter(run_directory)
 
     session.run()
 
@@ -56,7 +60,10 @@ if __name__ == '__main__':
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
 
-    test_output_path = Path('diode_clipper', 'runs', 'lstm', run_name, 'test_output.wav').resolve()
+    test_output_path = (run_directory / 'test_output.wav').resolve()
     torchaudio.save(test_output_path, test_output[None, :, 0, 0], session.dataset.subsets['test'].fs)
+
+    if session.device.startswith('cuda'):
+        session.writer.add_scalar('Maximum GPU memory usage', torch.cuda.max_memory_allocated(), session.epochs)
 
     session.writer.close()
