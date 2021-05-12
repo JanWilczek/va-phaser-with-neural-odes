@@ -44,16 +44,16 @@ if __name__ == '__main__':
     
     session.dataset = create_dataset()
 
-    session.epochs = 2
-    session.segments_in_a_batch = 40
+    session.epochs = 20
+    session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
-    session.model_store_path = (run_directory / 'stn_2.pth').resolve()
+    session.model_store_path = (run_directory / 'stn_2_tf.pth').resolve()
     session.writer = SummaryWriter(run_directory)
 
     session.run()
 
-    session.network.to('cpu')
+    session.device = 'cpu'
     session.network.load_state_dict(torch.load(session.model_store_path))
 
     test_output, test_loss = session.test()

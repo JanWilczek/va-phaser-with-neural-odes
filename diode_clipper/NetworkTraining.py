@@ -18,10 +18,13 @@ class NetworkTraining:
         """Run full network training."""
         self.transfer_to_device()
 
-        for epoch in range(self.epochs):
+        for epoch in range(1, self.epochs + 1):
             epoch_loss = self.train_epoch()
-            print(f'Epoch: {epoch + 1}/{self.epochs}; Train loss: {epoch_loss}')
-            self.writer.add_scalar('Loss/train', epoch_loss, epoch + 1)
+            _, validation_loss = self.test('validation')
+
+            print(f'Epoch: {epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
+            self.writer.add_scalar('Loss/train', epoch_loss, epoch)
+            self.writer.add_scalar('Loss/validation', validation_loss, epoch)
 
         self.writer.flush()
 
@@ -34,6 +37,7 @@ class NetworkTraining:
             input_minibatch = self.input_data('train')[:, minibatch_segment_indices, :].to(self.device)
             target_minibatch = self.target_data('train')[:, minibatch_segment_indices, :].to((self.device))
 
+            self.network.reset_hidden()
             with torch.no_grad():
                 self.network(input_minibatch[0:self.initialization_length, :, :])
 
@@ -54,14 +58,15 @@ class NetworkTraining:
                 epoch_loss += loss.item()
 
                 torch.save(self.network.state_dict(), self.model_store_path)
-                
-            self.network.reset_hidden()
+
         return epoch_loss / (self.segment_length * self.segments_count)
 
-    def test(self):
+    def test(self, subset_name='test'):
+        self.transfer_to_device()
+        
         with torch.no_grad():
-            output = self.network(self.input_data('test'))
-            loss = self.loss(output, self.target_data('test')).item()
+            output = self.network(self.input_data(subset_name).to(self.device))
+            loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
         return output, loss
 
     def transfer_to_device(self):
