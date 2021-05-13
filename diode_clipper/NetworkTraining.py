@@ -26,16 +26,20 @@ class NetworkTraining:
             self.writer.add_scalar('Loss/train', epoch_loss, epoch)
             self.writer.add_scalar('Loss/validation', validation_loss, epoch)
 
-        self.writer.flush()
+            self.writer.flush()
 
     def train_epoch(self):
         segments_order = torch.randperm(self.segments_count)
         epoch_loss = 0.0
 
+        true_state = torch.roll(self.target_data('train'), shifts=1, dims=0)
+        true_state[0, :, :] = 0.0
+
         for i in range(self.minibatch_count):
             minibatch_segment_indices = segments_order[i*self.segments_in_a_batch:(i+1)*self.segments_in_a_batch]
             input_minibatch = self.input_data('train')[:, minibatch_segment_indices, :].to(self.device)
-            target_minibatch = self.target_data('train')[:, minibatch_segment_indices, :].to((self.device))
+            target_minibatch = self.target_data('train')[:, minibatch_segment_indices, :].to(self.device)
+            true_state_minibatch = true_state[:, minibatch_segment_indices, :].to(self.device)
 
             self.network.reset_hidden()
             with torch.no_grad():
@@ -45,7 +49,8 @@ class NetworkTraining:
             minibatch_loss = 0.0
 
             for subsequence_id in range(self.subsegments_count):
-                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :],
+                true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
 
                 loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
                 loss.backward()
@@ -63,6 +68,7 @@ class NetworkTraining:
 
     def test(self, subset_name='test'):
         self.transfer_to_device()
+        self.network.reset_hidden()
         
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))

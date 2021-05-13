@@ -44,7 +44,7 @@ if __name__ == '__main__':
     
     session.dataset = create_dataset()
 
-    session.epochs = 20
+    session.epochs = 10
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
