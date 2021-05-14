@@ -30,7 +30,7 @@ class NetworkTraining:
             self.writer.flush()
 
             validation_output_path = (self.run_directory / 'last_validation_output.wav').resolve()
-            torchaudio.save(validation_output_path, validation_output[None, :, 0, 0], self.dataset.subsets['validation'].fs)
+            torchaudio.save(validation_output_path, validation_output[None, :, 0, 0].to('cpu'), self.dataset.subsets['validation'].fs)
 
     def train_epoch(self):
         segments_order = torch.randperm(self.segments_count)

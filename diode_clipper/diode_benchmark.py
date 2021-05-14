@@ -29,27 +29,29 @@ def create_dataset():
     return d
 
 if __name__ == '__main__':
-    run_name = get_run_name() + '_lr01'
-    # run_directory = Path('diode_clipper', 'runs', 'lstm', run_name)
-    run_directory = Path('diode_clipper', 'runs', 'stn', run_name)
-    
     session = NetworkTraining()
+
+    run_name = get_run_name() + '_lr001'
+    # run_directory = Path('diode_clipper', 'runs', 'lstm', run_name)
+    session.run_directory = Path('diode_clipper', 'runs', 'stn', run_name)
+    
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     session.network = StateTrajectoryNetworkFF()
-    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.01)
+    session.network.load_state_dict(torch.load(Path('diode_clipper', 'runs', 'stn', 'May14_20-19-15_axel_lr001', 'stn_3x4_tf.pth').resolve()))
+    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     session.loss = training.ESRLoss()
     
     session.dataset = create_dataset()
 
-    session.epochs = 50
+    session.epochs = 20
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
-    session.model_store_path = (run_directory / 'stn_3x4_tf.pth').resolve()
-    session.writer = SummaryWriter(run_directory)
+    session.model_store_path = (session.run_directory / 'stn_3x4_tf.pth').resolve()
+    session.writer = SummaryWriter(session.run_directory)
 
     session.run()
 
@@ -60,7 +62,7 @@ if __name__ == '__main__':
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
 
-    test_output_path = (run_directory / 'test_output.wav').resolve()
+    test_output_path = (session.run_directory / 'test_output.wav').resolve()
     torchaudio.save(test_output_path, test_output[None, :, 0, 0], session.dataset.subsets['test'].fs)
 
     if torch.cuda.is_available():
