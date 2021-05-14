@@ -29,7 +29,7 @@ def create_dataset():
     return d
 
 if __name__ == '__main__':
-    run_name = get_run_name()
+    run_name = get_run_name() + '_lr01'
     # run_directory = Path('diode_clipper', 'runs', 'lstm', run_name)
     run_directory = Path('diode_clipper', 'runs', 'stn', run_name)
     
@@ -39,16 +39,16 @@ if __name__ == '__main__':
 
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     session.network = StateTrajectoryNetworkFF()
-    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
+    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.01)
     session.loss = training.ESRLoss()
     
     session.dataset = create_dataset()
 
-    session.epochs = 10
+    session.epochs = 50
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
-    session.model_store_path = (run_directory / 'stn_2_tf.pth').resolve()
+    session.model_store_path = (run_directory / 'stn_3x4_tf.pth').resolve()
     session.writer = SummaryWriter(run_directory)
 
     session.run()
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     test_output_path = (run_directory / 'test_output.wav').resolve()
     torchaudio.save(test_output_path, test_output[None, :, 0, 0], session.dataset.subsets['test'].fs)
 
-    if session.device.startswith('cuda'):
-        session.writer.add_scalar('Maximum GPU memory usage', torch.cuda.max_memory_allocated(), session.epochs)
+    if torch.cuda.is_available():
+        session.writer.add_scalar('Maximum GPU memory usage', torch.cuda.max_memory_allocated('cuda'), session.epochs)
 
     session.writer.close()

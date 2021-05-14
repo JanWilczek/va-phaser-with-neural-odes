@@ -1,4 +1,5 @@
 import torch
+import torchaudio
 import math
 
 
@@ -20,13 +21,16 @@ class NetworkTraining:
 
         for epoch in range(1, self.epochs + 1):
             epoch_loss = self.train_epoch()
-            _, validation_loss = self.test('validation')
+            validation_output, validation_loss = self.test('validation')
 
             print(f'Epoch: {epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
             self.writer.add_scalar('Loss/train', epoch_loss, epoch)
             self.writer.add_scalar('Loss/validation', validation_loss, epoch)
 
             self.writer.flush()
+
+            validation_output_path = (self.run_directory / 'last_validation_output.wav').resolve()
+            torchaudio.save(validation_output_path, validation_output[None, :, 0, 0], self.dataset.subsets['validation'].fs)
 
     def train_epoch(self):
         segments_order = torch.randperm(self.segments_count)
@@ -40,6 +44,8 @@ class NetworkTraining:
             input_minibatch = self.input_data('train')[:, minibatch_segment_indices, :].to(self.device)
             target_minibatch = self.target_data('train')[:, minibatch_segment_indices, :].to(self.device)
             true_state_minibatch = true_state[:, minibatch_segment_indices, :].to(self.device)
+            
+            should_include_teacher_forcing = torch.bernoulli(torch.Tensor([1 - i / self.minibatch_count]))
 
             self.network.reset_hidden()
             with torch.no_grad():
@@ -49,8 +55,12 @@ class NetworkTraining:
             minibatch_loss = 0.0
 
             for subsequence_id in range(self.subsegments_count):
-                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :],
-                true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                
+                if should_include_teacher_forcing:
+                    output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :],
+                    true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                else:
+                    output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
 
                 loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
                 loss.backward()

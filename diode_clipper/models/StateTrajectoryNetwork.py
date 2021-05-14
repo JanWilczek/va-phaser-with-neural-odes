@@ -5,7 +5,7 @@ from torch import nn
 class StateTrajectoryNetworkFF(nn.Module):
     def __init__(self):
         super().__init__()
-        self.densely_connected_layers = nn.Sequential(nn.Linear(2, 8, bias=False), nn.Tanh(), nn.Linear(8, 8, bias=False), nn.Tanh(), nn.Linear(8, 1, bias=False))
+        self.densely_connected_layers = nn.Sequential(nn.Linear(2, 4, bias=False), nn.Tanh(), nn.Linear(4, 4), nn.Tanh(), nn.Linear(4, 4, bias=False), nn.Tanh(), nn.Linear(4, 1, bias=False))
         self.state = None
         self.device = 'cpu'
 

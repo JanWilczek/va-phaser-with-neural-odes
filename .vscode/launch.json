@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Python: diode_rnn",
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
