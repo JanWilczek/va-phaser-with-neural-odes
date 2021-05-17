@@ -1,3 +1,6 @@
 [submodule "diode_clipper/CoreAudioML"]
 	path = diode_clipper/CoreAudioML
 	url = https://github.com/Alec-Wright/CoreAudioML.git
+[submodule "diode_clipper/models/ODENet"]
+	path = diode_clipper/models/ODENet
+	url = https://github.com/breadbread1984/ODENet.git

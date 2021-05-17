@@ -1,0 +1,41 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import unittest
+from pathlib import Path
+import torch
+import torchaudio
+import CoreAudioML.training as training
+import CoreAudioML.networks as networks
+from NetworkTraining import NetworkTraining
+from diode_benchmark import create_dataset
+from models.StateTrajectoryNetwork import StateTrajectoryNetworkFF
+
+
+class TestFullPipeline(unittest.TestCase):
+    def test_minimal_pipeline(self):
+        session = NetworkTraining()
+
+        session.run_directory = Path('diode_clipper', 'runs', 'test')
+        
+        session.device = 'cpu'
+
+        session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
+        session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
+        session.loss = training.ESRLoss()
+        
+        session.dataset = create_dataset()
+
+        session.epochs = 2
+        session.segments_in_a_batch = 40
+        session.samples_between_updates = 2048
+        session.initialization_length = 1000
+        session.model_store_path = (session.run_directory / 'lstm_test.pth').resolve()
+
+        session.run()
+
+        test_output, test_loss = session.test()
+
+
+if __name__ == '__main__':
+    unittest.main()
