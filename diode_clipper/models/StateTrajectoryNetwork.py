@@ -21,7 +21,7 @@ class StateTrajectoryNetworkFF(nn.Module):
 
         for n in range(sequence_length):
             if self.true_state is not None:
-                self.state = true_state[:, n, :].unsqueeze(1)
+                self.state[:, 0, :] = true_state[:, n, :]
             
             mlp_input = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
             

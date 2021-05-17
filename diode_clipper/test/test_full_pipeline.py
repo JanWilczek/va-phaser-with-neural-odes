@@ -37,6 +37,8 @@ class TestFullPipeline(unittest.TestCase):
 
         test_output, test_loss = session.test()
 
+        self.assertEqual(test_output.shape, session.input_data('test').shape)
+
 
 if __name__ == '__main__':
     unittest.main()

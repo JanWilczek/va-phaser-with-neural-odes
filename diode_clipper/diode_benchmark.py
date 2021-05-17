@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 import torch
 import torchaudio
-from torch.utils.tensorboard import SummaryWriter
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 import CoreAudioML.dataset as dataset
@@ -31,10 +30,9 @@ def create_dataset():
 if __name__ == '__main__':
     session = NetworkTraining()
 
-    run_name = get_run_name() + '_lr001'
+    run_name = get_run_name()
     # run_directory = Path('diode_clipper', 'runs', 'lstm', run_name)
     session.run_directory = Path('diode_clipper', 'runs', 'stn', run_name)
-    
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -50,14 +48,10 @@ if __name__ == '__main__':
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
-    session.model_store_path = (session.run_directory / 'stn_3x4_tf.pth').resolve()
-    session.writer = SummaryWriter(session.run_directory)
 
     session.run()
 
     session.device = 'cpu'
-    session.network.load_state_dict(torch.load(session.model_store_path))
-
     test_output, test_loss = session.test()
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)

@@ -2,6 +2,7 @@ import torch
 import torchaudio
 import math
 from pathlib import Path
+from torch.utils.tensorboard import SummaryWriter
 
 
 class NetworkTraining:
@@ -14,8 +15,8 @@ class NetworkTraining:
         self.segments_in_a_batch = -1
         self.samples_between_updates = -1
         self.initialization_length = -1
-        self.writer = None
         self.enable_teacher_forcing = False
+        self.writer = None
         self.__run_directory = None
 
     def run(self):
@@ -102,7 +103,6 @@ class NetworkTraining:
         if self.writer is not None:
             self.writer.add_scalar('Loss/train', epoch_loss, self.epoch)
             self.writer.add_scalar('Loss/validation', validation_loss, self.epoch)
-
             self.writer.flush()
 
     def get_minibatch(self, minibatch_index, segments_order, true_state):
@@ -124,7 +124,7 @@ class NetworkTraining:
     @run_directory.setter
     def run_directory(self, directory):
         self.__run_directory = Path(directory)
-        self.__run_directory.mkdir(parents=True, exist_ok=True)
+        self.writer = SummaryWriter(self.__run_directory)
 
     def transfer_to_device(self):
         self.network.to(self.device)
