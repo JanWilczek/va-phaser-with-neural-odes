@@ -40,13 +40,13 @@ if __name__ == '__main__':
 
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     session.network = StateTrajectoryNetworkFF()
-    session.network.load_state_dict(torch.load(Path('diode_clipper', 'runs', 'stn', 'May14_20-19-15_axel_lr001', 'stn_3x4_tf.pth').resolve()))
+    session.network.load_state_dict(torch.load(Path('diode_clipper', 'runs', 'stn', 'May16_09-23-19_axel_lr001', 'stn_3x4_tf.pth').resolve()))
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     session.loss = training.ESRLoss()
     
     session.dataset = create_dataset()
 
-    session.epochs = 20
+    session.epochs = 70
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
