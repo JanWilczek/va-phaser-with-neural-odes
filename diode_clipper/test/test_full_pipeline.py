@@ -20,7 +20,7 @@ class TestFullPipeline(unittest.TestCase):
         
         session.device = 'cpu'
 
-        session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
+        session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=2, skip=0)
         session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
         session.loss = training.ESRLoss()
         
@@ -30,9 +30,10 @@ class TestFullPipeline(unittest.TestCase):
         session.segments_in_a_batch = 40
         session.samples_between_updates = 2048
         session.initialization_length = 1000
-        session.model_store_path = (session.run_directory / 'lstm_test.pth').resolve()
 
         session.run()
+
+        session.load_checkpoint()
 
         test_output, test_loss = session.test()
 
