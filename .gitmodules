@@ -4,3 +4,6 @@
 [submodule "diode_clipper/models/ODENet"]
 	path = diode_clipper/models/ODENet
 	url = https://github.com/breadbread1984/ODENet.git
+[submodule "diode_clipper/models/torchdiffeq"]
+	path = diode_clipper/models/torchdiffeq
+	url = https://github.com/rtqichen/torchdiffeq.git

@@ -7,6 +7,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 class NetworkTraining:
     def __init__(self):
+        self.epoch = 0
+        self.device = 'cpu'
         self.network = None
         self.optimizer = None
         self.dataset = None
@@ -24,7 +26,7 @@ class NetworkTraining:
         self.transfer_to_device()
         best_validation_loss = float('inf')
 
-        for self.epoch in range(1, self.epochs + 1):
+        for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
             validation_output, validation_loss = self.test('validation')
 
