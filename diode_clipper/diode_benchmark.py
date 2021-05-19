@@ -8,7 +8,7 @@ import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 import CoreAudioML.dataset as dataset
 from NetworkTraining import NetworkTraining
-from models.StateTrajectoryNetwork import StateTrajectoryNetworkFF
+from models import StateTrajectoryNetworkFF
 
 
 def get_run_name():

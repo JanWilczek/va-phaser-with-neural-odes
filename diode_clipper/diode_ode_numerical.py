@@ -9,8 +9,12 @@ from CoreAudioML.training import ESRLoss
 from diode_benchmark import create_dataset, get_run_name
 
 
+def jac_diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
+    jac = - 1 / (R * C) - 2 * i_s / (C * v_t) * np.cosh(v_out / v_t)
+    return jac[:, None] # Jacobian needs to be of 1x1 size
+
 def diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
-    if t % 1000 == 999:
+    if int(t) % 1000 == 999:
         print(t)
     return (v_in(t) - v_out) / (R * C) - 2 * i_s / C * np.sinh(v_out / v_t)
 
@@ -24,9 +28,9 @@ def main():
     VOLTAGE_SCALING_FACTOR = 5
     scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
     true_v_out = dataset.subsets['test'].data['input'][0]
-    # t = np.arange(0, v_in.shape[0])
-    seconds_length = 0.4
-    t = np.arange(0, int(seconds_length * dataset.subsets['test'].fs), dtype=int)
+    t = np.arange(0, scaled_signal_in.shape[0])
+    # seconds_length = 0.4
+    # t = np.arange(0, int(seconds_length * dataset.subsets['test'].fs), dtype=int)
     t_span = (t[0], t[-1])
     initial_value = true_v_out[0].squeeze(1)
     R = 2.2e3
@@ -37,7 +41,7 @@ def main():
     v_in = interp1d(t, scaled_signal_in[:(t[-1]+1)])
 
     start_time = time.time()
-    result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=method, t_eval=t, args=[v_in, R, C, i_s, v_t])
+    result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=method, t_eval=t, args=[v_in, R, C, i_s, v_t], jac=jac_diode_equation_rhs)
     end_time = time.time()
 
     print(result.message)
