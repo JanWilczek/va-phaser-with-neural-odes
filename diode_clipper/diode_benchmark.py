@@ -36,7 +36,7 @@ if __name__ == '__main__':
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     
-    session.run_directory = Path('diode_clipper', 'runs', 'stn', 'May18_08-04-32_axel')
+    session.run_directory = Path('diode_clipper', 'runs', 'stn', 'May19_08-03-54_axel')
     session.load_checkpoint()
     run_name = get_run_name()
     session.run_directory = Path('diode_clipper', 'runs', 'stn', run_name)

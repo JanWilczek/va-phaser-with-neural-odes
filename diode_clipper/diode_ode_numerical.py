@@ -14,8 +14,8 @@ def jac_diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
     return jac[:, None] # Jacobian needs to be of 1x1 size
 
 def diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
-    if int(t) % 1000 == 999:
-        print(t)
+    # if int(t) % 1000 == 999:
+        # print(t)
     return (v_in(t) - v_out) / (R * C) - 2 * i_s / C * np.sinh(v_out / v_t)
 
 def main():
@@ -29,7 +29,7 @@ def main():
     scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
     true_v_out = dataset.subsets['test'].data['input'][0]
     t = np.arange(0, scaled_signal_in.shape[0])
-    # seconds_length = 0.4
+    # seconds_length = 1.0
     # t = np.arange(0, int(seconds_length * dataset.subsets['test'].fs), dtype=int)
     t_span = (t[0], t[-1])
     initial_value = true_v_out[0].squeeze(1)
