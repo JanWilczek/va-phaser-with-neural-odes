@@ -28,9 +28,9 @@ def main():
     VOLTAGE_SCALING_FACTOR = 5
     scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
     true_v_out = dataset.subsets['test'].data['input'][0]
-    t = np.arange(0, scaled_signal_in.shape[0])
-    # seconds_length = 1.0
-    # t = np.arange(0, int(seconds_length * dataset.subsets['test'].fs), dtype=int)
+    # t = np.arange(0, scaled_signal_in.shape[0])
+    seconds_length = 10.0
+    t = np.arange(0, int(seconds_length * dataset.subsets['test'].fs), dtype=int)
     t_span = (t[0], t[-1])
     initial_value = true_v_out[0].squeeze(1)
     R = 2.2e3
