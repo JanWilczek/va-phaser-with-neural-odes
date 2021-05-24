@@ -25,15 +25,14 @@ class NetworkTraining:
 
     def run(self):
         """Run full network training."""
+        self.writer.add_text('Architecture', str(self.network))
         self.transfer_to_device()
         best_validation_loss = float('inf')
 
-        self.timer = TrainingTimeLogger(self.writer)
+        self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
             validation_output, validation_loss = self.test('validation')
-
-            print(f'Epoch: {self.epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
             
             self.log_epoch_validation_loss(epoch_loss=epoch_loss, validation_loss=validation_loss)
 
@@ -108,6 +107,8 @@ class NetworkTraining:
         self.epoch = checkpoint['epoch']
 
     def log_epoch_validation_loss(self, epoch_loss, validation_loss):
+        print(f'Epoch: {self.epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
+
         if self.writer is not None:
             self.writer.add_scalar('Loss/train', epoch_loss, self.epoch)
             self.writer.add_scalar('Loss/validation', validation_loss, self.epoch)

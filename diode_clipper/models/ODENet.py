@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-def forward_euler(f, y0, t):
+def forward_euler(f, y0, t, *args, **kwargs):
     y = torch.zeros((t.shape[0], y0.shape[0]), device=t.device)
     y[0, :] = y0
     dt = t[1] - t[0]  # assume equidistant sampling
@@ -83,6 +83,7 @@ class ODENet(nn.Module):
     def reset_hidden(self):
         self.state = None
         self.true_state = None
+        self.derivative_network.state = None
 
     def detach_hidden(self):
         self.state = self.state.detach()
