@@ -22,9 +22,11 @@ class ODENetDerivative(nn.Module):
                 4, 4), nn.Tanh(), nn.Linear(
                 4, 4, bias=False), nn.Tanh(), nn.Linear(
                     4, 1, bias=False))
+        self.state = None
 
     def forward(self, t, y):
-        return self.densely_connected_layers(y)
+        mlp_input = torch.cat((y, self.state), dim=2)
+        return self.densely_connected_layers(mlp_input)
 
 
 class ODENet(nn.Module):
@@ -32,7 +34,7 @@ class ODENet(nn.Module):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
-        self.state = None
+        self.state = None # last output sample
         self.__true_state = None
 
     def forward(self, x):
@@ -58,18 +60,20 @@ class ODENet(nn.Module):
             self.state = torch.zeros((minibatch_size, 1, 1), device=device)
 
         for n in range(sequence_length):
-            if self.true_state is not None:
-                self.derivative_network.state[:, 0, :] = self.true_state[:, n, :]
+            # if self.true_state is not None:
+                # self.derivative_network.state[:, 0, :] = self.true_state[:, n, :]
+            
+            self.derivative_network.state = x[:, n, :].unsqueeze(1)
 
-            initial_value = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
-            # initial_value = self.state
+            # initial_value = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
+            initial_value = self.state
 
             time = torch.Tensor([n - 1, n]).to(device)
 
-            odeint_output = self.odeint(self.derivative_network, initial_value, time)
+            odeint_output = self.odeint(self.derivative_network, initial_value, time, method='euler')
 
-            # take the second feature? and the second time step value, i.e., t[1]
-            output[:, n, :] = odeint_output[1, :, :, 1]
+            # Take the second time step value, i.e., t[1]
+            output[:, n, :] = odeint_output[1, :, :, 0]
 
             # State update
             self.state[:, 0, :] = output[:, n, :]

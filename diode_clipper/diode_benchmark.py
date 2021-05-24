@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 import torch
 import torchaudio
-from torchdiffeq import odeint_adjoint
+from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 import CoreAudioML.dataset as dataset
@@ -34,20 +34,21 @@ if __name__ == '__main__':
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     # session.network = StateTrajectoryNetworkFF()
-    session.network = ODENet(ODENetDerivative(), odeint_adjoint)
+    session.network = ODENet(ODENetDerivative(), odeint)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     
-    # session.run_directory = Path('diode_clipper', 'runs', 'stn', 'May19_08-03-54_axel')
-    # session.load_checkpoint()
+    model_directory = Path('diode_clipper', 'runs', 'odenet')
+    session.run_directory = model_directory / 'May24_13-12-09_axel'
+    session.load_checkpoint()
     run_name = get_run_name()
-    session.run_directory = Path('diode_clipper', 'runs', 'odenet', run_name)
+    session.run_directory =  model_directory / run_name
 
     session.loss = training.ESRLoss()
     
     session.dataset = create_dataset()
 
-    session.epochs = 2
+    session.epochs = 10
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000
