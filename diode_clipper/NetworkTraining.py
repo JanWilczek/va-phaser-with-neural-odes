@@ -3,6 +3,7 @@ import torchaudio
 import math
 from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
+from TrainingTimeLogger import TrainingTimeLogger
 
 
 class NetworkTraining:
@@ -13,6 +14,7 @@ class NetworkTraining:
         self.optimizer = None
         self.dataset = None
         self.loss = None
+        self.timer = None
         self.epochs = -1
         self.segments_in_a_batch = -1
         self.samples_between_updates = -1
@@ -26,6 +28,7 @@ class NetworkTraining:
         self.transfer_to_device()
         best_validation_loss = float('inf')
 
+        self.timer = TrainingTimeLogger(self.writer)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
             validation_output, validation_loss = self.test('validation')
@@ -40,8 +43,9 @@ class NetworkTraining:
                 torch.save(self.network.state_dict(), self.best_validation_model_path)
                 best_validation_loss = validation_loss
 
-
     def train_epoch(self):
+        self.timer.epoch_started()
+        
         segments_order = torch.randperm(self.segments_count)
         epoch_loss = 0.0
 
@@ -76,6 +80,8 @@ class NetworkTraining:
                 epoch_loss += loss.item()
             
                 self.save_checkpoint()
+
+        self.timer.epoch_ended()
 
         return epoch_loss / (self.segment_length * self.segments_count)
 
