@@ -15,15 +15,30 @@ class ODENetDerivative(nn.Module):
         self.state = None
 
     def forward(self, t, y):
+        """Return the right-hand side of the ODE
+
+        Parameters
+        ----------
+        t : scalar
+            current time point
+        y : torch.Tensor of shape (minibatch_size, 1, 1)
+            value of the unknown function at time t
+
+        Returns
+        -------
+        torch.Tensor of shape (minibatch_size, 1, 1)
+            derivative of y over time at time t
+        """
         mlp_input = torch.cat((y, self.state), dim=2)
         return self.densely_connected_layers(mlp_input)
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint=forward_euler):
+    def __init__(self, derivative_network, odeint=forward_euler, dt=1.0):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
+        self.dt = dt
         self.state = None # last output sample
         self.__true_state = None
 
@@ -58,7 +73,7 @@ class ODENet(nn.Module):
             # initial_value = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
             initial_value = self.state
 
-            time = torch.Tensor([n - 1, n]).to(device)
+            time = torch.Tensor([n - 1, n]).to(device) * self.dt
 
             odeint_output = self.odeint(self.derivative_network, initial_value, time, method='euler')
 
