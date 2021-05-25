@@ -1,59 +1,86 @@
 import time
 from pathlib import Path
-import numpy as np
+import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
+from scipy.signal import resample
 import torch
 import torchaudio
 from CoreAudioML.training import ESRLoss
 from diode_benchmark import create_dataset, get_run_name
+from models.solvers import forward_euler
 
 
 def jac_diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
-    jac = - 1 / (R * C) - 2 * i_s / (C * v_t) * np.cosh(v_out / v_t)
+    jac = - 1 / (R * C) - 2 * i_s / (C * v_t) * torch.cosh(v_out / v_t)
     return jac[:, None] # Jacobian needs to be of 1x1 size
 
 def diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
     # if int(t) % 1000 == 999:
         # print(t)
-    return (v_in(t) - v_out) / (R * C) - 2 * i_s / C * np.sinh(v_out / v_t)
+    v_in_value = torch.from_numpy(v_in(t))
+    return (v_in_value - v_out) / (R * C) - 2 * i_s / C * torch.sinh(v_out / v_t)
 
 def main():
-    method = 'BDF'
+    method = 'forward_euler'
     run_directory = Path('diode_clipper', 'runs', 'ode_solver', method, get_run_name())
     run_directory.mkdir(parents=True, exist_ok=True)
     test_output_path = (run_directory / 'test_output.wav').resolve()
 
+    RESAMPLE_FACTOR = 38
+    VOLTAGE_SCALING_FACTOR = 1
+
     dataset = create_dataset()
-    VOLTAGE_SCALING_FACTOR = 5
-    scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
+    sampling_rate =  dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['input'][0]
-    # t = np.arange(0, scaled_signal_in.shape[0])
-    seconds_length = 10.0
-    t = np.arange(0, int(seconds_length * dataset.subsets['test'].fs), dtype=int)
+    scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
+    seconds_length = 1
+    # seconds_length = scaled_signal_in.shape[0] / sampling_rate
+    t = torch.arange(0, seconds_length, 1 / sampling_rate)
     t_span = (t[0], t[-1])
     initial_value = true_v_out[0].squeeze(1)
-    R = 2.2e3
-    C = 0.01e-6
-    i_s = 5e-6
-    v_t = 26e-3
+    trimmed_scaled_signal_in = scaled_signal_in[:t.shape[0]]
+    resampled_scaled_signal_in, resampled_t = resample(trimmed_scaled_signal_in.detach().numpy(), RESAMPLE_FACTOR * trimmed_scaled_signal_in.shape[0], t.detach().numpy())
 
-    v_in = interp1d(t, scaled_signal_in[:(t[-1]+1)])
+    # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
+    R = 2.2e3
+    C = 10e-9
+    i_s = 2.52e-9
+    v_t = 45.3e-3
 
     start_time = time.time()
-    result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=method, t_eval=t, args=[v_in, R, C, i_s, v_t], jac=jac_diode_equation_rhs)
+
+    if method == 'forward_euler':
+        v_in = interp1d(resampled_t, resampled_scaled_signal_in)
+        rhs_args = [v_in, R, C, i_s, v_t]
+        y_upsampled = forward_euler(diode_equation_rhs, initial_value, torch.from_numpy(resampled_t), args=rhs_args)
+        y = resample(y_upsampled, y_upsampled.shape[0] // RESAMPLE_FACTOR)
+        assert y.shape[0] == t.shape[0]
+    else:
+        v_in = interp1d(t, trimmed_scaled_signal_in)
+        rhs_args = [v_in, R, C, i_s, v_t]
+        result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=method, t_eval=t, args=rhs_args, jac=jac_diode_equation_rhs)
+        print(result.message)
+        y = result.y
+    
     end_time = time.time()
 
-    print(result.message)
     print(f'Finished in time {end_time - start_time:.1f} seconds.')
 
-    v_out_result = torch.Tensor(result.y / VOLTAGE_SCALING_FACTOR)
-    torchaudio.save(test_output_path, v_out_result, dataset.subsets['test'].fs)
+    v_out_result = torch.Tensor(y / VOLTAGE_SCALING_FACTOR)
+    torchaudio.save(test_output_path, v_out_result, sampling_rate)
 
     loss = ESRLoss()
-    loss_result = loss(v_out_result, true_v_out[:t[-1]+1]).item()
+    v_out_result_1d = v_out_result.squeeze()
+    true_v_out_trimmed = true_v_out[:t.shape[0]].squeeze()
+    loss_result = loss(v_out_result_1d, true_v_out_trimmed).item()
 
     print(f'ODESolver error: {loss_result}.')
+
+    plt.figure()
+    plt.plot(t, true_v_out_trimmed, t, v_out_result_1d)
+    plt.legend(['ground truth', method])
+    plt.savefig(f'diode_ode_{method}.png')
 
 if __name__ == '__main__':
     main()

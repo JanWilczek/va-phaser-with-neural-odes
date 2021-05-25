@@ -1,9 +1,9 @@
+import matplotlib.pyplot as plt
+import torch
+import unittest
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import unittest
-import torch
-import matplotlib.pyplot as plt
 from models.solvers import forward_euler
 
 
@@ -39,10 +39,10 @@ class TestForwardEuler(unittest.TestCase):
         y = forward_euler(f, torch.Tensor([100]), t)
 
         plt.figure()
-        plt.plot(t, y, t, 100*torch.exp(0.1 * t))
+        plt.plot(t, y, t, 100 * torch.exp(0.1 * t))
         plt.legend(['Forward Euler scheme', 'Ground truth'])
         plt.savefig('population_growth.png')
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     unittest.main()
