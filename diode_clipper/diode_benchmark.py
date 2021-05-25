@@ -33,15 +33,15 @@ if __name__ == '__main__':
 
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
-    session.network = StateTrajectoryNetworkFF()
-    # session.network = ODENet(ODENetDerivative(), odeint)
+    # session.network = StateTrajectoryNetworkFF()
+    session.network = ODENet(ODENetDerivative(), odeint)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     
-    # model_directory = Path('diode_clipper', 'runs', 'odenet')
-    model_directory = Path('diode_clipper', 'runs', 'stn')
-    # session.run_directory = model_directory / 'May24_13-12-09_axel'
-    # session.load_checkpoint()
+    model_directory = Path('diode_clipper', 'runs', 'odenet')
+    # model_directory = Path('diode_clipper', 'runs', 'stn')
+    session.run_directory = model_directory / 'May24_13-12-09_axel'
+    session.load_checkpoint()
     run_name = get_run_name()
     session.run_directory =  model_directory / run_name
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     
     session.dataset = create_dataset()
 
-    session.epochs = 2
+    session.epochs = 20
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000

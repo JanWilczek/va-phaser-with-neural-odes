@@ -1,16 +1,6 @@
 import torch
 from torch import nn
-
-
-def forward_euler(f, y0, t, *args, **kwargs):
-    y = torch.zeros((t.shape[0], y0.shape[0]), device=t.device)
-    y[0, :] = y0
-    dt = t[1] - t[0]  # assume equidistant sampling
-
-    for n in range(y.shape[0]):
-        y[n + 1, :] = y[n, :] + dt * f(t, y[n, :])
-
-    return y
+from .solvers import forward_euler
 
 
 class ODENetDerivative(nn.Module):
