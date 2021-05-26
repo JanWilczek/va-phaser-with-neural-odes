@@ -13,7 +13,8 @@ class ODENetDerivative(nn.Module):
                 4, 4), nn.Tanh(), nn.Linear(
                 4, 4, bias=False), nn.Tanh(), nn.Linear(
                     4, 1, bias=False))
-        self.state = None
+        self.t = None
+        self.input = None
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
@@ -30,10 +31,11 @@ class ODENetDerivative(nn.Module):
         torch.Tensor of shape (minibatch_size, 1, 1)
             derivative of y over time at time t
         """
-        input_at_t = Interp1d()(self.t, self.input, t)
-        assert y.shape == input_at_t.shape
-        mlp_input = torch.cat((y, input_at_t), dim=2)
-        return self.densely_connected_layers(mlp_input)
+        t_new = torch.tile(t.unsqueeze(0), (y.shape[0], 1))
+        input_at_t = Interp1d()(self.t, self.input, t_new).unsqueeze(-1)
+        mlp_input = torch.cat((y.unsqueeze(1).unsqueeze(2), input_at_t), dim=2)
+        output = self.densely_connected_layers(mlp_input)
+        return output.squeeze()
 
 
 class ODENet(nn.Module):
@@ -42,8 +44,8 @@ class ODENet(nn.Module):
         self.derivative_network = derivative_network
         self.odeint = odeint
         self.dt = dt
-        self.state = None # last output sample
         self.__true_state = None
+        self.time = None
 
     def forward(self, x):
         """
@@ -61,31 +63,29 @@ class ODENet(nn.Module):
         x = x.permute(1, 0, 2)
 
         device = next(self.parameters()).device
-        time = torch.arange(0, sequence_length * self.dt, self.dt, device=device)
 
-        self.derivative_network.t = time
-        self.derivative_network.input = x
+        if self.time is None:
+            start_time = 0.0
+        else:
+            start_time = self.time[-1] + self.dt
+        self.time = torch.linspace(start_time, start_time + sequence_length * self.dt, sequence_length, device=device)
+        self.derivative_network.t = torch.tile(self.time.unsqueeze(0), (minibatch_size, 1))
 
-        output = torch.zeros_like(x)
+        self.derivative_network.input = x.squeeze()
 
-        if self.state is None:
-            self.state = torch.zeros((minibatch_size, 1, 1), device=device)
+        initial_value = torch.zeros((minibatch_size,), device=device)
 
-        # initial_value = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
-        initial_value = self.state
+        odeint_output = self.odeint(self.derivative_network, initial_value, self.time, method='euler')
+        # returned tensor is of shape (time_point_count, minibatch_size, 1, features_count (=1 here))
 
-        odeint_output = self.odeint(self.derivative_network, initial_value, time, method='euler')
-        # returned shape (time_point_count, minibatch_size, 1, features_count (=1 here))
-
-        return output[:, :, :, 0].permute(1, 0, 2)
+        return odeint_output.unsqueeze(1)
 
     def reset_hidden(self):
-        self.state = None
         self.true_state = None
-        self.derivative_network.state = None
+        self.time = None
 
     def detach_hidden(self):
-        self.state = self.state.detach()
+        pass
 
     @property
     def true_state(self):
