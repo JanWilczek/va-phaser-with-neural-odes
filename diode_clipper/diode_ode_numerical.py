@@ -68,7 +68,11 @@ def main():
     print(f'Finished in time {end_time - start_time:.1f} seconds.')
 
     v_out_result = torch.Tensor(y / VOLTAGE_SCALING_FACTOR)
-    torchaudio.save(test_output_path, v_out_result, sampling_rate)
+
+    # The saved data needs to be transposed, because on Windows the Soundfile backend needs 
+    # it to be of channels x frames (samples) shape. Sox, which is the default backend
+    # on Mac/Linux chooses by itself what is the samples dimension and what is the channel dimension.
+    torchaudio.save(test_output_path, v_out_result.T, sampling_rate)
 
     loss = ESRLoss()
     v_out_result_1d = v_out_result.squeeze()

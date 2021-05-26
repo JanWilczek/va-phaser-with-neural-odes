@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     session.loss = training.ESRLoss()
     
-    session.epochs = 10
+    session.epochs = 2
     session.segments_in_a_batch = 256
     session.samples_between_updates = 2048
     session.initialization_length = 1000

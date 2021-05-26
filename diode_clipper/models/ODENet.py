@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torchinterp1d import Interp1d
 from .solvers import forward_euler
 
 
@@ -29,7 +30,9 @@ class ODENetDerivative(nn.Module):
         torch.Tensor of shape (minibatch_size, 1, 1)
             derivative of y over time at time t
         """
-        mlp_input = torch.cat((y, self.state), dim=2)
+        input_at_t = Interp1d()(self.t, self.input, t)
+        assert y.shape == input_at_t.shape
+        mlp_input = torch.cat((y, input_at_t), dim=2)
         return self.densely_connected_layers(mlp_input)
 
 
@@ -58,32 +61,23 @@ class ODENet(nn.Module):
         x = x.permute(1, 0, 2)
 
         device = next(self.parameters()).device
+        time = torch.arange(0, sequence_length * self.dt, self.dt, device=device)
+
+        self.derivative_network.t = time
+        self.derivative_network.input = x
 
         output = torch.zeros_like(x)
 
         if self.state is None:
             self.state = torch.zeros((minibatch_size, 1, 1), device=device)
 
-        for n in range(sequence_length):
-            # if self.true_state is not None:
-                # self.derivative_network.state[:, 0, :] = self.true_state[:, n, :]
-            
-            self.derivative_network.state = x[:, n, :].unsqueeze(1)
+        # initial_value = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
+        initial_value = self.state
 
-            # initial_value = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
-            initial_value = self.state
+        odeint_output = self.odeint(self.derivative_network, initial_value, time, method='euler')
+        # returned shape (time_point_count, minibatch_size, 1, features_count (=1 here))
 
-            time = torch.Tensor([n - 1, n]).to(device) * self.dt
-
-            odeint_output = self.odeint(self.derivative_network, initial_value, time, method='euler')
-
-            # Take the second time step value, i.e., t[1]
-            output[:, n, :] = odeint_output[1, :, :, 0]
-
-            # State update
-            self.state[:, 0, :] = output[:, n, :]
-
-        return output.permute(1, 0, 2)
+        return output[:, :, :, 0].permute(1, 0, 2)
 
     def reset_hidden(self):
         self.state = None
