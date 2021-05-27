@@ -1,3 +1,5 @@
+import socket
+from datetime import datetime
 import torch
 import torchaudio
 import math
@@ -5,6 +7,22 @@ from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
 from TrainingTimeLogger import TrainingTimeLogger
 
+
+def get_run_name():
+    return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
+
+def create_dataset():
+    d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
+
+    d.create_subset('train', frame_len=22050)
+    d.create_subset('validation')
+    d.create_subset('ignore')
+    d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
+
+    d.create_subset('test')
+    d.load_file('test', set_names='test')
+
+    return d
 
 class NetworkTraining:
     def __init__(self):

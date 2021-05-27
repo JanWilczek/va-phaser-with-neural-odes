@@ -7,7 +7,7 @@ from scipy.signal import resample
 import torch
 import torchaudio
 from CoreAudioML.training import ESRLoss
-from diode_benchmark import create_dataset, get_run_name
+from NetworkTraining import create_dataset, get_run_name
 from models.solvers import forward_euler
 
 

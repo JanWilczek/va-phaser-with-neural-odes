@@ -7,8 +7,7 @@ import torch
 import torchaudio
 import CoreAudioML.training as training
 import CoreAudioML.networks as networks
-from NetworkTraining import NetworkTraining
-from diode_benchmark import create_dataset
+from NetworkTraining import NetworkTraining, create_dataset
 from models.StateTrajectoryNetwork import StateTrajectoryNetworkFF
 
 

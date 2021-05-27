@@ -1,32 +1,14 @@
 """Set up an LSTM-RNN architecture, run its training and test on the diode clipper data."""
-import socket
-from datetime import datetime
+
 from pathlib import Path
 import torch
 import torchaudio
 from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
-import CoreAudioML.dataset as dataset
-from NetworkTraining import NetworkTraining
+from NetworkTraining import NetworkTraining, get_run_name, create_dataset
 from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
 
-
-def get_run_name():
-    return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
-
-def create_dataset():
-    d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
-
-    d.create_subset('train', frame_len=22050)
-    d.create_subset('validation')
-    d.create_subset('ignore')
-    d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
-
-    d.create_subset('test')
-    d.load_file('test', set_names='test')
-
-    return d
 
 if __name__ == '__main__':
     session = NetworkTraining()
