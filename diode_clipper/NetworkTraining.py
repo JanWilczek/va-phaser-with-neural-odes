@@ -16,11 +16,11 @@ def create_dataset():
     d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
 
     d.create_subset('train', frame_len=22050)
-    d.create_subset('validation')
+    d.create_subset('validation', frame_len=22050)
     d.create_subset('ignore')
     d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
 
-    d.create_subset('test')
+    d.create_subset('test', frame_len=22050)
     d.load_file('test', set_names='test')
 
     return d
@@ -75,8 +75,9 @@ class NetworkTraining:
             should_include_teacher_forcing = self.enable_teacher_forcing and torch.bernoulli(torch.Tensor([1 - i / self.minibatch_count]))
 
             self.network.reset_hidden()
-            with torch.no_grad():
-                self.network(input_minibatch[0:self.initialization_length, :, :])
+            if self.initialization_length > 0:
+                with torch.no_grad():
+                    self.network(input_minibatch[0:self.initialization_length, :, :])
 
             subsegment_start = self.initialization_length
 
