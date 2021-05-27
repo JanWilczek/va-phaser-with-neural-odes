@@ -5,6 +5,7 @@ import torchaudio
 import math
 from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
+import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
 
 
