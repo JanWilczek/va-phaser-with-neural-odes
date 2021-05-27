@@ -23,17 +23,17 @@ class ODENetDerivative(nn.Module):
         ----------
         t : scalar
             current time point
-        y : torch.Tensor of shape (minibatch_size, 1, 1)
+        y : torch.Tensor of the same shape as the y0 supplied to odeint
             value of the unknown function at time t
 
         Returns
         -------
-        torch.Tensor of shape (minibatch_size, 1, 1)
+        torch.Tensor of shape the same as y
             derivative of y over time at time t
         """
         t_new = torch.tile(t.unsqueeze(0), (y.shape[0], 1))
-        input_at_t = Interp1d()(self.t, self.input, t_new).unsqueeze(-1)
-        mlp_input = torch.cat((y.unsqueeze(1).unsqueeze(2), input_at_t), dim=2)
+        input_at_t = Interp1d()(self.t, self.input, t_new)
+        mlp_input = torch.cat((y.unsqueeze(1), input_at_t), dim=-1)
         output = self.densely_connected_layers(mlp_input)
         return output.squeeze()
 
@@ -63,23 +63,24 @@ class ODENet(nn.Module):
         sequence_length, minibatch_size, feature_count = x.shape
         x = x.permute(1, 0, 2)
 
-        device = next(self.parameters()).device
-
-        if self.time is None:
-            start_time = 0.0
-        else:
-            start_time = self.time[-1] + self.dt
-        self.time = torch.linspace(start_time, start_time + sequence_length * self.dt, sequence_length, device=device)
-        self.derivative_network.t = torch.tile(self.time.unsqueeze(0), (minibatch_size, 1))
+        self.update_time(sequence_length, minibatch_size)
 
         self.derivative_network.input = x.squeeze()
 
-        initial_value = torch.zeros((minibatch_size,), device=device)
+        initial_value = torch.zeros((minibatch_size,), device=self.device)
 
         odeint_output = self.odeint(self.derivative_network, initial_value, self.time, method=self.method)
         # returned tensor is of shape (time_point_count, minibatch_size, 1, features_count (=1 here))
 
         return odeint_output.unsqueeze(1)
+
+    def update_time(self, sequence_length, minibatch_size):
+        if self.time is None:
+            start_time = 0.0
+        else:
+            start_time = self.time[-1] + self.dt
+        self.time = torch.linspace(start_time, start_time + sequence_length * self.dt, sequence_length, device=self.device)
+        self.derivative_network.t = torch.tile(self.time.unsqueeze(0), (minibatch_size, 1))
 
     def reset_hidden(self):
         self.true_state = None
@@ -101,3 +102,7 @@ class ODENet(nn.Module):
 
     def extra_repr(self):
         return f'method={self.method};'
+
+    @property
+    def device(self):
+        return next(self.parameters()).device
