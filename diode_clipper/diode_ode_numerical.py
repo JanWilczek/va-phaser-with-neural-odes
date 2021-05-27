@@ -28,14 +28,14 @@ def main():
     test_output_path = (run_directory / 'test_output.wav').resolve()
 
     RESAMPLE_FACTOR = 38
-    VOLTAGE_SCALING_FACTOR = 1
+    VOLTAGE_SCALING_FACTOR = 5
 
     dataset = create_dataset()
     sampling_rate =  dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['input'][0]
     scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
-    seconds_length = 1
-    # seconds_length = scaled_signal_in.shape[0] / sampling_rate
+    # seconds_length = 1
+    seconds_length = scaled_signal_in.shape[0] / sampling_rate
     t = torch.arange(0, seconds_length, 1 / sampling_rate)
     t_span = (t[0], t[-1])
     initial_value = true_v_out[0].squeeze(1)
@@ -67,7 +67,7 @@ def main():
 
     print(f'Finished in time {end_time - start_time:.1f} seconds.')
 
-    v_out_result = torch.Tensor(y / VOLTAGE_SCALING_FACTOR)
+    v_out_result = torch.Tensor(y)
 
     # The saved data needs to be transposed, because on Windows the Soundfile backend needs 
     # it to be of channels x frames (samples) shape. Sox, which is the default backend
@@ -84,7 +84,7 @@ def main():
     plt.figure()
     plt.plot(t, true_v_out_trimmed, t, v_out_result_1d)
     plt.legend(['ground truth', method])
-    plt.savefig(f'diode_ode_{method}.png')
+    plt.savefig((run_directory / f'diode_ode_{method}.png').resolve())
 
 if __name__ == '__main__':
     main()

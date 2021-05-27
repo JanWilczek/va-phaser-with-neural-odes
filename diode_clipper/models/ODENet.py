@@ -39,11 +39,12 @@ class ODENetDerivative(nn.Module):
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint=forward_euler, dt=1.0):
+    def __init__(self, derivative_network, odeint=forward_euler, dt=1.0, method='euler'):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
         self.dt = dt
+        self.method = method
         self.__true_state = None
         self.time = None
 
@@ -75,7 +76,7 @@ class ODENet(nn.Module):
 
         initial_value = torch.zeros((minibatch_size,), device=device)
 
-        odeint_output = self.odeint(self.derivative_network, initial_value, self.time, method='euler')
+        odeint_output = self.odeint(self.derivative_network, initial_value, self.time, method=self.method)
         # returned tensor is of shape (time_point_count, minibatch_size, 1, features_count (=1 here))
 
         return odeint_output.unsqueeze(1)
@@ -97,3 +98,6 @@ class ODENet(nn.Module):
             self.__true_state = true_state
         else:
             self.__true_state = true_state.permute(1, 0, 2)
+
+    def extra_repr(self):
+        return f'method={self.method};'

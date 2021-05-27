@@ -36,7 +36,7 @@ if __name__ == '__main__':
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     # session.network = StateTrajectoryNetworkFF()
-    session.network = ODENet(ODENetDerivative(), odeint, dt=1/sampling_rate)
+    session.network = ODENet(ODENetDerivative(), odeint, dt=1/sampling_rate, method='euler')
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     
