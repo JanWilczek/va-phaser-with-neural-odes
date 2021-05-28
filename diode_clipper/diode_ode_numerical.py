@@ -8,7 +8,7 @@ import torch
 import torchaudio
 from CoreAudioML.training import ESRLoss
 from NetworkTraining import create_dataset, get_run_name
-from models.solvers import forward_euler
+from models.solvers import trapezoid_rule
 
 
 def jac_diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
@@ -22,23 +22,24 @@ def diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
     return (v_in_value - v_out) / (R * C) - 2 * i_s / C * torch.sinh(v_out / v_t)
 
 def main():
-    method = 'forward_euler'
+    method = 'trapezoid_rule'
+    RESAMPLE_FACTOR = 8
+    VOLTAGE_SCALING_FACTOR = 5
+
     run_directory = Path('diode_clipper', 'runs', 'ode_solver', method, get_run_name())
     run_directory.mkdir(parents=True, exist_ok=True)
     test_output_path = (run_directory / 'test_output.wav').resolve()
-
-    RESAMPLE_FACTOR = 38
-    VOLTAGE_SCALING_FACTOR = 5
 
     dataset = create_dataset()
     sampling_rate =  dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['input'][0]
     scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
-    # seconds_length = 1
+    
+    # seconds_length = 0.01
     seconds_length = scaled_signal_in.shape[0] / sampling_rate
     t = torch.arange(0, seconds_length, 1 / sampling_rate)
     t_span = (t[0], t[-1])
-    initial_value = true_v_out[0].squeeze(1)
+
     trimmed_scaled_signal_in = scaled_signal_in[:t.shape[0]]
     resampled_scaled_signal_in, resampled_t = resample(trimmed_scaled_signal_in.detach().numpy(), RESAMPLE_FACTOR * trimmed_scaled_signal_in.shape[0], t.detach().numpy())
 
@@ -48,12 +49,14 @@ def main():
     i_s = 2.52e-9
     v_t = 45.3e-3
 
+    initial_value = true_v_out[0].squeeze(1)
+
     start_time = time.time()
 
-    if method == 'forward_euler':
+    if method == 'trapezoid_rule':
         v_in = interp1d(resampled_t, resampled_scaled_signal_in)
         rhs_args = [v_in, R, C, i_s, v_t]
-        y_upsampled = forward_euler(diode_equation_rhs, initial_value, torch.from_numpy(resampled_t), args=rhs_args)
+        y_upsampled = trapezoid_rule(diode_equation_rhs, initial_value, torch.from_numpy(resampled_t), args=rhs_args)
         y = resample(y_upsampled, y_upsampled.shape[0] // RESAMPLE_FACTOR)
         assert y.shape[0] == t.shape[0]
     else:

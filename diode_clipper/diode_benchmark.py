@@ -12,7 +12,7 @@ from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
 
 if __name__ == '__main__':
     session = NetworkTraining()
-    session.dataset = create_dataset()
+    session.dataset = create_dataset(validation_frame_len=22050, test_frame_len=22050)
     sampling_rate = session.dataset.subsets['test'].fs
 
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
