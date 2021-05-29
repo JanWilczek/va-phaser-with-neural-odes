@@ -1,5 +1,7 @@
 import time
 from pathlib import Path
+import cProfile
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
@@ -8,61 +10,85 @@ import torch
 import torchaudio
 from CoreAudioML.training import ESRLoss
 from NetworkTraining import create_dataset, get_run_name
-from models.solvers import trapezoid_rule
+from models.solvers import trapezoid_rule, forward_euler
 
 
-def jac_diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
+SOLVERS = {'trapezoid_rule': trapezoid_rule, 
+           'forward_euler': forward_euler}
+
+class SimulationParameters:
+    def __init__(self, method_name='forward_euler'):
+        self.method_name = method_name
+        self.upsample_factor = 38
+        self.input_scaling_factor = 5
+        self.length_seconds = 0.1 # the same as input if <= 0 or unspecified
+        
+        # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
+        self.R = 2.2e3
+        self.C = 10e-9
+        self.i_s = 2.52e-9
+        self.v_t = 45.3e-3
+        self.__v_in = None # placeholder
+        self.sampling_rate = None # placeholder
+        self.t = None # placeholder
+
+    @property
+    def method_name(self):
+        return self.__method_name
+
+    @method_name.setter
+    def method_name(self, method_name):
+        self.__method_name = method_name
+        self.run_directory = Path('diode_clipper', 'runs', 'ode_solver', self.method_name, get_run_name())
+        self.run_directory.mkdir(parents=True, exist_ok=True)
+        self.test_output_path = (self.run_directory / 'test_output.wav').resolve()
+
+    @property
+    def v_in(self):
+        return self.__v_in
+
+    @v_in.setter
+    def v_in(self, v_in):
+        scaled_signal_in = v_in * self.input_scaling_factor
+        if not hasattr(self, 'length_seconds'):
+            self.length_seconds = scaled_signal_in.shape[0] / self.sampling_rate
+        self.t = torch.arange(0, self.length_seconds, 1 / self.sampling_rate)
+
+        trimmed_scaled_signal_in = scaled_signal_in[:self.t.shape[0]]
+        resampled_scaled_signal_in, resampled_t = resample(trimmed_scaled_signal_in.detach().numpy(), self.upsample_factor * trimmed_scaled_signal_in.shape[0], self.t.detach().numpy())
+        self.__v_in = resampled_scaled_signal_in
+        self.resampled_t = resampled_t
+
+def jac_diode_equation_rhs(t, v_out, p):
     jac = - 1 / (R * C) - 2 * i_s / (C * v_t) * torch.cosh(v_out / v_t)
     return jac[:, None] # Jacobian needs to be of 1x1 size
 
-def diode_equation_rhs(t, v_out, v_in, R, C, i_s, v_t):
-    # if int(t) % 1000 == 999:
-        # print(t)
-    v_in_value = torch.from_numpy(v_in(t))
-    return (v_in_value - v_out) / (R * C) - 2 * i_s / C * torch.sinh(v_out / v_t)
+def diode_equation_rhs(t, v_out, p):
+    v_in_value = p.v_in[int(t * p.sampling_rate * p.upsample_factor)]
+    return (v_in_value - v_out) / (p.R * p.C) - 2 * p.i_s / p.C * torch.sinh(v_out / p.v_t)
 
 def main():
-    method = 'trapezoid_rule'
-    RESAMPLE_FACTOR = 8
-    VOLTAGE_SCALING_FACTOR = 5
-
-    run_directory = Path('diode_clipper', 'runs', 'ode_solver', method, get_run_name())
-    run_directory.mkdir(parents=True, exist_ok=True)
-    test_output_path = (run_directory / 'test_output.wav').resolve()
+    p = SimulationParameters('forward_euler')
 
     dataset = create_dataset()
-    sampling_rate =  dataset.subsets['test'].fs
+    p.sampling_rate =  dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['input'][0]
-    scaled_signal_in = dataset.subsets['test'].data['input'][0].squeeze() * VOLTAGE_SCALING_FACTOR
-    
-    # seconds_length = 0.01
-    seconds_length = scaled_signal_in.shape[0] / sampling_rate
-    t = torch.arange(0, seconds_length, 1 / sampling_rate)
-    t_span = (t[0], t[-1])
-
-    trimmed_scaled_signal_in = scaled_signal_in[:t.shape[0]]
-    resampled_scaled_signal_in, resampled_t = resample(trimmed_scaled_signal_in.detach().numpy(), RESAMPLE_FACTOR * trimmed_scaled_signal_in.shape[0], t.detach().numpy())
-
-    # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
-    R = 2.2e3
-    C = 10e-9
-    i_s = 2.52e-9
-    v_t = 45.3e-3
+    p.v_in = dataset.subsets['test'].data['input'][0].squeeze()
 
     initial_value = true_v_out[0].squeeze(1)
 
     start_time = time.time()
 
-    if method == 'trapezoid_rule':
-        v_in = interp1d(resampled_t, resampled_scaled_signal_in)
-        rhs_args = [v_in, R, C, i_s, v_t]
-        y_upsampled = trapezoid_rule(diode_equation_rhs, initial_value, torch.from_numpy(resampled_t), args=rhs_args)
-        y = resample(y_upsampled, y_upsampled.shape[0] // RESAMPLE_FACTOR)
-        assert y.shape[0] == t.shape[0]
+    if p.method_name in SOLVERS.keys():
+        method = SOLVERS[p.method_name]
+        # v_in = interp1d(resampled_t, resampled_scaled_signal_in)
+        y_upsampled = method(diode_equation_rhs, initial_value, torch.from_numpy(p.resampled_t), args=[p])
+        y = resample(y_upsampled, y_upsampled.shape[0] // p.upsample_factor)
     else:
-        v_in = interp1d(t, trimmed_scaled_signal_in)
-        rhs_args = [v_in, R, C, i_s, v_t]
-        result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=method, t_eval=t, args=rhs_args, jac=jac_diode_equation_rhs)
+        print(f'Defaulting to scipy.integrate.solve_ivp/{p.method_name}.')
+        t_span = (p.t[0], p.t[-1])
+        # v_in = interp1d(t, trimmed_scaled_signal_in)
+        result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=p.method_name, t_eval=p.resampled_t, args=p, jac=jac_diode_equation_rhs)
         print(result.message)
         y = result.y
     
@@ -75,19 +101,19 @@ def main():
     # The saved data needs to be transposed, because on Windows the Soundfile backend needs 
     # it to be of channels x frames (samples) shape. Sox, which is the default backend
     # on Mac/Linux chooses by itself what is the samples dimension and what is the channel dimension.
-    torchaudio.save(test_output_path, v_out_result.T, sampling_rate)
+    torchaudio.save(p.test_output_path, v_out_result.T, p.sampling_rate)
 
     loss = ESRLoss()
     v_out_result_1d = v_out_result.squeeze()
-    true_v_out_trimmed = true_v_out[:t.shape[0]].squeeze()
+    true_v_out_trimmed = true_v_out[:p.t.shape[0]].squeeze()
     loss_result = loss(v_out_result_1d, true_v_out_trimmed).item()
 
     print(f'ODESolver error: {loss_result}.')
 
     plt.figure()
-    plt.plot(t, true_v_out_trimmed, t, v_out_result_1d)
-    plt.legend(['ground truth', method])
-    plt.savefig((run_directory / f'diode_ode_{method}.png').resolve())
+    plt.plot(p.t, true_v_out_trimmed, p.t, v_out_result_1d)
+    plt.legend(['ground truth', p.method_name])
+    plt.savefig((p.run_directory / f'diode_ode_{p.method_name}.png').resolve())
 
 if __name__ == '__main__':
     main()

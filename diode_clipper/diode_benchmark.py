@@ -6,6 +6,7 @@ import torchaudio
 from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
+__package__ = 'diode_clipper'
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset
 from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
 
