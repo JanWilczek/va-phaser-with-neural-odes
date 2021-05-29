@@ -1,4 +1,5 @@
 import time
+import argparse
 from pathlib import Path
 import cProfile
 import numpy as np
@@ -13,15 +14,21 @@ from NetworkTraining import create_dataset, get_run_name
 from models.solvers import trapezoid_rule, forward_euler
 
 
+parser = argparse.ArgumentParser(description='Run diode clipper ODE numerical solver.')
+parser.add_argument('-m', '--method-name', dest='method_name', default='forward_euler')
+parser.add_argument('-u', '--upsample-factor', dest='upsample_factor', default=1, type=int)
+parser.add_argument('-l', '--length-seconds', dest='length_seconds', default=0.0, type=float)
+parser.add_argument('-s', '--input-scaling-factor', dest='input_scaling_factor', default=1.0, type=float)
+
 SOLVERS = {'trapezoid_rule': trapezoid_rule, 
            'forward_euler': forward_euler}
 
 class SimulationParameters:
-    def __init__(self, method_name='forward_euler'):
-        self.method_name = method_name
-        self.upsample_factor = 38
-        self.input_scaling_factor = 5
-        self.length_seconds = 0.1 # the same as input if <= 0 or unspecified
+    def __init__(self, args):
+        self.method_name = args.method_name
+        self.upsample_factor = args.upsample_factor
+        self.input_scaling_factor = args.input_scaling_factor
+        self.length_seconds = args.length_seconds # the same as input if <= 0 or unspecified
         
         # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
         self.R = 2.2e3
@@ -50,7 +57,7 @@ class SimulationParameters:
     @v_in.setter
     def v_in(self, v_in):
         scaled_signal_in = v_in * self.input_scaling_factor
-        if not hasattr(self, 'length_seconds'):
+        if not hasattr(self, 'length_seconds') or self.length_seconds <= 0.0:
             self.length_seconds = scaled_signal_in.shape[0] / self.sampling_rate
         self.t = torch.arange(0, self.length_seconds, 1 / self.sampling_rate)
 
@@ -68,7 +75,8 @@ def diode_equation_rhs(t, v_out, p):
     return (v_in_value - v_out) / (p.R * p.C) - 2 * p.i_s / p.C * torch.sinh(v_out / p.v_t)
 
 def main():
-    p = SimulationParameters('forward_euler')
+    args = parser.parse_args()
+    p = SimulationParameters(args)
 
     dataset = create_dataset()
     p.sampling_rate =  dataset.subsets['test'].fs
