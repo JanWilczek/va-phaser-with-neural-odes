@@ -99,6 +99,7 @@ def main():
     p.sampling_rate =  dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['input'][0]
     p.v_in = dataset.subsets['test'].data['input'][0].squeeze()
+    true_v_out_trimmed = true_v_out[:p.t.shape[0]].squeeze(2)
 
     initial_value = true_v_out[0].squeeze(1)
 
@@ -107,21 +108,21 @@ def main():
     if p.method_name in SOLVERS.keys():
         method = SOLVERS[p.method_name]
         y_upsampled = method(diode_equation_rhs, initial_value, torch.from_numpy(p.resampled_t), args=[p])
-        y = resample(y_upsampled, y_upsampled.shape[0] // p.upsample_factor)
     else:
         print(f'Defaulting to scipy.integrate.solve_ivp/{p.method_name}.')
         t_span = (p.t[0], p.t[-1])
-        # v_in = interp1d(t, trimmed_scaled_signal_in)
         result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=p.method_name, t_eval=p.resampled_t, args=[p], jac=jac_diode_equation_rhs)
         print(result.message)
-        y = result.y
+        y_upsampled = result.y
     
-    end_time = time.time()
+    y = torch.Tensor(resample(y_upsampled, y_upsampled.shape[0] // p.upsample_factor))
 
+    end_time = time.time()
     duration = end_time - start_time
     print(f'Finished in time {duration:.1f} seconds.')
 
-    v_out_result = torch.Tensor(y)
+    # Normalization
+    v_out_result = y / torch.amax(torch.abs(y)) * torch.amax(torch.abs(true_v_out_trimmed))
 
     # The saved data needs to be transposed, because on Windows the Soundfile backend needs 
     # it to be of channels x frames (samples) shape. Sox, which is the default backend
@@ -129,15 +130,13 @@ def main():
     torchaudio.save(p.test_output_path, v_out_result.T, p.sampling_rate)
 
     loss = ESRLoss()
-    v_out_result_1d = v_out_result.squeeze()
-    true_v_out_trimmed = true_v_out[:p.t.shape[0]].squeeze()
-    loss_result = loss(v_out_result_1d, true_v_out_trimmed).item()
+    loss_result = loss(v_out_result, true_v_out_trimmed).item()
 
     print(f'ODESolver error: {loss_result}.')
     p.save_json({'time [s]': int(duration), 'ESRLoss': loss_result}, 'result.json')
 
     plt.figure()
-    plt.plot(p.t, true_v_out_trimmed, p.t, v_out_result_1d)
+    plt.plot(p.t, true_v_out_trimmed, p.t, v_out_result.squeeze())
     plt.legend(['ground truth', p.method_name])
     plt.savefig((p.run_directory / f'diode_ode_{p.method_name}.png').resolve())
 
