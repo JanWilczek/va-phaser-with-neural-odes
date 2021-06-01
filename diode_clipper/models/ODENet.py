@@ -9,9 +9,9 @@ class ODENetDerivative(nn.Module):
         super().__init__()
         self.densely_connected_layers = nn.Sequential(
             nn.Linear(
-                2, 4, bias=False), nn.Tanh(), nn.Linear(
-                4, 4), nn.Tanh(), nn.Linear(
-                4, 4, bias=False), nn.Tanh(), nn.Linear(
+                3, 4, bias=False), nn.Tanh(), nn.Linear(
+                4, 50, bias=False), nn.Tanh(), nn.Linear(
+                50, 4, bias=False), nn.Tanh(), nn.Linear(
                     4, 1, bias=False))
         self.t = None
         self.input = None
@@ -31,9 +31,10 @@ class ODENetDerivative(nn.Module):
         torch.Tensor of shape the same as y
             derivative of y over time at time t
         """
-        t_new = torch.tile(t.unsqueeze(0), (y.shape[0], 1))
-        input_at_t = Interp1d()(self.t, self.input, t_new)
-        mlp_input = torch.cat((y.unsqueeze(1), input_at_t), dim=-1)
+        # t_new = torch.tile(t.unsqueeze(0), (y.shape[0], 1))
+        # input_at_t = Interp1d()(self.t, self.input, t_new)
+        input_at_t = self.input[:, int(t / self.dt) % self.input.shape[1]]
+        mlp_input = torch.stack((y.clone(), input_at_t, t * torch.ones_like(y)), dim=1)
         output = self.densely_connected_layers(mlp_input)
         return output.squeeze()
 
@@ -44,6 +45,7 @@ class ODENet(nn.Module):
         self.derivative_network = derivative_network
         self.odeint = odeint
         self.dt = dt
+        self.derivative_network.dt = dt
         self.__true_state = None
         self.time = None
 
@@ -71,7 +73,7 @@ class ODENet(nn.Module):
         odeint_output = self.odeint(self.derivative_network, initial_value, self.time)
         # returned tensor is of shape (time_point_count, minibatch_size, 1, features_count (=1 here))
 
-        return odeint_output.unsqueeze(1)
+        return odeint_output.unsqueeze_(1)
 
     def update_time(self, sequence_length, minibatch_size):
         if self.time is None:

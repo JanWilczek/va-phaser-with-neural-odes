@@ -86,12 +86,13 @@ class NetworkTraining:
                 if should_include_teacher_forcing:
                     self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :]
 
+                self.optimizer.zero_grad()
+
                 output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
 
                 loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
                 loss.backward()
                 self.optimizer.step()
-                self.optimizer.zero_grad()
 
                 self.network.detach_hidden()
 

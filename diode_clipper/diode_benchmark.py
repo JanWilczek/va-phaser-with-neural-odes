@@ -6,20 +6,21 @@ import torchaudio
 from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
-__package__ = 'diode_clipper'
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset
 from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
+from models.solvers import forward_euler
 
 
 if __name__ == '__main__':
     session = NetworkTraining()
     session.dataset = create_dataset(validation_frame_len=22050, test_frame_len=22050)
     sampling_rate = session.dataset.subsets['test'].fs
-
+    
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     # session.network = StateTrajectoryNetworkFF()
-    session.network = ODENet(ODENetDerivative(), partial(odeint, method='euler'), dt=1/sampling_rate)
+    # session.network = ODENet(ODENetDerivative(), partial(odeint, method='euler'), dt=1/sampling_rate)
+    session.network = ODENet(ODENetDerivative(), forward_euler, dt=1/sampling_rate)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.001)
     
