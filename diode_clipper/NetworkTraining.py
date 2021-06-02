@@ -3,11 +3,16 @@ from datetime import datetime
 import torch
 import torchaudio
 import math
+import json
 from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
 
+
+def save_json(json_data, filepath):
+    with open(filepath, 'w') as f:
+        json.dump(json_data, f, indent=4)
 
 def get_run_name():
     return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
@@ -55,7 +60,7 @@ class NetworkTraining:
             
             self.log_epoch_validation_loss(epoch_loss=epoch_loss, validation_loss=validation_loss)
 
-            torchaudio.save(self.last_validation_output_path, validation_output[None, :, 0, 0].to('cpu'), self.dataset.subsets['validation'].fs)
+            torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
             
             if validation_loss < best_validation_loss:
                 torch.save(self.network.state_dict(), self.best_validation_model_path)
@@ -112,7 +117,9 @@ class NetworkTraining:
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
             loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
-        return output, loss
+        
+        # Flatten the output properly to obtain one long frame
+        return output.permute(1, 0, 2).flatten(), loss 
 
     def save_checkpoint(self):
         torch.save({

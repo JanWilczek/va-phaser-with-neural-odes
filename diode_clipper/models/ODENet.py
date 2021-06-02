@@ -4,17 +4,30 @@ from torchinterp1d import Interp1d
 from .solvers import forward_euler
 
 
+class DiodeEquationParameters:
+    def __init__(self):
+        # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
+        self.R = 2.2e3
+        self.C = 10e-9
+        self.i_s = 2.52e-9
+        self.v_t = 45.3e-3
+
+p = DiodeEquationParameters()
+
+def diode_equation_rhs(t, v_out, v_in):
+    return (v_in - v_out) / (p.R * p.C) - 2 * p.i_s / p.C * torch.sinh(v_out / p.v_t)
+
 class ODENetDerivative(nn.Module):
     def __init__(self):
         super().__init__()
         self.densely_connected_layers = nn.Sequential(
             nn.Linear(
-                3, 4, bias=False), nn.Tanh(), nn.Linear(
-                4, 50, bias=False), nn.Tanh(), nn.Linear(
-                50, 4, bias=False), nn.Tanh(), nn.Linear(
+                2, 4, bias=False), nn.Tanh(), nn.Linear(
+                4, 4, bias=False), nn.Tanh(), nn.Linear(
+                4, 4, bias=False), nn.Tanh(), nn.Linear(
                     4, 1, bias=False))
         self.t = None
-        self.input = None
+        self.input = None   # Tensor of shape time_frames x batch_size
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
@@ -31,12 +44,22 @@ class ODENetDerivative(nn.Module):
         torch.Tensor of shape the same as y
             derivative of y over time at time t
         """
+        # 1st-order interpolation
         # t_new = torch.tile(t.unsqueeze(0), (y.shape[0], 1))
         # input_at_t = Interp1d()(self.t, self.input, t_new)
-        input_at_t = self.input[:, int(t / self.dt) % self.input.shape[1]]
-        mlp_input = torch.stack((y.clone(), input_at_t, t * torch.ones_like(y)), dim=1)
+
+        # 0th-order interpolation
+        frames_count = self.input.shape[0]
+        input_at_t = self.input[int(t / self.dt) % frames_count, :]
+
+        # mlp_input = torch.stack((y.clone(), input_at_t, t * torch.ones_like(y)), dim=1)
+        mlp_input = torch.stack((y.clone(), input_at_t), dim=1)
         output = self.densely_connected_layers(mlp_input)
-        return output.squeeze()
+        
+        # Analytical RHS (not neural) for debugging
+        # ode_eq_output = diode_equation_rhs(t, y, input_at_t)
+
+        return output.squeeze_(-1)
 
 
 class ODENet(nn.Module):
@@ -54,7 +77,7 @@ class ODENet(nn.Module):
         Parameters
         ----------
         x : torch.Tensor
-            must be of shape (sequence_length (e.g., 44100), minibatch_size (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input samle is given))
+            must be of shape (sequence_length (e.g., 44100), minibatch_size (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input sample is given))
 
         Returns
         -------
@@ -62,18 +85,17 @@ class ODENet(nn.Module):
             exactly the same shape as x
         """
         sequence_length, minibatch_size, feature_count = x.shape
-        x = x.permute(1, 0, 2)
 
         self.update_time(sequence_length, minibatch_size)
 
-        self.derivative_network.input = x.squeeze()
+        self.derivative_network.input = x.squeeze(2)
 
         initial_value = torch.zeros((minibatch_size,), device=self.device)
 
         odeint_output = self.odeint(self.derivative_network, initial_value, self.time)
-        # returned tensor is of shape (time_point_count, minibatch_size, 1, features_count (=1 here))
+        # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
 
-        return odeint_output.unsqueeze_(1)
+        return odeint_output.unsqueeze_(2)
 
     def update_time(self, sequence_length, minibatch_size):
         if self.time is None:

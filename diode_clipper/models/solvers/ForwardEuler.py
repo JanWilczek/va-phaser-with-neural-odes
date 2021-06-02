@@ -9,7 +9,7 @@ def forward_euler(f, y0, t, args=[], **kwargs):
     ----------
     f : callable
         right-hand side of the ODE
-        dy / dy = f(t, y),
+        dy / dt = f(t, y),
         where t and y are a scalar and a (N,) torch.Tensor respectively
     y0 : torch.Tensor
         initial value of the function to be calculated
@@ -29,6 +29,7 @@ def forward_euler(f, y0, t, args=[], **kwargs):
     y[0, :] = y0
 
     for n in range(y.shape[0] - 1):
-        y[n + 1, :] = y[n, :] + (t[n+1] - t[n]) * f(t[n], y[n, :], *args)
+        # y[n + 1, :] = y[n, :] + (t[n+1] - t[n]) * f(t[n], y[n, :], *args)
+        y[n + 1, :] = y[n, :] + f(t[n], y[n, :], *args)
 
     return y

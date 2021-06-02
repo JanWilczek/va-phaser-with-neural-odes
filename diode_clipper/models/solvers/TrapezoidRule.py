@@ -9,7 +9,7 @@ def trapezoid_rule(f, y0, t, args=[], implicit_iters=10, **kwargs):
     ----------
     f : callable
         right-hand side of the ODE
-        dy / dy = f(t, y),
+        dy / dt = f(t, y),
         where t and y are a scalar and a (N,) torch.Tensor respectively
     y0 : torch.Tensor
         initial value of the function to be calculated

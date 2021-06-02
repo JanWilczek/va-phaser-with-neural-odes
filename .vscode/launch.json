@@ -38,7 +38,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/diode_clipper/diode_benchmark.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "args": ["--val_chunk", "0", "--test_chunk", "22050", "--init_len", "0", "--up_fr", "22050"]
         }
     ]
 }
