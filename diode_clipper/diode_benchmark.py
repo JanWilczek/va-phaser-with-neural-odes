@@ -46,7 +46,7 @@ if __name__ == '__main__':
     
     model_directory = Path('diode_clipper', 'runs', 'odenet')
     # model_directory = Path('diode_clipper', 'runs', 'stn')
-    session.run_directory = model_directory / 'June01_19-14-15_axel'
+    session.run_directory = model_directory / 'June02_16-47-41_axel'
     session.load_checkpoint()
     run_name = get_run_name()
     session.run_directory =  model_directory / run_name

@@ -29,7 +29,7 @@ def forward_euler(f, y0, t, args=[], **kwargs):
     y[0, :] = y0
 
     for n in range(y.shape[0] - 1):
-        # y[n + 1, :] = y[n, :] + (t[n+1] - t[n]) * f(t[n], y[n, :], *args)
-        y[n + 1, :] = y[n, :] + f(t[n], y[n, :], *args)
+        y[n + 1, :] = y[n, :] + (t[n+1] - t[n]) * f(t[n], y[n, :], *args)
+        # y[n + 1, :] = y[n, :] + f(t[n], y[n, :], *args) # STN equivalent, for debugging purposes only
 
     return y

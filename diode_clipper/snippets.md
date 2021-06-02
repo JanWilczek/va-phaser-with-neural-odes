@@ -6,3 +6,6 @@ before = torch.cat([param.clone().detach().flatten() for param in self.network.p
 # forward, loss, backward, step
 after = torch.cat([param.clone().detach().flatten() for param in self.network.parameters()])
 assert torch.nonzero(after - before).shape[0] == before.shape[0]
+
+# Print currently running diode_clipper scripts of the user
+ps -x | grep diode_clipper

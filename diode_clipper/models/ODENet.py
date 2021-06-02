@@ -20,12 +20,14 @@ def diode_equation_rhs(t, v_out, v_in):
 class ODENetDerivative(nn.Module):
     def __init__(self):
         super().__init__()
+        output_scaling = nn.Linear(1, 1, bias=False)
+        output_scaling.weight.data.fill_(44100)
         self.densely_connected_layers = nn.Sequential(
-            nn.Linear(
-                2, 4, bias=False), nn.Tanh(), nn.Linear(
-                4, 4, bias=False), nn.Tanh(), nn.Linear(
-                4, 4, bias=False), nn.Tanh(), nn.Linear(
-                    4, 1, bias=False))
+            nn.Linear(2, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 1, bias=False),
+            output_scaling)
         self.t = None
         self.input = None   # Tensor of shape time_frames x batch_size
 
