@@ -9,11 +9,12 @@ import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset, save_json
 from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
-from models.solvers import forward_euler
+from models.solvers import forward_euler, trapezoid_rule
 
 
 def argument_parser():
     ap = argparse.ArgumentParser()
+    ap.add_argument('method', nargs='+')
     ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run')
     ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate')
@@ -29,7 +30,16 @@ def argument_parser():
     return ap
 
 
-if __name__ == '__main__':
+CUSTOM_SOLVERS = {'forward_euler': forward_euler,
+                  'trapezoid_rule': trapezoid_rule}
+
+def get_method(args):
+    if args.method[0] == 'odenet':
+        return partial(odeint, method=args.method[1])
+    else:
+        return CUSTOM_SOLVERS[args.method[0]]
+
+def main():
     args = argument_parser().parse_args()
 
     session = NetworkTraining()
@@ -40,14 +50,15 @@ if __name__ == '__main__':
     # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     # session.network = StateTrajectoryNetworkFF()
     # session.network = ODENet(ODENetDerivative(), partial(odeint, method='euler'), dt=1/sampling_rate)
-    session.network = ODENet(ODENetDerivative(), forward_euler, dt=1/sampling_rate)
+    method = get_method(args)
+    session.network = ODENet(ODENetDerivative(), method, dt=1/sampling_rate)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate)
     
     model_directory = Path('diode_clipper', 'runs', 'odenet')
     # model_directory = Path('diode_clipper', 'runs', 'stn')
-    session.run_directory = model_directory / 'June02_16-47-41_axel'
-    session.load_checkpoint()
+    # session.run_directory = model_directory / 'June02_16-47-41_axel'
+    # session.load_checkpoint()
     run_name = get_run_name()
     session.run_directory =  model_directory / run_name
 
@@ -74,3 +85,7 @@ if __name__ == '__main__':
         session.writer.add_scalar('Maximum GPU memory usage [MB]', torch.cuda.max_memory_allocated('cuda') / (2 ** 20), session.epochs)
 
     session.writer.close()
+
+
+if __name__ == '__main__':
+    main()

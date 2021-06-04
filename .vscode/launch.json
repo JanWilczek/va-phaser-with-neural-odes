@@ -39,7 +39,7 @@
             "program": "${workspaceFolder}/diode_clipper/diode_benchmark.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "args": ["--val_chunk", "0", "--test_chunk", "22050", "--init_len", "0", "--up_fr", "22050"]
+            "args": ["forward_euler", "--val_chunk", "0", "--test_chunk", "22050", "--init_len", "0", "--up_fr", "22050"]
         }
     ]
 }
