@@ -14,6 +14,14 @@
             "args": ["-l", "0.1"]
         },
         {
+            "name": "Python: diode_ode_numerical (local)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/diode_clipper/diode_ode_numerical.py",
+            "console": "integratedTerminal",
+            "args": ["-l", "0"]
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",

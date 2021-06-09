@@ -1,3 +1,7 @@
+#!/usr/bin/python3
+""" Sample call:
+    python diode_clipper\diode_ode_numerical.py -m forward_euler -u 38 -l 1 -s 5 -i 0 -f 128
+"""
 import time
 import argparse
 from pathlib import Path
@@ -24,7 +28,19 @@ def argument_parser():
     parser.add_argument('-l', '--length-seconds', dest='length_seconds', default=0.0, type=float)
     parser.add_argument('-s', '--input-scaling-factor', dest='input_scaling_factor', default=1.0, type=float)
     parser.add_argument('-i', '--interpolation-order', dest='interpolation_order', default=0, type=int)
+    parser.add_argument('-f', '--frame-length', dest='frame_length', default=22050, type=int)
     return parser
+
+class DiodeParameters:
+    def __init__(self):
+        # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
+        self.R = 2.2e3
+        self.C = 10e-9
+        self.i_s = 2.52e-9
+        self.v_t = 45.3e-3
+
+        self.c1 = 1 / (self.R * self.C)
+        self.c2 = 2 * self.i_s / self.C
 
 class SimulationParameters:
     def __init__(self, args):
@@ -33,17 +49,11 @@ class SimulationParameters:
         self.input_scaling_factor = args.input_scaling_factor
         self.length_seconds = args.length_seconds # the same as input if <= 0 or unspecified
         self.interpolation_order = args.interpolation_order
+        self.frame_length = args.frame_length
         
         self.save_json(vars(args), 'args.json')
-        
-        # From "Numerical Methods for Simulation of Guitar Distortion Circuits" by Yeh et al.
-        self.R = 2.2e3
-        self.C = 10e-9
-        self.i_s = 2.52e-9
-        self.v_t = 45.3e-3
-        self.__v_in = None # placeholder
+                
         self.sampling_rate = None # placeholder
-        self.t = None # placeholder
 
     def save_json(self, json_data, filename):
         with open(self.run_directory / filename, 'w') as f:
@@ -60,28 +70,6 @@ class SimulationParameters:
         self.run_directory.mkdir(parents=True, exist_ok=True)
         self.test_output_path = (self.run_directory / 'test_output.wav').resolve()
 
-    @property
-    def v_in(self):
-        return self.__v_in
-
-    @v_in.setter
-    def v_in(self, v_in):
-        scaled_signal_in = v_in * self.input_scaling_factor
-        if self.length_seconds <= 0.0:
-            self.length_seconds = scaled_signal_in.shape[0] / self.sampling_rate
-        self.t = torch.arange(0, self.length_seconds, 1 / self.sampling_rate)
-
-        trimmed_scaled_signal_in = scaled_signal_in[:self.t.shape[0]]
-        resampled_scaled_signal_in, resampled_t = resample(trimmed_scaled_signal_in.detach().numpy(), self.upsample_factor * trimmed_scaled_signal_in.shape[0], self.t.detach().numpy())
-        self.resampled_t = resampled_t
-
-        if self.interpolation_order == 0:
-            self.__v_in = lambda t: resampled_scaled_signal_in[int(t * self.sampling_rate * self.upsample_factor)]
-        elif self.interpolation_order == 1:
-            interpolated = interp1d(resampled_t, resampled_scaled_signal_in)
-            self.__v_in = lambda t: torch.from_numpy(interpolated(t))
-        else:
-            raise RuntimeError("Interpolation order can be 0 or 1.")
 
 def jac_diode_equation_rhs(t, v_out, p):
     jac = - 1 / (p.R * p.C) - 2 * p.i_s / (p.C * p.v_t) * torch.cosh(v_out / p.v_t)
@@ -90,31 +78,53 @@ def jac_diode_equation_rhs(t, v_out, p):
 def diode_equation_rhs(t, v_out, p):
     return (p.v_in(t) - v_out) / (p.R * p.C) - 2 * p.i_s / p.C * torch.sinh(v_out / p.v_t)
 
+def diode_equation_rhs_v2(t, v_out, v_in, p, d):
+    # return (v_in[int(t * p.sampling_rate * p.upsample_factor) % (p.frame_length * p.upsample_factor)] - v_out) / (d.R * d.C) - 2 * d.i_s / d.C * torch.sinh(v_out / d.v_t)
+    return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * torch.sinh(v_out / d.v_t)
+
 def main():
     args = argument_parser().parse_args()
     p = SimulationParameters(args)
 
-    dataset = create_dataset()
+    dataset = create_dataset(test_frame_len=args.frame_length)
     p.sampling_rate =  dataset.subsets['test'].fs
-    true_v_out = dataset.subsets['test'].data['input'][0]
-    p.v_in = dataset.subsets['test'].data['input'][0].squeeze()
-    true_v_out_trimmed = true_v_out[:p.t.shape[0]].squeeze(2)
+    true_v_out = dataset.subsets['test'].data['target'][0].permute(1, 0, 2).flatten()
+    # p.v_in = dataset.subsets['test'].data['input'][0].squeeze()
+    input_shape = dataset.subsets['test'].data['input'][0].shape
+    input_length_samples = input_shape[0] * input_shape[1]
+    if p.length_seconds <= 0.0:
+        p.length_seconds = input_length_samples / p.sampling_rate
+    segments_count = int(np.ceil(p.length_seconds * p.sampling_rate / args.frame_length))
+    # true_v_out_trimmed = true_v_out[:p.t.shape[0]].unsqueeze(1)
 
-    initial_value = true_v_out[0].squeeze(1)
+    # initial_value = true_v_out[0].squeeze(1)
 
     start_time = time.time()
 
     if p.method_name in SOLVERS.keys():
         method = SOLVERS[p.method_name]
-        y_upsampled = method(diode_equation_rhs, initial_value, torch.from_numpy(p.resampled_t), args=[p])
+        t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / p.sampling_rate)
+        resampled_t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
+        y = torch.zeros((args.frame_length, segments_count, 1))
+        for segment_id in range(segments_count):
+            segment_data = dataset.subsets['test'].data['input'][0][:, segment_id, 0]
+            scaled_segment_data = segment_data * args.input_scaling_factor
+            resampled_scaled_segment_data = resample(scaled_segment_data.detach().numpy(), p.upsample_factor * scaled_segment_data.shape[0])
+            initial_value = y[-1, max(segment_id - 1, 0), :]
+            y_segment_upsampled = method(diode_equation_rhs_v2, initial_value, resampled_t, args=[resampled_scaled_segment_data, p, DiodeParameters()])
+            y_segment = torch.Tensor(resample(y_segment_upsampled, y_segment_upsampled.shape[0] // p.upsample_factor))
+            y[:, segment_id, :] = y_segment
+        y = y.permute(1, 0, 2).flatten().unsqueeze(1)
+        true_v_out_trimmed = true_v_out[:y.shape[0]].unsqueeze(1)
     else:
+        raise NotImplementedError()
         print(f'Defaulting to scipy.integrate.solve_ivp/{p.method_name}.')
-        t_span = (p.t[0], p.t[-1])
+        t_span = (resampled_t[0], resampled_t[-1])
         result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=p.method_name, t_eval=p.resampled_t, args=[p], jac=jac_diode_equation_rhs)
         print(result.message)
         y_upsampled = result.y
     
-    y = torch.Tensor(resample(y_upsampled, y_upsampled.shape[0] // p.upsample_factor))
+    # y = torch.Tensor(resample(y_upsampled, y_upsampled.shape[0] // p.upsample_factor))
 
     end_time = time.time()
     duration = end_time - start_time
@@ -135,7 +145,8 @@ def main():
     p.save_json({'time [s]': int(duration), 'ESRLoss': loss_result}, 'result.json')
 
     plt.figure()
-    plt.plot(p.t, true_v_out_trimmed, p.t, v_out_result.squeeze())
+    t = torch.arange(0, true_v_out_trimmed.shape[0] / p.sampling_rate, 1 / p.sampling_rate)
+    plt.plot(t, true_v_out_trimmed.squeeze(), t, v_out_result.squeeze())
     plt.legend(['ground truth', p.method_name])
     plt.savefig((p.run_directory / f'diode_ode_{p.method_name}.png').resolve())
 

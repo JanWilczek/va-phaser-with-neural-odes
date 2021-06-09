@@ -17,10 +17,10 @@ def save_json(json_data, filepath):
 def get_run_name():
     return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
 
-def create_dataset(validation_frame_len=0, test_frame_len=0):
+def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
     d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
 
-    d.create_subset('train', frame_len=22050)
+    d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
     d.create_subset('ignore')
     d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
