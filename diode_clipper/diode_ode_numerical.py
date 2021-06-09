@@ -41,6 +41,7 @@ class DiodeParameters:
 
         self.c1 = 1 / (self.R * self.C)
         self.c2 = 2 * self.i_s / self.C
+        self.jac_c3 = 2 * self.i_s / (self.C * self.v_t)
 
 class SimulationParameters:
     def __init__(self, args):
@@ -71,15 +72,17 @@ class SimulationParameters:
         self.test_output_path = (self.run_directory / 'test_output.wav').resolve()
 
 
-def jac_diode_equation_rhs(t, v_out, p):
-    jac = - 1 / (p.R * p.C) - 2 * p.i_s / (p.C * p.v_t) * torch.cosh(v_out / p.v_t)
+def jac_diode_equation_rhs(t, v_out, v_in, p, d):
+    jac = - d.c1 - d.jac_c3 * np.cosh(v_out / d.v_t)
     return jac[:, None] # Jacobian needs to be of 1x1 size
 
 def diode_equation_rhs(t, v_out, p):
     return (p.v_in(t) - v_out) / (p.R * p.C) - 2 * p.i_s / p.C * torch.sinh(v_out / p.v_t)
 
-def diode_equation_rhs_v2(t, v_out, v_in, p, d):
-    # return (v_in[int(t * p.sampling_rate * p.upsample_factor) % (p.frame_length * p.upsample_factor)] - v_out) / (d.R * d.C) - 2 * d.i_s / d.C * torch.sinh(v_out / d.v_t)
+def diode_equation_rhs_numpy(t, v_out, v_in, p, d):
+    return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * np.sinh(v_out / d.v_t)
+
+def diode_equation_rhs_torch(t, v_out, v_in, p, d):
     return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * torch.sinh(v_out / d.v_t)
 
 def main():
@@ -103,26 +106,32 @@ def main():
 
     if p.method_name in SOLVERS.keys():
         method = SOLVERS[p.method_name]
-        t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / p.sampling_rate)
-        resampled_t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
-        y = torch.zeros((args.frame_length, segments_count, 1))
-        for segment_id in range(segments_count):
-            segment_data = dataset.subsets['test'].data['input'][0][:, segment_id, 0]
-            scaled_segment_data = segment_data * args.input_scaling_factor
-            resampled_scaled_segment_data = resample(scaled_segment_data.detach().numpy(), p.upsample_factor * scaled_segment_data.shape[0])
-            initial_value = y[-1, max(segment_id - 1, 0), :]
-            y_segment_upsampled = method(diode_equation_rhs_v2, initial_value, resampled_t, args=[resampled_scaled_segment_data, p, DiodeParameters()])
-            y_segment = torch.Tensor(resample(y_segment_upsampled, y_segment_upsampled.shape[0] // p.upsample_factor))
-            y[:, segment_id, :] = y_segment
-        y = y.permute(1, 0, 2).flatten().unsqueeze(1)
-        true_v_out_trimmed = true_v_out[:y.shape[0]].unsqueeze(1)
+        rhs = diode_equation_rhs_torch
     else:
-        raise NotImplementedError()
-        print(f'Defaulting to scipy.integrate.solve_ivp/{p.method_name}.')
-        t_span = (resampled_t[0], resampled_t[-1])
-        result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=p.method_name, t_eval=p.resampled_t, args=[p], jac=jac_diode_equation_rhs)
-        print(result.message)
-        y_upsampled = result.y
+        method = lambda eq, y0, t, args: solve_ivp(eq, (t[0], t[-1]), initial_value, method=p.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
+        rhs = diode_equation_rhs_numpy
+
+    # t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / p.sampling_rate)
+    resampled_t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
+    # t_span = (resampled_t[0], resampled_t[-1])
+    y = torch.zeros((args.frame_length, segments_count, 1))
+    for segment_id in range(segments_count):
+        segment_data = dataset.subsets['test'].data['input'][0][:, segment_id, 0]
+        scaled_segment_data = segment_data * args.input_scaling_factor
+        resampled_scaled_segment_data = resample(scaled_segment_data.detach().numpy(), p.upsample_factor * scaled_segment_data.shape[0])
+        initial_value = y[-1, max(segment_id - 1, 0), :]
+        y_segment_upsampled = method(rhs, initial_value, resampled_t, args=[resampled_scaled_segment_data, p, DiodeParameters()])
+        y_segment = torch.Tensor(resample(y_segment_upsampled, args.frame_length))
+        y[:, segment_id, :] = y_segment
+    y = y.permute(1, 0, 2).flatten().unsqueeze(1)
+    true_v_out_trimmed = true_v_out[:y.shape[0]].unsqueeze(1)
+    # else:
+    #     raise NotImplementedError()
+    #     print(f'Defaulting to scipy.integrate.solve_ivp/{p.method_name}.')
+    #     t_span = (resampled_t[0], resampled_t[-1])
+    #     result = solve_ivp(diode_equation_rhs, t_span, initial_value, method=p.method_name, t_eval=p.resampled_t, args=[p], jac=jac_diode_equation_rhs)
+    #     print(result.message)
+    #     y_upsampled = result.y
     
     # y = torch.Tensor(resample(y_upsampled, y_upsampled.shape[0] // p.upsample_factor))
 
