@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" 
+"""
 Sample call:
 $ python diode_clipper\diode_ode_numerical.py -m forward_euler -u 38 -l 1 -s 5 -i 0 -f 128
 """
@@ -9,18 +9,19 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
-from scipy.interpolate import interp1d
 from scipy.signal import resample
 import torch
 import torchaudio
 import json
+from tqdm import trange
 from CoreAudioML.training import ESRLoss
 from NetworkTraining import create_dataset, get_run_name, save_json
 from models.solvers import trapezoid_rule, forward_euler
 
 
-SOLVERS = {'trapezoid_rule': trapezoid_rule, 
+SOLVERS = {'trapezoid_rule': trapezoid_rule,
            'forward_euler': forward_euler}
+
 
 def argument_parser():
     parser = argparse.ArgumentParser(description='Run diode clipper ODE numerical solver.')
@@ -28,9 +29,10 @@ def argument_parser():
     parser.add_argument('-u', '--upsample-factor', dest='upsample_factor', default=1, type=int)
     parser.add_argument('-l', '--length-seconds', dest='length_seconds', default=0.0, type=float)
     parser.add_argument('-s', '--input-scaling-factor', dest='input_scaling_factor', default=1.0, type=float)
-    # parser.add_argument('-i', '--interpolation-order', dest='interpolation_order', default=0, type=int) # Currently just 0 is supported
+    parser.add_argument('-n', '--normalize', action='store_true')
     parser.add_argument('-f', '--frame-length', dest='frame_length', default=22050, type=int)
     return parser
+
 
 class DiodeParameters:
     def __init__(self):
@@ -44,14 +46,15 @@ class DiodeParameters:
         self.c2 = 2 * self.i_s / self.C
         self.jac_c3 = 2 * self.i_s / (self.C * self.v_t)
 
+
 class SimulationParameters:
     def __init__(self, args):
         self.method_name = args.method_name
         self.upsample_factor = args.upsample_factor
         self.input_scaling_factor = args.input_scaling_factor
-        self.length_seconds = args.length_seconds # the same as input if <= 0 or unspecified
+        self.length_seconds = args.length_seconds  # the same as input if <= 0 or unspecified
         self.frame_length = args.frame_length
-        self.sampling_rate = None # placeholder
+        self.sampling_rate = None  # placeholder
 
     @property
     def method_name(self):
@@ -66,7 +69,7 @@ class SimulationParameters:
     @property
     def test_output_path(self):
         return (self.run_directory / 'test_output.wav').resolve()
-    
+
     @property
     def plot_output_path(self):
         return (self.run_directory / f'diode_ode_{self.method_name}.png').resolve()
@@ -90,7 +93,8 @@ class SimulationParameters:
         if self.method_name in SOLVERS.keys():
             return SOLVERS[self.method_name]
         else:
-            return lambda rhs, y0, t, args: solve_ivp(rhs, (t[0], t[-1]), y0, method=self.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
+            return lambda rhs, y0, t, args: solve_ivp(
+                rhs, (t[0], t[-1]), y0, method=self.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
 
     @property
     def rhs(self):
@@ -102,28 +106,35 @@ class SimulationParameters:
 
 def jac_diode_equation_rhs(t, v_out, v_in, p, d):
     jac = - d.c1 - d.jac_c3 * np.cosh(v_out / d.v_t)
-    return jac[:, None] # Jacobian needs to be of 1x1 size
+    return jac[:, None]  # Jacobian needs to be of 1x1 size
+
 
 def diode_equation_rhs_numpy(t, v_out, v_in, p, d):
     return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * np.sinh(v_out / d.v_t)
 
+
 def diode_equation_rhs_torch(t, v_out, v_in, p, d):
     return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * torch.sinh(v_out / d.v_t)
+
 
 def run_solver(v_in, p):
     resampled_t = torch.arange(0, p.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
     v_out = torch.zeros((p.frame_length, p.segments_count, 1))
     resampled_segment_length = p.upsample_factor * p.frame_length
-    for segment_id in range(p.segments_count):
+    for segment_id in trange(p.segments_count):
         segment_data = v_in[:, segment_id, 0]
         scaled_segment_data = segment_data * p.input_scaling_factor
         resampled_scaled_segment_data = resample(scaled_segment_data, resampled_segment_length)
-        initial_value = v_out[-1, segment_id - 1, :] # Last sample of the previous segment (zeros for the first computed segment)
-        y_segment_upsampled = p.method(p.rhs, initial_value, resampled_t, args=[resampled_scaled_segment_data, p, DiodeParameters()])
+        # Last sample of the previous segment (zeros for the first computed segment)
+        initial_value = v_out[-1, segment_id - 1, :]
+        y_segment_upsampled = p.method(
+            p.rhs, initial_value, resampled_t, args=[
+                resampled_scaled_segment_data, p, DiodeParameters()])
         v_out_segment = torch.Tensor(resample(y_segment_upsampled, p.frame_length))
         v_out[:, segment_id, :] = v_out_segment
     v_out = v_out.permute(1, 0, 2).flatten()
     return v_out
+
 
 def main():
     # Process input arguments
@@ -132,10 +143,10 @@ def main():
     save_json(vars(args), p.args_output_path)
 
     dataset = create_dataset(test_frame_len=args.frame_length)
-    p.sampling_rate =  dataset.subsets['test'].fs
+    p.sampling_rate = dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['target'][0].permute(1, 0, 2).flatten()
     v_in = dataset.subsets['test'].data['input'][0]
-    
+
     # Check if the whole signal is to be analyzed
     if p.length_seconds <= 0.0:
         input_length_samples = v_in.shape[0] * v_in.shape[1]
@@ -154,17 +165,18 @@ def main():
     true_v_out_trimmed = true_v_out[:v_out.shape[0]]
 
     # Normalization
-    v_out_result = v_out / torch.amax(torch.abs(v_out)) * torch.amax(torch.abs(true_v_out_trimmed))
+    if args.normalize:
+        v_out = v_out / torch.amax(torch.abs(v_out)) * torch.amax(torch.abs(true_v_out_trimmed))
 
     # Store the audio output
-    # The saved data needs to be transposed, because on Windows the Soundfile backend needs 
+    # The saved data needs to be transposed, because on Windows the Soundfile backend needs
     # it to be of channels x frames (samples) shape. Sox, which is the default backend
     # on Mac/Linux chooses by itself what is the samples dimension and what is the channel dimension.
-    torchaudio.save(p.test_output_path, v_out_result.unsqueeze(0), p.sampling_rate)
+    torchaudio.save(p.test_output_path, v_out.unsqueeze(0), p.sampling_rate)
 
     # Calculate loss
     loss = ESRLoss()
-    loss_result = loss(v_out_result, true_v_out_trimmed).item()
+    loss_result = loss(v_out, true_v_out_trimmed).item()
 
     print(f'ODESolver error: {loss_result}.')
     save_json({'time [s]': int(duration), 'ESRLoss': loss_result}, p.results_output_path)
@@ -172,9 +184,10 @@ def main():
     # Plot result
     plt.figure()
     t = torch.arange(0, true_v_out_trimmed.shape[0] / p.sampling_rate, 1 / p.sampling_rate)
-    plt.plot(t, true_v_out_trimmed, t, v_out_result)
+    plt.plot(t, true_v_out_trimmed, t, v_out)
     plt.legend(['ground truth', p.method_name])
     plt.savefig(p.plot_output_path)
+
 
 if __name__ == '__main__':
     main()
