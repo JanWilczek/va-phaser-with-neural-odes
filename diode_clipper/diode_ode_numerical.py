@@ -48,6 +48,7 @@ class SimulationParameters:
     def __init__(self, args):
         self.method_name = args.method_name
         self.upsample_factor = args.upsample_factor
+        self.input_scaling_factor = args.input_scaling_factor
         self.length_seconds = args.length_seconds # the same as input if <= 0 or unspecified
         self.frame_length = args.frame_length
         self.sampling_rate = None # placeholder
@@ -84,6 +85,21 @@ class SimulationParameters:
             raise ValueError("length_seconds was not set!")
         return int(np.ceil(self.length_seconds * self.sampling_rate / self.frame_length))
 
+    @property
+    def method(self):
+        if self.method_name in SOLVERS.keys():
+            return SOLVERS[self.method_name]
+        else:
+            return lambda rhs, y0, t, args: solve_ivp(rhs, (t[0], t[-1]), y0, method=self.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
+
+    @property
+    def rhs(self):
+        if self.method_name in SOLVERS.keys():
+            return diode_equation_rhs_torch
+        else:
+            return diode_equation_rhs_numpy
+
+
 def jac_diode_equation_rhs(t, v_out, v_in, p, d):
     jac = - d.c1 - d.jac_c3 * np.cosh(v_out / d.v_t)
     return jac[:, None] # Jacobian needs to be of 1x1 size
@@ -93,6 +109,21 @@ def diode_equation_rhs_numpy(t, v_out, v_in, p, d):
 
 def diode_equation_rhs_torch(t, v_out, v_in, p, d):
     return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * torch.sinh(v_out / d.v_t)
+
+def run_solver(v_in, p):
+    resampled_t = torch.arange(0, p.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
+    v_out = torch.zeros((p.frame_length, p.segments_count, 1))
+    resampled_segment_length = p.upsample_factor * p.frame_length
+    for segment_id in range(p.segments_count):
+        segment_data = v_in[:, segment_id, 0]
+        scaled_segment_data = segment_data * p.input_scaling_factor
+        resampled_scaled_segment_data = resample(scaled_segment_data, resampled_segment_length)
+        initial_value = v_out[-1, segment_id - 1, :] # Last sample of the previous segment (zeros for the first computed segment)
+        y_segment_upsampled = p.method(p.rhs, initial_value, resampled_t, args=[resampled_scaled_segment_data, p, DiodeParameters()])
+        v_out_segment = torch.Tensor(resample(y_segment_upsampled, p.frame_length))
+        v_out[:, segment_id, :] = v_out_segment
+    v_out = v_out.permute(1, 0, 2).flatten()
+    return v_out
 
 def main():
     # Process input arguments
@@ -105,39 +136,22 @@ def main():
     true_v_out = dataset.subsets['test'].data['target'][0].permute(1, 0, 2).flatten()
     v_in = dataset.subsets['test'].data['input'][0]
     
-    # Check if whole signal is to be analyzed
+    # Check if the whole signal is to be analyzed
     if p.length_seconds <= 0.0:
         input_length_samples = v_in.shape[0] * v_in.shape[1]
         p.length_seconds = input_length_samples / p.sampling_rate
 
     start_time = time.time()
 
-    # Pick the appropriate solver
-    if p.method_name in SOLVERS.keys():
-        method = SOLVERS[p.method_name]
-        rhs = diode_equation_rhs_torch
-    else:
-        method = lambda rhs, y0, t, args: solve_ivp(rhs, (t[0], t[-1]), y0, method=p.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
-        rhs = diode_equation_rhs_numpy
-
     # Actual solver run, block by block
-    resampled_t = torch.arange(0, args.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
-    v_out = torch.zeros((args.frame_length, p.segments_count, 1))
-    resampled_segment_length = p.upsample_factor * args.frame_length
-    for segment_id in range(p.segments_count):
-        segment_data = v_in[:, segment_id, 0]
-        scaled_segment_data = segment_data * args.input_scaling_factor
-        resampled_scaled_segment_data = resample(scaled_segment_data, resampled_segment_length)
-        initial_value = v_out[-1, segment_id - 1, :] # Last sample of the previous segment (zeros for the first computed segment)
-        y_segment_upsampled = method(rhs, initial_value, resampled_t, args=[resampled_scaled_segment_data, p, DiodeParameters()])
-        v_out_segment = torch.Tensor(resample(y_segment_upsampled, args.frame_length))
-        v_out[:, segment_id, :] = v_out_segment
-    v_out = v_out.permute(1, 0, 2).flatten()
-    true_v_out_trimmed = true_v_out[:v_out.shape[0]]
+    v_out = run_solver(v_in, p)
 
     end_time = time.time()
     duration = end_time - start_time
     print(f'Finished in time {duration:.1f} seconds.')
+
+    # Trim the true output to match the calculated one
+    true_v_out_trimmed = true_v_out[:v_out.shape[0]]
 
     # Normalization
     v_out_result = v_out / torch.amax(torch.abs(v_out)) * torch.amax(torch.abs(true_v_out_trimmed))
