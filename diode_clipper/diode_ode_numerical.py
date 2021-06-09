@@ -65,6 +65,13 @@ class SimulationParameters:
         self.__method_name = method_name
         self.run_directory = Path('diode_clipper', 'runs', 'ode_solver', self.method_name, get_run_name())
         self.run_directory.mkdir(parents=True, exist_ok=False)
+        if self.method_name in SOLVERS.keys():
+            self.__method = SOLVERS[self.method_name]
+            self.__rhs = diode_equation_rhs_torch
+        else:
+            self.__method =  lambda rhs, y0, t, args: solve_ivp(
+                rhs, (t[0], t[-1]), y0, method=self.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
+            self.__rhs = diode_equation_rhs_numpy
 
     @property
     def test_output_path(self):
@@ -90,18 +97,11 @@ class SimulationParameters:
 
     @property
     def method(self):
-        if self.method_name in SOLVERS.keys():
-            return SOLVERS[self.method_name]
-        else:
-            return lambda rhs, y0, t, args: solve_ivp(
-                rhs, (t[0], t[-1]), y0, method=self.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
+        return self.__method
 
     @property
     def rhs(self):
-        if self.method_name in SOLVERS.keys():
-            return diode_equation_rhs_torch
-        else:
-            return diode_equation_rhs_numpy
+        return self.__rhs
 
 
 def jac_diode_equation_rhs(t, v_out, v_in, p, d):
@@ -121,15 +121,16 @@ def run_solver(v_in, p):
     resampled_t = torch.arange(0, p.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
     v_out = torch.zeros((p.frame_length, p.segments_count, 1))
     resampled_segment_length = p.upsample_factor * p.frame_length
+    solver_args = [None, p, DiodeParameters()]
     for segment_id in trange(p.segments_count):
         segment_data = v_in[:, segment_id, 0]
         scaled_segment_data = segment_data * p.input_scaling_factor
         resampled_scaled_segment_data = resample(scaled_segment_data, resampled_segment_length)
+        solver_args[0] = resampled_scaled_segment_data
         # Last sample of the previous segment (zeros for the first computed segment)
         initial_value = v_out[-1, segment_id - 1, :]
         y_segment_upsampled = p.method(
-            p.rhs, initial_value, resampled_t, args=[
-                resampled_scaled_segment_data, p, DiodeParameters()])
+            p.rhs, initial_value, resampled_t, args=solver_args)
         v_out_segment = torch.Tensor(resample(y_segment_upsampled, p.frame_length))
         v_out[:, segment_id, :] = v_out_segment
     v_out = v_out.permute(1, 0, 2).flatten()
