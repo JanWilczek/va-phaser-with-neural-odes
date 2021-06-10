@@ -1,0 +1,38 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Source Code}
+\label{chapter:source_code}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this chapter, the headers of selected \MATLAB{} functions created during the writing of this thesis are reproduced. The headers contain information about the name of the described function and its input/output behavior.
+
+\section*{Feature Extraction}
+The \texttt{file\_to\_feature} function is used as a wrapper for several low-level functions that perform feature extraction or loading of precomputed features.
+
+Sample usage:\\
+\scriptsize
+\verb|[f_pitch, f_peaks] = file_to_feature('features', 'pathetique.wav');|
+
+\begin{verbatim}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Name: file_to_feature
+% Version: 1.0
+% Date: 11.05.2010
+% Programmer: John Q. Public
+%
+% Description:
+%   Load or compute features for audio and MIDI files
+%
+% Input:
+% - dirname: Directory where the file or features are located
+% - filename: Name of the file for which to load/compute features
+% - parameter
+%            .win_len: Window length used for STMSP feature generation
+%            .win_res: Window resolution
+%
+% Output:
+% - f_pitch: Pitch features (STMSP)
+% - f_peaks: Energy peaks for onset computation
+% - f_onsets: Precise onsets (only generated in case of MIDI input data)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{verbatim}
+\normalsize

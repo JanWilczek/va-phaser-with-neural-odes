@@ -1,0 +1,283 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter*{Preface}
+%\addcontentsline{toc}{chapter}{Preface}
+\markboth{PREFACE}{PREFACE}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\thispagestyle{plain}
+
+Recent years have seen enormous advances in computerization and
+digitization as well as a corresponding growth in the use of
+information technology allowing users to access and
+experience multimedia content on an unprecedented scale.
+In this context, great efforts have been directed towards the
+development of techniques for searching and extracting
+useful information from huge amounts of stored data.
+In particular for textual information, powerful search
+engines have been implemented that provide efficient
+browsing and retrieval within billions of textual documents.
+For other types of multimedia data such as
+music, image, video, 3D shape, or 3D motion data,
+traditional retrieval strategies rely on textual annotations
+or metadata attached to the documents.
+%that have been manually attached to the documents.
+Since the manual generation of %comprehensive
+descriptive labels is
+infeasible for large datasets, one needs fully automated procedures
+for data annotation as well as efficient
+\emph{content-based} retrieval methods that only access the raw data itself
+without relying on the availability of annotations.
+A general retrieval scenario, which has attracted
+a large amount of attention in the field of
+multimedia information retrieval, is based on the
+\emph{query-by-example paradigm}:
+%Here, a typical query mode is based on the
+%\emph{query-by-example paradigm}\index{query-by-example},
+%which has attracted a large amount of attention in the
+%field of \emph{multimedia information retrieval}:
+given a query in form of a data fragment, the task is to
+automatically retrieve all documents from the database
+containing parts or aspects similar to the query.
+Here, the notion of similarity, which strongly
+depends on the respective application or on a person's perception,
+is of crucial importance in comparing the data.
+Frequently, multimedia objects, even though similar from
+a structural or semantic point of view, may reveal significant
+spatial or temporal differences. In other words,
+\emph{logical similarity} does not necessarily imply
+\emph{numerical similarity}. This makes content-based
+multimedia retrieval a challenging research field
+with many yet unsolved problems.
+
+The present monograph, which constitutes the author's ``Habilitationsschrift'',
+introduces concepts and algorithms for robust and efficient
+multimedia retrieval in the presence of variations.
+By means of two different types of multimedia data---waveform-based
+music data and human motion data---we will study %3D motion capture data
+%the fundamental question of
+fundamental strategies for handling object deformations and
+variability in the given data with a view to real-world retrieval and browsing applications.
+To illustrate the kind of problems encountered in content-based multimedia retrieval, %discussed in this monograph.
+we outline some typical query-by-example scenarios.
+In the music domain, one often has multiple realizations of one
+and the same piece of music such as audio recordings
+%several interpretations and arrangements
+of different interpretations and arrangements.
+%Given a query in form of a short
+%excerpt of a specific audio recording,
+Given an excerpt of a specific audio recording as a query,
+say, the first twenty
+seconds of Bernstein's interpretation of Beethoven's Fifth Symphony,
+the objective is to find all corresponding audio clips within
+a given music database. In case of Beethoven's Fifth,
+this includes the repetition of the theme in the exposition or in
+the recapitulation within the same interpretation, as well as the
+corresponding excerpts in all recordings of the same piece
+conducted, e.\,g., by Toscanini or Karajan.
+Even more challenging is to also include arrangements
+such as Liszt's piano transcription of Beethoven's Fifth
+or a synthesized version of a corresponding MIDI file.
+The main difficulty in such a matching scenario
+is that two audio clips, even though similar
+from a musical point of view,  may exhibit significant variations
+in dynamics, timbre, execution of note groups,
+musical key, articulation, or tempo.
+Switching to the motion domain, we consider a motion capture database
+containing a variety of human motions performed by different
+actors in various styles. Then, given a short motion clip
+as a query, the task is to automatically locate all
+database motion fragments that are in some sense similar to the query.
+%Similarly, in content-based motion retrieval,
+%a query may consist of a
+%short motion clip, the task being to automatically locate all
+%database motions that are in some sense similar to the query.
+For example, querying for a kicking motion, %of a human avatar,
+one may want to retrieve all database kicking motions irrespective of
+the specific motion speed or the direction and height of the kick.
+Here, the variations that are to be handled in the retrieval process
+%concern the spatial as well as the temporal dimension.
+%are of spatial as well as temporal nature.
+concern the spatial as well as the temporal domain.
+
+Even though the two types of multimedia data discussed in this monograph
+bear no immediate semantic relationship, music and motion
+share---from an abstract point of view---some common properties.
+First of all, both kinds of data are subject to relatively strong model assumptions. %or follow explicit rules.
+For example, most Western music is based on the traditional
+equal-tempered chromatic scale implying the occurrences of distinguished
+frequency components in an audio recording. This assumption
+can be exploited by extracting, e.\,g., pitch-based audio features
+that allow for some direct, musically relevant interpretation.
+%
+%Regarding the motion domain, the following observation is of fundamental
+%importance: opposed to other data formats such as image or video,
+%motion capture data is based on a kinematic chain, which represents
+%the human skeleton. This underlying model can be
+%exploited by looking for geometric relations between specified body
+%points of a pose, where the relations possess an explicit semantic meaning.
+Similarly, motion capture data is based on an explicit model in the form of a
+kinematic chain, which represents the human skeleton.
+This underlying model can be exploited by looking for geometric relations
+between specific body points of a pose, where the relations possess
+an explicit semantic meaning.
+For example, using the two boolean relations that check whether
+the ``right knee is bent or not'' and whether
+the ``right foot is raised or not'' one can capture
+important characteristics of a right foot kicking motion.
+%
+As a first general strategy, we will extract features from the raw data
+that closely correlate to semantic aspects of the underlying data
+while showing a high degree of invariance to irrelevant deformations and variations.
+%applicable to both data types, we will
+%consider features that, while capturing only a specific aspect of the
+%underlying data, are invariant to variations to be left unconsidered
+%in the retrieval process.
+
+A further common property of music and motion data is their
+temporal dimension. %dependency on time.
+In both cases the data can be transformed into time-dependent feature sequences
+that reflect the changing characteristics in the raw data over time.
+For example, an audio recording can be
+transformed into a sequence of pitch-based feature vectors that
+closely relate to the harmonic progression of the underlying piece
+of music. Similarly, a combination of simple boolean relations
+in the temporal context is often sufficient to characterize specific
+classes of similar motions.
+As a second general strategy, we will exploit the temporal order
+of the extracted features to identify similar music and motion fragments.
+%In other words, the temporal order in which the extracted features occur
+%plays a fundamental role in identifying related music or motion clips.
+%As a second general principle, this fact will be exploited by
+%considering the local and global temporal context in the retrieval process.
+
+Finally, note that for both domains, music and motion,
+semantically related objects exhibit a large range of variations
+concerning temporal, spatial, spectral, or dynamic properties.
+To handle deformations and variability in the objects,
+our approach is to simultaneously employ various
+invariance and fault-tolerance mechanisms at different
+conceptual levels.
+Firstly, by employing deformation-tolerant features, we already absorb a high
+degree of the undesired variations at the feature level.
+Secondly, to compare features or short feature sequences,
+we introduce enhanced local cost measures that are suited
+to handle local temporal and spatial variations.
+Thirdly, by using global similarity measures
+that are based on mismatch, fuzzy, and time-warping concepts,
+we add another degree of robustness and fault-tolerance
+at a more global level.
+
+In addition to deformation-tolerance and robustness,
+the question of efficiency is of fundamental importance
+in content-based multimedia retrieval, in particular in view
+of large amounts of data that have to be processed and searched.
+To speed up computations, we will employ various methods
+ranging from data reduction and clustering techniques,
+over multiscale (coarse-to-fine) and preselection strategies,
+to index-based search and retrieval procedures.
+As it turns out, an overall procedure for content-based multimedia retrieval
+typically suffers from the trade-off between the capability of handling
+object deformations on the one hand and retrieval efficiency
+on the other hand.
+For example, time-warping strategies are powerful in coping with
+temporal deformations but are generally expensive with respect to
+computation time and memory. %, which may be prohibitive for large datasets.
+In contrast, index-based strategies may afford efficient data retrieval
+that scales to large datasets, however, at the expense of being rather
+inflexible to variations.
+Here, the usage of fault-tolerance mechanisms such as
+mismatch or fuzzy search restores flexibility to some extent,
+but at the price of increased computational cost.
+As a final general strategy, our decision for a particular choice or
+combination of methods will be led by the applicability and practicability
+of the overall retrieval procedures in real-world application scenarios.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Overview and Contributions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\begin{table}[t]
+%\renewcommand{\arraystretch}{1.2}
+%%\setlength{\tabcolsep}{0.78ex}
+%\begin{center}
+%\small
+%\begin{tabular}{|r|l||r|l|}
+%\hline
+%\multicolumn{2}{|c||}{\textbf{Part I: Motion}} & \multicolumn{2}{|c|}{\textbf{Part I: Music}} \\
+%\hline
+%Chapter & Contributions & Chapter & Contribution \\
+%\hline
+%\hline
+%1 & Introduction & 10 & Introduction \\
+%2 & Foundations & 11 & Foundations\\
+%3 & Foundations & 12 & Foundations\\
+%4 & Foundations & 13 & Foundations\\
+%5 & Related Concepts & 14 & \cite{MuKuCl05_WASPAA_audiomatching} \cite{MuKuRo04_ismir} \cite{MuKuCl05_ismir_audiomatching} \cite{MuKu07_EURASIP}\\
+%6 & \cite{MuRoCl05_SIGGRAPH} \cite{MuRo07_DAGSTUHL} & 15 & \cite{MuKuRo04_ismir} \cite{MuMaKu06_ismir_MsDTW} \cite{ArClKuMu04_CM} \cite{ArClKuMu04_CMMR}\\
+%7 & \cite{MuRoCl05_SIGGRAPH} \cite{MuRoCl06_CBMI} \cite{DeRoMuEb06_ECIR} & 16 & \cite{MuKuCl05_ismir_audiomatching} \cite{KuMu07_audioMatchingIndex}\\
+%8 & \cite{MuRo06_SCA} & 17 & \cite{MuKu06_ICASSP} \cite{MuKu07_EURASIP} \\
+%9 & \cite{MuRo06_SCA} \cite{MuRo07_HDM} & 18 & \cite{ClKuMu04_ECDL} \cite{KuMu04_ISMIR_service} \cite{KuMu05_ismir_syncPlayer}\\
+%\hline
+%\end{tabular}
+%\end{center}
+%\caption{
+%   Feature computation and index construction.
+%   The four running times $t_r$ (data read-in),
+%   $t_f$ (feature extraction),
+%   $t_i$ (index construction), and
+%   $\sum t$ (total) are measured in seconds.
+%} \label{table:mocapIndex}
+%\renewcommand{\arraystretch}{1}
+%\end{table}
+
+\begin{table}[t]
+\renewcommand{\arraystretch}{1.2}
+%\setlength{\tabcolsep}{0.78ex}
+\begin{center}
+\small
+\begin{tabular}{|r|l|l|}
+\hline
+\multicolumn{3}{|c|}{\textbf{Part I: Analysis and Retrieval Techniques for Motion Data}}\\
+\hline
+Chapter & Content & Contributions\\
+\hline
+1 & Introduction &\\
+2 & Kinematic Chains & Foundations \\
+3 & Rotations & Foundations \\
+4 & Dynamic Time Warping (DTW) & Foundations \\
+5 & DTW-based Motion Comparison and Retrieval & Related Work\\
+6 & Relational Features and Adaptive Segmentation &\cite{MuRo07_DAGSTUHL} \cite{MuRoCl05_SIGGRAPH}\\
+7 & Index-based Motion Retrieval & \cite{DeRoMuEb06_ECIR} \cite{MuRoCl05_SIGGRAPH} \cite{MuRoCl06_CBMI} \cite{MuRoCl07_CGA}\\
+8 & Motion Templates &\cite{MuRo06_SCA} \\
+9 & MT-based Motion Annotation and Retrieval &\cite{MuRo06_SCA} \cite{MuRo07_HDM}\\
+\hline \hline
+\multicolumn{3}{|c|}{\textbf{Part II: Analysis and Retrieval Techniques for Music Data}}\\
+\hline
+Chapter & Content & Contributions\\
+\hline
+10 & Introduction & \\
+11 & Music Representations & Foundations\\
+12 & Fourier Transform & Foundations\\
+13 & Digital Filters & Foundations\\
+14 & Pitch- and Chroma-based Audio Features &\cite{MuKu07_EURASIP} \cite{MuKuCl05_ismir_audiomatching} \cite{MuKuCl05_WASPAA_audiomatching} \cite{MuKuRo04_ismir}\\
+15 & Music Synchronization &\cite{ArClKuMu04_CMMR} \cite{ArClKuMu04_CM} \cite{MuKuCl05_GI_sync} \cite{MuKuCl06_DatenbankSpektrum} \cite{MuKuRo04_ismir} \cite{MuMaKu06_ismir_MsDTW}\\
+16 & Audio Matching &\cite{KuMu07_audioMatchingIndex} \cite{MuKuCl05_ismir_audiomatching} \cite{MuKuCl06_DatenbankSpektrum}\\
+17 & Audio Structure Analysis &\cite{MuKu06_ICASSP} \cite{MuKu07_EURASIP} \cite{MuKuCl06_DatenbankSpektrum}\\
+18 & SyncPlayer---An Advanced Audio Player &\cite{ClKuMu04_ECDL} \cite{FrKuMu07_InterIntra_NIMES} \cite{KuMu07_syncPlayer_Sringer} \cite{KuMu05_ismir_syncPlayer} \cite{KuMu04_ISMIR_service}\\
+\hline
+\end{tabular}
+\end{center}
+\caption{
+    Overview and contributions of the present monograph.
+}
+\label{table:contributions}
+\end{table}
+
+\bigskip
+
+\today \hfill \emph{John Q.~Public}
+
+
+\cleardoublepage

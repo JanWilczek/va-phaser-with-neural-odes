@@ -1,0 +1,7 @@
+
+\long\def\@makecaption#1#2{
+\vskip 5pt
+\setbox\@tempboxa\hbox{\small\textbf{#1.} #2}
+\ifdim \wd\@tempboxa >\hsize \small\textbf{#1.} #2\par \else \hbox
+to\hsize{\hfil\box\@tempboxa\hfil}
+\fi}

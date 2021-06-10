@@ -1,0 +1,175 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\cleardoublepage
+\thispagestyle{empty}
+\begin{center}
+\vspace*{3cm}
+{\huge \bf Part I}\\ \vspace*{1cm}
+{\Huge \bf Title of this Part}\\\vspace*{0.2cm}
+{\Huge \bf Being Longer than One Line}\\\vspace*{3cm}
+\begin{figure}[ht]
+\centering
+\includegraphics[height=6cm]{figures/part1_notesAndWaveform_orange}
+\end{figure}
+\end{center}
+\addcontentsline{toc}{part}{I\hspace {1em}Title of this Part Being Longer than One Line}
+\label{par:part1}
+\newpage
+\quad
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Theoretic Foundations}
+\label{chapter:Foundations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Each chapter should start with a small summary discussing the content and the relation
+of the sections. In this chapter, we elaborate on the theoretical background, 
+foundations and concepts that are being used in the thesis. In particular, we 
+focus on latex construct that are typically used in thesis documents.
+\Section{section:mathEquations} illustrates the usage of math equations.
+Then, in \Section{section:citations}, some examples are given on how to cite literature.
+In \Section{section:tables}, $\ldots$
+
+When using labels, please avoid collisions in the label names.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Math Equations}
+\label{section:mathEquations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+You may want to display math equations in three distinct styles:
+inline, numbered or non-numbered display. These three styles are used in the
+following paragraph along with labeling, aligning and referencing equations.
+
+A little anecdote tells that Johann Carl Friedrich Gau{\ss}\index{Gau{\ss}}
+was able to compute the sum of numbers in the set
+$\{i \in \N\,|\,i \leq N\}$ in a very short amount of time at the age of nine.
+Apparently, he was able to observe that if $N$ is even, then
+the numbers in the sum can be reordered and grouped so that
+\begin{align}
+	\sum_{i=1}^N i &= 1 + 2 + \ldots + N \notag \\
+	               &= (1 + N) + (2 + N-1) + \ldots + (\frac{N}{2} + \frac{N}{2}+1) \label{eq:gaussSum}\\
+	               &= \frac{N\cdot (N+1)}{2}                                            \label{eq:gaussFormula}
+\end{align}
+If $N$ is even, then the reordering Equation $\eqref{eq:gaussSum}$ simply builds $N/2$ summands
+with value $N+1$, resulting to Equation $\eqref{eq:gaussFormula}$.
+This Equation also holds for odd $N$ and a similar argument holds in this case.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Citations}
+\label{section:citations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In a thesis one might want to cite interesting and relevant
+books \cite{Mueller07_InformationRetrieval_SPRINGER,Habets07_SpeechDereverberation},
+scientific papers \cite{HerreT11_AudioObjects_AES,EdlerD09_TimeWarpedDCT},
+or websites \cite{Mutopia_website}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Tables}
+\label{section:tables}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Because tables cannot, (well, at least not easily) be split across pages, the best
+placement for them is typically the top of the page
+nearest their initial cite.  To
+ensure this proper ``floating'' placement of tables, use the
+environment \emph{table} to enclose the table's contents and
+the table caption.  The contents of the table itself must go
+in the \emph{tabular} environment, to
+be aligned properly in rows and columns, with the desired
+horizontal and vertical rules, as seen in \Table{table:characters}.
+
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}cll@{}} 
+\toprule
+Non-English or Math & Frequency & Comments\\ 
+\midrule
+\O & 1 in 1,000& For Swedish names\\
+$\pi$ & 1 in 5& Common in math\\
+\$ & 4 in 5 & Used in business\\
+$\Psi^2_1$ & 1 in 40,000& Unexplained usage\\
+\bottomrule
+\end{tabular}
+\caption{Frequency of Special Characters. Note that this table does not contain any
+vertical lines which makes the table look more tidy.}
+\label{table:characters}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Figures}
+\label{section:figures}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Like tables, figures cannot be split across pages; the
+best placement for them
+is typically the top or the bottom of the page nearest
+their initial cite.  To ensure this proper ``floating'' placement
+of figures, use the environment
+\emph{figure} to enclose the figure and its caption.
+
+This sample thesis document contains examples of \emph{.pdf}
+files to be displayable with \LaTeX.
+
+A simple figure can be created as shown in \Figure{figure:sine}.
+A figure with multiple subfigures can be seen in \Figure{figure:sines}.
+The subfigures can be referenced as \Figure{figure:sine_lf} and \Figure{figure:sine_hf}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/fig_sin1.pdf}
+  \caption{Sine function.}
+  \label{figure:sine}
+\end{figure}
+
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{figures/fig_sin1.pdf}
+        \caption{Low frequency sine}
+        \label{figure:sine_lf}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{figures/fig_sin2.pdf}
+        \caption{High frequency sine}
+        \label{figure:sine_hf}
+    \end{subfigure}
+    \caption{Sine functions with different frequencies.}
+    \label{figure:sines}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Theorem-like Constructs}
+\label{section:constructs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Other common constructs that may occur in your thesis are
+the forms for logical constructs like theorems, axioms,
+corollaries and proofs. See the following example:
+
+\begin{Theorem}
+Let $f$ be continuous on $[a,b]$.  If $G$ is
+an antiderivative for $f$ on $[a,b]$, then
+\begin{align}
+  \int^b_af(t)dt = G(b) - G(a).
+\end{align}
+\end{Theorem}
+
+The following is a definition:
+\begin{Definition}
+If $z$ is irrational, then by $e^z$ we mean the
+unique number which has logarithm $z$:
+\begin{align}
+  \log e^z = z.
+\end{align}
+\end{Definition}
+
+
