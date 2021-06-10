@@ -118,21 +118,31 @@ def diode_equation_rhs_torch(t, v_out, v_in, p, d):
 
 
 def run_solver(v_in, p):
-    resampled_t = torch.arange(0, p.frame_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
+    v_in = torch.cat((v_in, torch.zeros((v_in.shape[0], 1, v_in.shape[2]))), axis=1)
+
+    # We need 1 additional sample for the initial value of the next frame
+    calculate_length = p.frame_length + 1
+    resampled_t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
+    assert resampled_t.shape[0] == calculate_length * p.upsample_factor
     v_out = torch.zeros((p.frame_length, p.segments_count, 1))
-    resampled_segment_length = p.upsample_factor * p.frame_length
+    resampled_segment_length = p.upsample_factor * calculate_length
     solver_args = [None, p, DiodeParameters()]
+    initial_value = torch.zeros((1, ), device=v_out.device)
     for segment_id in trange(p.segments_count):
-        segment_data = v_in[:, segment_id, 0]
+        segment_data = torch.cat((v_in[:, segment_id, 0], v_in[0, segment_id + 1, :]), axis=0)
         scaled_segment_data = segment_data * p.input_scaling_factor
         resampled_scaled_segment_data = resample(scaled_segment_data, resampled_segment_length)
         solver_args[0] = resampled_scaled_segment_data
-        # Last sample of the previous segment (zeros for the first computed segment)
-        initial_value = v_out[-1, segment_id - 1, :]
+
         y_segment_upsampled = p.method(
             p.rhs, initial_value, resampled_t, args=solver_args)
-        v_out_segment = torch.Tensor(resample(y_segment_upsampled, p.frame_length))
-        v_out[:, segment_id, :] = v_out_segment
+
+        v_out_segment = torch.Tensor(resample(y_segment_upsampled, calculate_length))
+        v_out[:, segment_id, :] = v_out_segment[:p.frame_length]
+
+        # The last sample of the last output is the first sample of the next output
+        initial_value = v_out_segment[-1, :]
+
     v_out = v_out.permute(1, 0, 2).flatten()
     return v_out
 
