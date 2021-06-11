@@ -53,7 +53,7 @@ class SimulationParameters:
         self.upsample_factor = args.upsample_factor
         self.input_scaling_factor = args.input_scaling_factor
         self.length_seconds = args.length_seconds  # the same as input if <= 0 or unspecified
-        self.frame_length = args.frame_length
+        self.frame_length = None   # placeholder
         self.sampling_rate = None  # placeholder
 
     @property
@@ -118,17 +118,17 @@ def diode_equation_rhs_torch(t, v_out, v_in, p, d):
 
 
 def run_solver(v_in, p):
-    pre_samples = p.frame_length // 2
-    post_samples = p.frame_length // 2
+    pre_samples = 10
+    post_samples = 10
     v_in = torch.cat((torch.zeros((v_in.shape[0], 1, v_in.shape[2])), 
                       v_in, 
                       torch.zeros((v_in.shape[0], 1, v_in.shape[2]))), 
                       axis=1)
 
-    # We need 1 additional sample for the initial value of the next frame
     calculate_length = pre_samples + p.frame_length + post_samples
-    resampled_t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
+    resampled_t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor), dtype=torch.float64)
     assert resampled_t.shape[0] == calculate_length * p.upsample_factor
+
     v_out = torch.zeros((p.frame_length, p.segments_count, 1))
     resampled_segment_length = p.upsample_factor * calculate_length
     solver_args = [None, p, DiodeParameters()]
@@ -157,7 +157,6 @@ def run_solver(v_in, p):
         assert y_segment_upsampled.shape[0] == calculate_length * p.upsample_factor
 
         v_out_segment = torch.from_numpy(resample(y_segment_upsampled, calculate_length))
-        # v_out_segment = torch.from_numpy(decimate(y_segment_upsampled, p.upsample_factor, ftype='fir', axis=0))
 
         assert v_out_segment.shape[0] == calculate_length
 
@@ -189,6 +188,7 @@ def main():
     p.sampling_rate = dataset.subsets['test'].fs
     true_v_out = dataset.subsets['test'].data['target'][0].permute(1, 0, 2).flatten()
     v_in = dataset.subsets['test'].data['input'][0]
+    p.frame_length = v_in.shape[0]
 
     # Check if the whole signal is to be analyzed
     if p.length_seconds <= 0.0:
