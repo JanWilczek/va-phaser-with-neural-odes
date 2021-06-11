@@ -19,7 +19,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/diode_clipper/diode_ode_numerical.py",
             "console": "integratedTerminal",
-            "args": ["-m", "forward_euler", "-u", "38", "-l", "0.1", "-s", "5", "-f", "128"]
+            // "args": ["-m", "forward_euler", "-u", "38", "-l", "0.1", "-s", "5", "-f", "128"]
+            "args": ["--method-name", "BDF", "--upsample-factor", "8", "--length-seconds", "1", "--input-scaling-factor", "5", "--frame-length", "128", "--normalize"]
         },
         {
             "name": "Python: Current File",

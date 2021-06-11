@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
-from scipy.signal import resample
+from scipy.signal import resample, decimate
 import torch
 import torchaudio
 import json
@@ -121,7 +121,8 @@ def run_solver(v_in, p):
     v_in = torch.cat((v_in, torch.zeros((v_in.shape[0], 1, v_in.shape[2]))), axis=1)
 
     # We need 1 additional sample for the initial value of the next frame
-    calculate_length = p.frame_length + 1
+    calculate_length = p.frame_length * 2
+    samples_from_next_frame = calculate_length - p.frame_length
     resampled_t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor))
     assert resampled_t.shape[0] == calculate_length * p.upsample_factor
     v_out = torch.zeros((p.frame_length, p.segments_count, 1))
@@ -129,19 +130,38 @@ def run_solver(v_in, p):
     solver_args = [None, p, DiodeParameters()]
     initial_value = torch.zeros((1, ), device=v_out.device)
     for segment_id in trange(p.segments_count):
-        segment_data = torch.cat((v_in[:, segment_id, 0], v_in[0, segment_id + 1, :]), axis=0)
+        # We need to calculate more samples than the frame_length to get the next initial value
+        segment_data = torch.cat((v_in[:, segment_id, 0], v_in[:samples_from_next_frame, segment_id + 1, 0]), axis=0)
         scaled_segment_data = segment_data * p.input_scaling_factor
+
+        assert scaled_segment_data.shape[0] == calculate_length
+
         resampled_scaled_segment_data = resample(scaled_segment_data, resampled_segment_length)
+
+        assert resampled_scaled_segment_data.shape[0] / scaled_segment_data.shape[0] == p.upsample_factor
+
         solver_args[0] = resampled_scaled_segment_data
 
         y_segment_upsampled = p.method(
             p.rhs, initial_value, resampled_t, args=solver_args)
 
-        v_out_segment = torch.Tensor(resample(y_segment_upsampled, calculate_length))
-        v_out[:, segment_id, :] = v_out_segment[:p.frame_length]
+        assert y_segment_upsampled.shape[0] == calculate_length * p.upsample_factor
+
+        # v_out_segment = torch.from_numpy(resample(y_segment_upsampled, calculate_length))
+        v_out_segment = torch.from_numpy(decimate(y_segment_upsampled, p.upsample_factor, ftype='fir', axis=0))
+
+        assert v_out_segment.shape[0] == calculate_length
+
+        v_out[:, segment_id, :] = v_out_segment[:p.frame_length, :]
 
         # The last sample of the last output is the first sample of the next output
-        initial_value = v_out_segment[-1, :]
+        initial_value = v_out_segment[p.frame_length, :]
+
+        # t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate))
+        # plt.figure()
+        # plt.plot(t, v_out_segment)
+        # plt.plot(resampled_t, y_segment_upsampled)
+        # plt.show()
 
     v_out = v_out.permute(1, 0, 2).flatten()
     return v_out
@@ -164,6 +184,7 @@ def main():
         p.length_seconds = input_length_samples / p.sampling_rate
 
     start_time = time.time()
+    print(f'Start time: {time.strftime("%H:%M:%S", start_time)}.')
 
     # Actual solver run, block by block
     v_out = run_solver(v_in, p)
