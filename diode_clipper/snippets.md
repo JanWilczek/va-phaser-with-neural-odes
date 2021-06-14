@@ -1,11 +1,17 @@
 # Print network parameters' shapes
+```python
 print([param.shape for param in self.network.parameters()])
+```
 
 # Ensure that network parameters are being updated
+```python
 before = torch.cat([param.clone().detach().flatten() for param in self.network.parameters()])
 # forward, loss, backward, step
 after = torch.cat([param.clone().detach().flatten() for param in self.network.parameters()])
 assert torch.nonzero(after - before).shape[0] == before.shape[0]
+```
 
 # Print currently running diode_clipper scripts of the user
+```
 ps -x | grep diode_clipper
+```

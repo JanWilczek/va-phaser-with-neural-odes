@@ -1,5 +1,6 @@
 """Set up an NN architecture, run its training and test on the diode clipper data."""
 import argparse
+import json
 from functools import partial
 from pathlib import Path
 import torch
@@ -57,12 +58,14 @@ def main():
     
     model_directory = Path('diode_clipper', 'runs', 'odenet')
     # model_directory = Path('diode_clipper', 'runs', 'stn')
-    # session.run_directory = model_directory / 'June02_16-47-41_axel'
-    # session.load_checkpoint()
+    session.run_directory = model_directory / 'June08_04-31-19_axel'
+    session.load_checkpoint()
+    session.optimizer.lr = args.learn_rate
     run_name = get_run_name()
     session.run_directory =  model_directory / run_name
 
     save_json(vars(args), session.run_directory / 'args.json')
+    session.writer.add_text('Command line arguments', json.dumps(vars(args)))
 
     session.loss = training.ESRLoss()
     
