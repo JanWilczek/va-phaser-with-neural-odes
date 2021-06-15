@@ -5,6 +5,7 @@ $ python diode_clipper\diode_ode_numerical.py -m forward_euler -u 38 -l 1 -s 5 -
 """
 import time
 import argparse
+from functools import partial
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ import torch
 import torchaudio
 import json
 from tqdm import trange
+from torchdiffeq import odeint
 from CoreAudioML.training import ESRLoss
 from NetworkTraining import create_dataset, get_run_name, save_json
 from models.solvers import trapezoid_rule, forward_euler
@@ -21,6 +23,8 @@ from models.solvers import trapezoid_rule, forward_euler
 
 SOLVERS = {'trapezoid_rule': trapezoid_rule,
            'forward_euler': forward_euler}
+
+ODENET_SOLVERS = ['implicit_adams']
 
 
 def argument_parser():
@@ -67,6 +71,10 @@ class SimulationParameters:
         self.run_directory.mkdir(parents=True, exist_ok=False)
         if self.method_name in SOLVERS.keys():
             self.__method = SOLVERS[self.method_name]
+            self.__rhs = diode_equation_rhs_torch
+        elif self.method_name in ODENET_SOLVERS:
+            self.__method = lambda rhs, y0, t, args: odeint(
+                partial(rhs, v_in=args[0], p=args[1], d=args[2]), y0, t, method=self.method_name)
             self.__rhs = diode_equation_rhs_torch
         else:
             self.__method =  lambda rhs, y0, t, args: solve_ivp(
@@ -210,7 +218,9 @@ def main():
 
     # Normalization
     if args.normalize:
-        v_out = v_out / torch.amax(torch.abs(v_out)) * torch.amax(torch.abs(true_v_out_trimmed))
+        normalizing_factor = torch.sum(torch.multiply(v_out, true_v_out_trimmed)) / torch.sum(torch.square(v_out))
+        v_out *= normalizing_factor
+        v_out = torch.clip(v_out, -1.0, 1.0)
 
     # Store the audio output
     # The saved data needs to be transposed, because on Windows the Soundfile backend needs
