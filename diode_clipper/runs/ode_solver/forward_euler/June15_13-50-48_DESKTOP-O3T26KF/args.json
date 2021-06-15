@@ -1,0 +1,8 @@
+{
+    "method_name": "forward_euler",
+    "upsample_factor": 38,
+    "length_seconds": 0.0,
+    "input_scaling_factor": 10.0,
+    "normalize": true,
+    "frame_length": 0
+}
