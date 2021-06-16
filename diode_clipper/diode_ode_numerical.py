@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 """
-Sample call:
-$ python diode_clipper\diode_ode_numerical.py -m forward_euler -u 38 -l 1 -s 5 -i 0 -f 128
+Sample calls:
+$ python -O diode_clipper/diode_ode_numerical.py -m forward_euler -u 38 -l 1 -s 5 -i 0 -f 128
+$ python -O diode_clipper/diode_ode_numerical.py --method-name BDF --upsample-factor 8 --input-scaling-factor 20 --frame-length 0 --normalize
 """
 import time
 import argparse
@@ -35,6 +36,7 @@ def argument_parser():
     parser.add_argument('-s', '--input-scaling-factor', dest='input_scaling_factor', default=1.0, type=float)
     parser.add_argument('-n', '--normalize', action='store_true')
     parser.add_argument('-f', '--frame-length', dest='frame_length', default=22050, type=int)
+    parser.add_argument('-p', '--plot', action='store_true')
     return parser
 
 
@@ -77,7 +79,7 @@ class SimulationParameters:
                 partial(rhs, v_in=args[0], p=args[1], d=args[2]), y0, t, method=self.method_name)
             self.__rhs = diode_equation_rhs_torch
         else:
-            self.__method =  lambda rhs, y0, t, args: solve_ivp(
+            self.__method = lambda rhs, y0, t, args: solve_ivp(
                 rhs, (t[0], t[-1]), y0, method=self.method_name, t_eval=t, args=args, jac=jac_diode_equation_rhs).y.T
             self.__rhs = diode_equation_rhs_numpy
 
@@ -124,30 +126,36 @@ def diode_equation_rhs_numpy(t, v_out, v_in, p, d):
 def diode_equation_rhs_torch(t, v_out, v_in, p, d):
     return (v_in[int(t * p.sampling_rate * p.upsample_factor)] - v_out) * d.c1 - d.c2 * torch.sinh(v_out / d.v_t)
 
+def scale_for_optimal_esr_and_clip(estimated_signal, true_signal):
+    normalizing_factor = torch.sum(torch.multiply(estimated_signal, true_signal)) / torch.sum(torch.square(estimated_signal))
+    estimated_signal *= normalizing_factor
+    estimated_signal = torch.clip(estimated_signal, -1.0, 1.0)
+    return estimated_signal
 
 def run_solver(v_in, p):
     pre_samples = 10
     post_samples = 10
-    v_in = torch.cat((torch.zeros((v_in.shape[0], 1, v_in.shape[2])), 
-                      v_in, 
-                      torch.zeros((v_in.shape[0], 1, v_in.shape[2]))), 
-                      axis=1)
+    v_in = torch.cat((torch.zeros((v_in.shape[0], 1, v_in.shape[2])),
+                      v_in,
+                      torch.zeros((v_in.shape[0], 1, v_in.shape[2]))),
+                     axis=1)
 
     calculate_length = pre_samples + p.frame_length + post_samples
-    resampled_t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate * p.upsample_factor), dtype=torch.float64)
+    resampled_t = torch.arange(0, calculate_length / p.sampling_rate, 1 /
+                               (p.sampling_rate * p.upsample_factor), dtype=torch.float64)
     assert resampled_t.shape[0] == calculate_length * p.upsample_factor
 
     v_out = torch.zeros((p.frame_length, p.segments_count, 1))
     resampled_segment_length = p.upsample_factor * calculate_length
     solver_args = [None, p, DiodeParameters()]
     initial_value = torch.zeros((1, ), device=v_out.device)
-    for segment_id in trange(1, p.segments_count + 1): # Account for the zero-filled frame before the signal frames
+    for segment_id in trange(1, p.segments_count + 1):  # Account for the zero-filled frame before the signal frames
         # Take pre_samples + p.frame_length + post_samples from the data to avoid resampling artifacts.
         # Additionally, we need to calculate more samples than the frame_length to get the next initial value.
         segment_data = torch.cat((v_in[-pre_samples:, segment_id - 1, 0],
-                                  v_in[:, segment_id, 0], 
-                                  v_in[:post_samples, segment_id + 1, 0]), 
-                                  axis=0)
+                                  v_in[:, segment_id, 0],
+                                  v_in[:post_samples, segment_id + 1, 0]),
+                                 axis=0)
 
         scaled_segment_data = segment_data * p.input_scaling_factor
 
@@ -172,15 +180,9 @@ def run_solver(v_in, p):
         v_out[:, segment_id - 1, :] = v_out_segment[pre_samples:pre_samples + p.frame_length, :]
 
         # Initial value is the first valid sample output of the next processed "extended" frame.
-        # Since from the current frame, the last post_samples will be taken, the initial value is 
+        # Since from the current frame, the last post_samples will be taken, the initial value is
         # the first of these last post_samples samples.
         initial_value = v_out[- post_samples, segment_id - 1, :]
-
-        # t = torch.arange(0, calculate_length / p.sampling_rate, 1 / (p.sampling_rate))
-        # plt.figure()
-        # plt.plot(t, v_out_segment)
-        # plt.plot(resampled_t, y_segment_upsampled)
-        # plt.show()
 
     v_out = v_out.permute(1, 0, 2).flatten()
     return v_out
@@ -218,9 +220,7 @@ def main():
 
     # Normalization
     if args.normalize:
-        normalizing_factor = torch.sum(torch.multiply(v_out, true_v_out_trimmed)) / torch.sum(torch.square(v_out))
-        v_out *= normalizing_factor
-        v_out = torch.clip(v_out, -1.0, 1.0)
+        v_out = scale_for_optimal_esr_and_clip(v_out, true_v_out_trimmed)
 
     # Store the audio output
     # The saved data needs to be transposed, because on Windows the Soundfile backend needs
@@ -236,11 +236,12 @@ def main():
     save_json({'time [s]': int(duration), 'ESRLoss': loss_result}, p.results_output_path)
 
     # Plot result
-    plt.figure()
-    t = torch.arange(0, true_v_out_trimmed.shape[0] / p.sampling_rate, 1 / p.sampling_rate)
-    plt.plot(t, true_v_out_trimmed, t, v_out)
-    plt.legend(['ground truth', p.method_name])
-    plt.savefig(p.plot_output_path)
+    if args.plot:
+        plt.figure()
+        t = torch.arange(0, true_v_out_trimmed.shape[0] / p.sampling_rate, 1 / p.sampling_rate)
+        plt.plot(t, true_v_out_trimmed, t, v_out)
+        plt.legend(['ground truth', p.method_name])
+        plt.savefig(p.plot_output_path)
 
 
 if __name__ == '__main__':
