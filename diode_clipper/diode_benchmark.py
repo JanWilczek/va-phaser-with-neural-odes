@@ -19,6 +19,7 @@ def argument_parser():
     ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run')
     ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate')
+    ap.add_argument('--cyclic_lr', '-y', action='store_true', help='If given, uses the cyclic learning rate schedule by Smith. Given learning rate parameter is used as the base learning rate, and max learning rate is 10 times larger.')
     ap.add_argument('--init_len', '-il', type=int, default=1000,
                   help='Number of sequence samples to process before starting weight updates')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,
@@ -28,6 +29,7 @@ def argument_parser():
                                                                                'in each chunk of validation ')
     ap.add_argument('--test_chunk', '-tc', type=int, default=0, help='Number of sequence samples to process'
                                                                                'in each chunk of test')
+    ap.add_argument('--checkpoint', '-c', type=str, default=None, help='Load a checkpoint of the given architecture with the specified name.')
     return ap
 
 
@@ -54,13 +56,26 @@ def main():
     method = get_method(args)
     session.network = ODENet(ODENetDerivative(), method, dt=1/sampling_rate)
     session.transfer_to_device()
-    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate)
+    # session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate)
+    session.optimizer = torch.optim.SGD(session.network.parameters(), lr=args.learn_rate, momentum=0.9)
     
     model_directory = Path('diode_clipper', 'runs', 'odenet')
     # model_directory = Path('diode_clipper', 'runs', 'stn')
-    session.run_directory = model_directory / 'June08_04-31-19_axel'
-    session.load_checkpoint()
-    session.optimizer.lr = args.learn_rate
+    
+    # Untested
+    if args.checkpoint is not None:
+        session.run_directory = model_directory / args.checkpoint
+        session.load_checkpoint()
+        for param_group in session.optimizer.param_groups:
+            param_group['lr'] = args.learn_rate
+
+    if args.cyclic_lr:
+        session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
+                                                                base_lr=args.learn_rate,
+                                                                max_lr=10*args.learn_rate,
+                                                                step_size_up=2000,
+                                                                last_epoch=(session.epoch-1))
+
     run_name = get_run_name()
     session.run_directory =  model_directory / run_name
 

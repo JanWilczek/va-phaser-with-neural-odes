@@ -46,6 +46,7 @@ class NetworkTraining:
         self.enable_teacher_forcing = False
         self.writer = None
         self.__run_directory = None
+        self.scheduler = None
 
     def run(self):
         """Run full network training."""
@@ -106,6 +107,9 @@ class NetworkTraining:
             
                 self.save_checkpoint()
 
+            if self.scheduler is not None:
+                self.scheduler.step()
+
         self.timer.epoch_ended()
 
         return epoch_loss / (self.segment_length * self.segments_count)
@@ -122,17 +126,25 @@ class NetworkTraining:
         return output.permute(1, 0, 2).flatten(), loss 
 
     def save_checkpoint(self):
-        torch.save({
+        checkpoint_dict = {
             'epoch': self.epoch,
             'model_state_dict': self.network.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict()
-        }, self.checkpoint_path)
+        }
+
+        if self.scheduler is not None:
+            checkpoint_dict[self.SCHEDULER_STATE_DICT_KEY] = self.scheduler.state_dict()
+
+        torch.save(checkpoint_dict, self.checkpoint_path)
 
     def load_checkpoint(self):
         checkpoint = torch.load(self.checkpoint_path)
         self.network.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
+        
+        if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
+            self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
 
     def log_epoch_validation_loss(self, epoch_loss, validation_loss):
         print(f'Epoch: {self.epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
@@ -207,3 +219,5 @@ class NetworkTraining:
     @property
     def best_validation_model_path(self):
         return self.run_directory / 'best_validation_loss_model.pth'
+
+    SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'
