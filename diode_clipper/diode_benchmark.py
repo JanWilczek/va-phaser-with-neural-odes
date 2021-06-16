@@ -56,8 +56,8 @@ def main():
     method = get_method(args)
     session.network = ODENet(ODENetDerivative(), method, dt=1/sampling_rate)
     session.transfer_to_device()
-    # session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate)
-    session.optimizer = torch.optim.SGD(session.network.parameters(), lr=args.learn_rate, momentum=0.9)
+    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate)
+    # session.optimizer = torch.optim.SGD(session.network.parameters(), lr=args.learn_rate, momentum=0.9)
     
     model_directory = Path('diode_clipper', 'runs', 'odenet')
     # model_directory = Path('diode_clipper', 'runs', 'stn')
@@ -74,7 +74,8 @@ def main():
                                                                 base_lr=args.learn_rate,
                                                                 max_lr=10*args.learn_rate,
                                                                 step_size_up=2000,
-                                                                last_epoch=(session.epoch-1))
+                                                                last_epoch=(session.epoch-1),
+                                                                cycle_momentum=False)
 
     run_name = get_run_name()
     session.run_directory =  model_directory / run_name
