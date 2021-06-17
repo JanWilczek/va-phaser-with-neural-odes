@@ -27,6 +27,7 @@ class ODENetDerivative(nn.Module):
             nn.Linear(8, 1, bias=False))
         self.t = None
         self.input = None   # Tensor of shape time_frames x batch_size
+        self.scaling = 44100.0
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
@@ -58,7 +59,7 @@ class ODENetDerivative(nn.Module):
         # Analytical RHS (not neural) for debugging
         # ode_eq_output = diode_equation_rhs(t, y, input_at_t)
 
-        return output.squeeze_(-1)
+        return self.scaling * output.squeeze_(-1)
 
 
 class ODENet(nn.Module):
@@ -70,6 +71,7 @@ class ODENet(nn.Module):
         self.derivative_network.dt = dt
         self.__true_state = None
         self.time = None
+        self.state = None
 
     def forward(self, x):
         """
@@ -85,34 +87,41 @@ class ODENet(nn.Module):
         """
         sequence_length, minibatch_size, feature_count = x.shape
 
+        if self.state is None:
+            self.state = torch.zeros((minibatch_size,), device=self.device)
+
         self.update_time(sequence_length, minibatch_size)
 
         self.derivative_network.input = x.squeeze(2)
 
-        initial_value = torch.zeros((minibatch_size,), device=self.device)
-
-        odeint_output = self.odeint(self.derivative_network, initial_value, self.time)
+        odeint_output = self.odeint(self.derivative_network, self.state, self.time)
         # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
 
-        return odeint_output.unsqueeze_(2)
+        # New state is the last output sample
+        self.state = odeint_output[-1, :]
+
+        return odeint_output[:-1, :, None]
 
     def update_time(self, sequence_length, minibatch_size):
         if self.time is None:
             start_time = 0.0
         else:
             start_time = self.time[-1] + self.dt
-        self.time = torch.linspace(start_time, start_time + sequence_length * self.dt, sequence_length, device=self.device)
+        time_vector_length = sequence_length + 1 # the last sample is for the initial value for the next subsegment
+        self.time = torch.linspace(start_time, start_time + time_vector_length * self.dt, time_vector_length, device=self.device)
         self.derivative_network.t = torch.tile(self.time.unsqueeze(0), (minibatch_size, 1))
 
     def reset_hidden(self):
         self.true_state = None
         self.time = None
+        self.state = None
 
     def detach_hidden(self):
-        pass
+        self.state = self.state.detach()
 
     @property
     def true_state(self):
+        raise NotImplementedError()
         return self.__true_state
 
     @true_state.setter

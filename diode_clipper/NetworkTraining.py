@@ -112,6 +112,9 @@ class NetworkTraining:
 
         self.timer.epoch_ended()
 
+        if self.scheduler is not None:
+            self.writer.add_scalar('Learning rate', self.scheduler.get_last_lr()[0], self.epoch)
+
         return epoch_loss / (self.segment_length * self.segments_count)
 
     def test(self, subset_name='test'):
