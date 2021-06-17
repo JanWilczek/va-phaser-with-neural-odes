@@ -32,6 +32,7 @@ def argument_parser():
     ap.add_argument('--checkpoint', '-c', type=str, default=None, help='Load a checkpoint of the given architecture with the specified name.')
     ap.add_argument('--adjoint', '-adj', action='store_true', help='Use the adjoint sensitivity method for backpropagation.')
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
+    ap.add_argument('--weight_decay', '-wd', type=float, default=0.0, help='Weight decay argument for the Adam optimizer.')
     return ap
 
 
@@ -60,7 +61,7 @@ def main():
     method = get_method(args)
     session.network = ODENet(ODENetDerivative(), method, dt=1/sampling_rate)
     session.transfer_to_device()
-    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate)
+    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
 
     if args.cyclic_lr is not None:
         session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
@@ -75,7 +76,7 @@ def main():
     # Untested
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
-        session.load_checkpoint()
+        session.load_checkpoint(best_validation=True)
         if session.scheduler is None:
             for param_group in session.optimizer.param_groups:
                 param_group['lr'] = args.learn_rate

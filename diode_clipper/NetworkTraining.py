@@ -64,7 +64,7 @@ class NetworkTraining:
             torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
             
             if validation_loss < best_validation_loss:
-                torch.save(self.network.state_dict(), self.best_validation_model_path)
+                self.save_checkpoint(best_validation=True)
                 best_validation_loss = validation_loss
 
     def train_epoch(self):
@@ -128,7 +128,7 @@ class NetworkTraining:
         # Flatten the output properly to obtain one long frame
         return output.permute(1, 0, 2).flatten(), loss 
 
-    def save_checkpoint(self):
+    def save_checkpoint(self, best_validation=False):
         checkpoint_dict = {
             'epoch': self.epoch,
             'model_state_dict': self.network.state_dict(),
@@ -138,10 +138,10 @@ class NetworkTraining:
         if self.scheduler is not None:
             checkpoint_dict[self.SCHEDULER_STATE_DICT_KEY] = self.scheduler.state_dict()
 
-        torch.save(checkpoint_dict, self.checkpoint_path)
+        torch.save(checkpoint_dict, self.best_validation_model_path if best_validation else self.checkpoint_path)
 
-    def load_checkpoint(self):
-        checkpoint = torch.load(self.checkpoint_path)
+    def load_checkpoint(self, best_validation=False):
+        checkpoint = torch.load(self.best_validation_model_path if best_validation else self.checkpoint_path)
         self.network.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
