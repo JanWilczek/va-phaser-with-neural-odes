@@ -124,13 +124,41 @@ It has been observed that learning the residual instead of the function can be v
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \Ac{VA} effects are digital emulations of audio systems that were originally built using analog electronic or electromechanical components \cite{Zoelzer2011}. They arose out of the demand for the reproduction of characteristic tonal distortions of these devices but with the digital stability and the ease of integration with existing software. Devices modelled range from filters, to time-varying effects, amplifiers, mechanical reverb units, and tape or vinyl distortions.
 
-One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski2016,Wright2020}. In \emph{black-box} modelling, only the input-output relation of a system is examined and a signal model is constructed to mimic that behavior. Neural networks have successfully been applied to this kind of modeling for guitar amplifiers \cite{Wright2019,Wrightetal2020} and even time-varying effects, like a phaser or a flanger \cite{Wright2020}. In \emph{white-box} modelling an internal structure of the system under study is examined and used to construct an algorithm aiming at reproducing its behavior. Typical approaches in this category are a derivation of \acp{ODE} from an electronic circuit analysis \cite{Yeh2007} or wave-digital filters \cite{PASPWEB2010}.
+One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski2016,Wright2020}. In \emph{black-box} modelling, only the input-output relation of a system is examined and a signal model is constructed to mimic that behavior. Neural networks have successfully been applied to this kind of modeling for guitar amplifiers \cite{Wright2019,Wrightetal2020}. In \emph{white-box} modelling an internal structure of the system under study is examined and used to construct an algorithm aiming at reproducing its behavior. Sometimes it is referred to as \emph{physical modeling}. Typical approaches in this category are a derivation of \acp{ODE} from an electronic circuit analysis \cite{Yeh2007,Eichas2014} or wave-digital filters \cite{PASPWEB2010}. \emph{Grey-box} modeling falls somewhere in between the two already mentioned approaches, where we use some knowledge about the inner workings of the device under study to design a model and subsequently take advantage of the input and output data to adjust the model's parameters. This approach has been successfully applied to time-varying effects modeling, like a phaser or a flanger \cite{Kiiski2016,Wright2020}, where a \ac{LFO} signal is estimated and used for conditioning the model.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Modeled Systems}
+\label{sec:modeled_systems}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The aim of this work is to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. The main goal is to model a phaser pedal. However, in order to get intuition behind this type of architecture, a simpler, time-invariant system was modeled, namely, a first-order diode clipper. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diode Clipper}
+\label{subsec:diode_clipper_intro}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The first-order diode clipper is a system particularly interesting in the context of the ODENet, because it is governed by a known \ac{ODE} \cite{Yeh2007,Yeh2008}. Additionally, it was already modeled using a \ac{ResNet} type of architecture in \cite{Parker2019}. Thus, learning to imitate the diode clipper allowed for validation of the ODENet and comparison to 
+\begin{itemize}
+  \item an \ac{LSTM} architecture from \cite{Wrightetal2020},
+  \item a \ac{ResNet}-like architecture from \cite{Parker2019}, and
+  \item a numerical solution using the \ac{ODE} from \cite{Yeh2007,Yeh2008}.
+\end{itemize}
+%TODO Add diode clipper figure
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Phaser}
+\label{subsec:phaser_intro}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO add a figure of the phaser
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Relation to Other Work}
 \label{sec:relation_to_other_work}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The aim of this work is to investigate the applicability of the ODENet architecture to virtual analog modeling of audio effects. In comparison to dynamical systems examined in \cite{Karlsson2019}, networks modeling audio effects need to account for the input signal, which is not only time-varying but also time-discretized with a specific sampling rate. 
+The aim of this work is to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. In comparison to dynamical systems examined in \cite{Karlsson2019}, networks modeling audio effects need to account for the input signal, which is not only time-varying but also time-discretized with a specific sampling rate. 
 
 \cite{Parker2019} use an \ac{MLP} to learn the residual of a state-space system. The learned mapping steers the model through the state space of the device under study. The model is named \ac{STN}. Just as the original \ac{ResNet} paper \cite{He2015}, the residual not the derivative is learned, which is equivalent to the Euler method of solving \acp{ODE}. \cite{Parker2019} successfully applies \ac{STN} to model analog clipper circuits and an analog filter.
+
+For modeling a phaser pedal, following \cite{Wright2020}, this work estimates the \ac{LFO} signal and uses it for conditioning the network. Therefore, it falls under the category of grey-box models. However, to achieve this goal, it uses a significantly different network architecture than \cite{Wright2020}.
+

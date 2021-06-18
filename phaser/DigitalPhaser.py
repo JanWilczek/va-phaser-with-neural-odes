@@ -5,14 +5,30 @@ import soundfile as sf
 
 
 class DigitalPhaser:
-    def __init__(self, allpass_count, lfo):
+    def __init__(self, allpass_count, lfo, allpass_cutoff_frequency=(250/44100), allpass_modulation_index=0.2):
         self.allpass_chain = [AllPassOrder1() for i in range(allpass_count)]
         self.lfo = lfo
-        self.Wc = 250 / 44100
-        self.Wcs = np.zeros((allpass_count,))
+        self.allpass_cutoff_frequency = allpass_cutoff_frequency
+        self.allpass_modulation_index = allpass_modulation_index
         self.wetness = 0.5
         self.x_fb = 0.0
         self.fb = 0.0
+
+    @property
+    def allpass_cutoff_frequency(self):
+        return self.__Wc
+
+    @allpass_cutoff_frequency.setter
+    def allpass_cutoff_frequency(self, value):
+        self.__Wc = value
+
+    @property
+    def allpass_modulation_index(self):
+        return self.__m
+
+    @allpass_modulation_index.setter
+    def allpass_modulation_index(self, value):
+        self.__m = value
 
     @property
     def wetness(self):
@@ -27,9 +43,9 @@ class DigitalPhaser:
         y = np.zeros_like(x)
         for n in range(x.shape[0]):
             allpass_input = x[n] + self.x_fb * self.fb
+            Wc_in = self.allpass_cutoff_frequency * (1 + self.allpass_modulation_index * self.lfo())
             for i, allpass in enumerate(self.allpass_chain):
-                self.Wcs[i] = self.Wc + 100 / 22050 * self.lfo()
-                allpass_input = allpass.process(allpass_input, self.Wcs[i])
+                allpass_input = allpass.process(allpass_input, Wc_in)
             self.lfo.increment_phase()
             self.x_fb = allpass_input * self.wetness
             y[n] = self.dryness * x[n] + self.x_fb
@@ -87,7 +103,7 @@ def dB2linear(val):
 def phaser_test():
     f = 220
     fs = 44100
-    T = 4
+    T = 10
     t = np.arange(0, T, 1/fs)
     sine = np.sin(2 * np.pi * f * t)
     saw = (t % (1/f)) * 2 * f - 1.0
@@ -100,7 +116,7 @@ def phaser_test():
     phaser_input = np.multiply(saw, envelope) * dB2linear(volume_dB)
     # channel = phaser_input
 
-    phaser = DigitalPhaser(10, Oscillator(1, fs, np.sin))
+    phaser = DigitalPhaser(10, Oscillator(0.3, fs, np.sin), 2000/fs, 0.9)
     channel = phaser.process(phaser_input)
 
     output = np.stack((channel, channel))
