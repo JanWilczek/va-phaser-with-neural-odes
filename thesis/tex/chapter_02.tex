@@ -91,7 +91,7 @@ As deep learning is a widely and actively pursued field of science, there exist 
 \subsection*{Long Short-Term Memory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.\ e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
+\Ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.\ e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
 
 % TODO: Add figure with an LSTM
 
@@ -111,4 +111,26 @@ Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. 
 \label{sec:neural_odes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%TODO: Add citations
+%TODO: Add ODENet figure
 
+It has been observed that learning the residual instead of the function can be viewed as an Euler step of solving a differential equation. In the Euler method of solving \acp{ODE}, function's value at time step $t_i$ is approximated by adding the value of the derivative at time step $t_{i-1}$ multiplied by the time step size $t_i - t_{i-1}$ to the function's value at $t_i$. \cite{Chen2018} stated this observation explicitly and proposed to change the discrete scheme to a continuous one. In such a scheme, the network learns not the residual but the derivative of the desired function. This "derivative network" is supplied to a numerical solver of choice. The loss is calculated using the solver's (not the network's) output. Such generically defined architecture was named ODENet. The backpropagation through the solver's operations can be done in constant time using the adjoint sensitivity method \cite{Chen2018}.
+
+\cite{Karlsson2019} successfully applied ODENet to model dynamical systems, i.\ e., systems governed by \acp{ODE}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Virtual Analog Modeling}
+\label{sec:virtual_analog_modeling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Ac{VA} effects are digital emulations of audio systems that were originally built using analog electronic or electromechanical components \cite{Zoelzer2011}. They arose out of the demand for the reproduction of characteristic tonal distortions of these devices but with the digital stability and the ease of integration with existing software. Devices modelled range from filters, to time-varying effects, amplifiers, mechanical reverb units, and tape or vinyl distortions.
+
+One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski2016,Wright2020}. In \emph{black-box} modelling, only the input-output relation of a system is examined and a signal model is constructed to mimic that behavior. Neural networks have successfully been applied to this kind of modeling for guitar amplifiers \cite{Wright2019,Wrightetal2020} and even time-varying effects, like a phaser or a flanger \cite{Wright2020}. In \emph{white-box} modelling an internal structure of the system under study is examined and used to construct an algorithm aiming at reproducing its behavior. Typical approaches in this category are a derivation of \acp{ODE} from an electronic circuit analysis \cite{Yeh2007} or wave-digital filters \cite{PASPWEB2010}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Relation to Other Work}
+\label{sec:relation_to_other_work}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The aim of this work is to investigate the applicability of the ODENet architecture to virtual analog modeling of audio effects. In comparison to dynamical systems examined in \cite{Karlsson2019}, networks modeling audio effects need to account for the input signal, which is not only time-varying but also time-discretized with a specific sampling rate. 
+
+\cite{Parker2019} use an \ac{MLP} to learn the residual of a state-space system. The learned mapping steers the model through the state space of the device under study. The model is named \ac{STN}. Just as the original \ac{ResNet} paper \cite{He2015}, the residual not the derivative is learned, which is equivalent to the Euler method of solving \acp{ODE}. \cite{Parker2019} successfully applies \ac{STN} to model analog clipper circuits and an analog filter.
