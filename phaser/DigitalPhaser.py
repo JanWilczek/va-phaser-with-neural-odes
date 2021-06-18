@@ -5,21 +5,21 @@ import soundfile as sf
 
 
 class DigitalPhaser:
-    def __init__(self, allpass_count, lfo, allpass_cutoff_frequency=(250/44100), allpass_modulation_index=0.2):
-        self.allpass_chain = [AllPassOrder1() for i in range(allpass_count)]
+    def __init__(self, lfo, allpass_cutoff_frequencies=10*[(250/44100)], allpass_modulation_index=0.2):
+        self.allpass_chain = [AllPassOrder1() for i in range(len(allpass_cutoff_frequencies))]
         self.lfo = lfo
-        self.allpass_cutoff_frequency = allpass_cutoff_frequency
+        self.allpass_cutoff_frequencies = allpass_cutoff_frequencies
         self.allpass_modulation_index = allpass_modulation_index
         self.wetness = 0.5
         self.x_fb = 0.0
         self.fb = 0.0
 
     @property
-    def allpass_cutoff_frequency(self):
+    def allpass_cutoff_frequencies(self):
         return self.__Wc
 
-    @allpass_cutoff_frequency.setter
-    def allpass_cutoff_frequency(self, value):
+    @allpass_cutoff_frequencies.setter
+    def allpass_cutoff_frequencies(self, value):
         self.__Wc = value
 
     @property
@@ -43,8 +43,8 @@ class DigitalPhaser:
         y = np.zeros_like(x)
         for n in range(x.shape[0]):
             allpass_input = x[n] + self.x_fb * self.fb
-            Wc_in = self.allpass_cutoff_frequency * (1 + self.allpass_modulation_index * self.lfo())
             for i, allpass in enumerate(self.allpass_chain):
+                Wc_in = self.allpass_cutoff_frequencies[i] * (1 + self.allpass_modulation_index * self.lfo())
                 allpass_input = allpass.process(allpass_input, Wc_in)
             self.lfo.increment_phase()
             self.x_fb = allpass_input * self.wetness
@@ -116,7 +116,12 @@ def phaser_test():
     phaser_input = np.multiply(saw, envelope) * dB2linear(volume_dB)
     # channel = phaser_input
 
-    phaser = DigitalPhaser(10, Oscillator(0.3, fs, np.sin), 2000/fs, 0.9)
+    # phaser = DigitalPhaser(Oscillator(0.3, fs, np.sin), allpass_modulation_index=0.9)
+    base_frequencies = [85, 250, 600, 900, 2000]
+    reversed_frequencies = base_frequencies.copy()
+    reversed_frequencies.reverse()
+    allpass_cutoff_frequencies = [f/fs for f in base_frequencies + reversed_frequencies]
+    phaser = DigitalPhaser(Oscillator(3, fs, np.sin), allpass_cutoff_frequencies, allpass_modulation_index=0.2)
     channel = phaser.process(phaser_input)
 
     output = np.stack((channel, channel))
