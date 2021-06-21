@@ -67,7 +67,7 @@ def main():
         session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
                                                                 base_lr=args.learn_rate,
                                                                 max_lr=args.cyclic_lr,
-                                                                step_size_up=500,
+                                                                step_size_up=250,
                                                                 last_epoch=(session.epoch-1),
                                                                 cycle_momentum=False)
     
@@ -76,7 +76,10 @@ def main():
     # Untested
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
-        session.load_checkpoint(best_validation=True)
+        try:
+            session.load_checkpoint(best_validation=True)
+        except:
+            session.load_checkpoint(best_validation=False)
         if session.scheduler is None:
             for param_group in session.optimizer.param_groups:
                 param_group['lr'] = args.learn_rate

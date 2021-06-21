@@ -105,12 +105,11 @@ class NetworkTraining:
                 subsegment_start += self.samples_between_updates
                 epoch_loss += loss.item()
             
-                self.save_checkpoint()
-
             if self.scheduler is not None:
                 self.scheduler.step()
 
         self.timer.epoch_ended()
+        self.save_checkpoint()
 
         if self.scheduler is not None:
             self.writer.add_scalar('Learning rate', self.scheduler.get_last_lr()[0], self.epoch)
@@ -146,8 +145,9 @@ class NetworkTraining:
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
         
-        if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
-            self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
+        # Should the scheduler be loaded as well?
+        # if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
+            # self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
 
     def log_epoch_validation_loss(self, epoch_loss, validation_loss):
         print(f'Epoch: {self.epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
