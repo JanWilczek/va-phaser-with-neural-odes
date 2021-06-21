@@ -21,14 +21,14 @@ class ODENetDerivative(nn.Module):
     def __init__(self):
         super().__init__()
         # v1
-        output_scaling = nn.Linear(1, 1, bias=False)
-        output_scaling.weight.data.fill_(44100)
-        self.densely_connected_layers = nn.Sequential(
-            nn.Linear(2, 4, bias=False), nn.Tanh(), 
-            nn.Linear(4, 4, bias=False), nn.Tanh(), 
-            nn.Linear(4, 4, bias=False), nn.Tanh(), 
-            nn.Linear(4, 1, bias=False),
-            output_scaling)
+        # output_scaling = nn.Linear(1, 1, bias=False)
+        # output_scaling.weight.data.fill_(44100)
+        # self.densely_connected_layers = nn.Sequential(
+            # nn.Linear(2, 4, bias=False), nn.Tanh(), 
+            # nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            # nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            # nn.Linear(4, 1, bias=False),
+            # output_scaling)
         
         # v2
         # self.densely_connected_layers = nn.Sequential(
@@ -38,6 +38,14 @@ class ODENetDerivative(nn.Module):
         #     nn.Linear(8, 1, bias=False))
         # self.scaling = torch.Tensor([1])
         # self.register_buffer('constant_output_scaling', self.scaling)
+
+        # v3
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(2, 8, bias=True), nn.Tanh(), 
+            nn.Linear(8, 8, bias=True), nn.Tanh(), 
+            nn.Linear(8, 8, bias=True), nn.Tanh(), 
+            nn.Linear(8, 1, bias=True), nn.Tanh())
+        self.register_buffer('scaling', torch.Tensor([1]))
 
         self.t = None
         self.input = None   # Tensor of shape time_frames x batch_size
@@ -50,7 +58,12 @@ class ODENetDerivative(nn.Module):
     @dt.setter
     def dt(self, value):
         self.__dt = value
-        self.scaling = 1.0 / value # Change to 2x to enable jumps by 2 not just 1 (maximum absolute value of tanh is 1).
+
+        # v1, v2
+        # self.scaling = 1.0 / value 
+        
+        # v3
+        self.scaling[0] = 2.0 / value # 2x to enable jumps by 2 not just 1 (maximum absolute value of tanh is 1).
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
@@ -83,10 +96,10 @@ class ODENetDerivative(nn.Module):
         # ode_eq_output = diode_equation_rhs(t, y, input_at_t)
 
         # v1 
-        return output.squeeze_(-1)
+        # return output.squeeze_(-1)
 
-        # v2
-        # return self.scaling * output.squeeze_(-1)
+        # v2, v3
+        return self.scaling * output.squeeze(-1)
 
 
 class ODENet(nn.Module):

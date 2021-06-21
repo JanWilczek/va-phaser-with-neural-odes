@@ -52,20 +52,13 @@ class NetworkTraining:
         """Run full network training."""
         self.writer.add_text('Architecture', str(self.network))
         self.transfer_to_device()
-        best_validation_loss = float('inf')
+        self.best_validation_loss = float('inf')
 
         self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
-            validation_output, validation_loss = self.test('validation')
-            
+            validation_loss = self.run_validation()
             self.log_epoch_validation_loss(epoch_loss=epoch_loss, validation_loss=validation_loss)
-
-            torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
-            
-            if validation_loss < best_validation_loss:
-                self.save_checkpoint(best_validation=True)
-                best_validation_loss = validation_loss
 
     def train_epoch(self):
         self.timer.epoch_started()
@@ -115,6 +108,17 @@ class NetworkTraining:
             self.writer.add_scalar('Learning rate', self.scheduler.get_last_lr()[0], self.epoch)
 
         return epoch_loss / (self.segment_length * self.segments_count)
+
+    def run_validation(self):
+        validation_output, validation_loss = self.test('validation')
+
+        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
+        
+        if validation_loss < self.best_validation_loss:
+            self.save_checkpoint(best_validation=True)
+            self.best_validation_loss = validation_loss
+
+        return validation_loss
 
     def test(self, subset_name='test'):
         self.transfer_to_device()
