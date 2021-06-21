@@ -59,7 +59,7 @@ def main():
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # method = get_method(args)
     if args.method[0] == 'LSTM':
-        session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0, input_size=2)
+        session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=2)
     elif args.method[0] == 'STN':
         session.network = StateTrajectoryNetworkFF()
     else:

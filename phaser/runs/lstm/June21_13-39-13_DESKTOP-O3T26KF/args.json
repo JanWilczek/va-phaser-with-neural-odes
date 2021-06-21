@@ -1,0 +1,18 @@
+{
+    "method": [
+        "LSTM"
+    ],
+    "epochs": 1000,
+    "batch_size": 40,
+    "learn_rate": 0.001,
+    "cyclic_lr": null,
+    "one_cycle_lr": null,
+    "init_len": 0,
+    "up_fr": 2048,
+    "val_chunk": 22050,
+    "test_chunk": 0,
+    "checkpoint": null,
+    "adjoint": false,
+    "name": "",
+    "weight_decay": 0.0
+}
