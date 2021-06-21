@@ -45,25 +45,8 @@ class ODENetDerivative(nn.Module):
             nn.Linear(8, 8, bias=True), nn.Tanh(), 
             nn.Linear(8, 8, bias=True), nn.Tanh(), 
             nn.Linear(8, 1, bias=True), nn.Tanh())
-        self.register_buffer('scaling', torch.Tensor([1]))
 
-        self.t = None
         self.input = None   # Tensor of shape time_frames x batch_size
-
-
-    @property
-    def dt(self):
-        return self.__dt
-
-    @dt.setter
-    def dt(self, value):
-        self.__dt = value
-
-        # v1, v2
-        # self.scaling = 1.0 / value 
-        
-        # v3
-        self.scaling[0] = 2.0 / value # 2x to enable jumps by 2 not just 1 (maximum absolute value of tanh is 1).
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
@@ -97,12 +80,10 @@ class ODENetDerivative(nn.Module):
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint=forward_euler, dt=1.0):
+    def __init__(self, derivative_network, odeint=forward_euler):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
-        self.dt = dt
-        self.derivative_network.dt = dt
         self.__true_state = None
         self.time = None
         self.state = None
