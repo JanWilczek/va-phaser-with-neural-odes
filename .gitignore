@@ -2,6 +2,8 @@
 *.wav
 *.png
 *.zip
+test_output.wav
+last_validation_output.wav
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
