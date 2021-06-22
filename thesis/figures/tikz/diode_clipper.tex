@@ -1,0 +1,21 @@
+\begin{tikzpicture}
+%--------start graphics code --------
+% \draw[step=0.5,very thin, black!20] (-1,-0.5) grid (6,2.5);
+\path (0,0) coordinate (ref_gnd);
+\draw
+  (ref_gnd)++(0,2) node[ocirc] {$V_{in}$}
+  to [R=\(R\)] ++(2,0) node[circ] {}
+  to ++(2,0)  node[circ] {}
+  to ++(2,0)  node[circ] {}
+  to ++(2,0)  node[ocirc] {$V_{out}$}
+  ++(-2,0)
+  to [D] ++(0,-2)
+  to ++(-2,0) node[circ] {}
+  to [D] ++(0,2)
+  ++(0,-2)
+  to ++(-1,0)
+  node[ground] {}
+  to ++(-1,0)
+  to [C=\(C\)] ++(0,2);
+%--------end graphics code ----------
+\end{tikzpicture}
