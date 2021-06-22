@@ -9,7 +9,7 @@ from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset, save_json
-# from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
+from models import ODENet, ODENetDerivative
 # from models.solvers import forward_euler, trapezoid_rule
 
 
@@ -40,13 +40,14 @@ def argument_parser():
 # CUSTOM_SOLVERS = {'forward_euler': forward_euler,
                 #   'trapezoid_rule': trapezoid_rule}
 
-# def get_method(args):
-    # if args.method[0] == 'odenet':
-        # if args.adjoint:
-            # return partial(odeint_adjoint, method=args.method[1])
-        # else:
-            # return partial(odeint, method=args.method[1])
-    # else:
+def get_method(args):
+    if args.method[0] == 'odenet':
+        if args.adjoint:
+            return partial(odeint_adjoint, method=args.method[1])
+        else:
+            return partial(odeint, method=args.method[1], rtol=1e-3, atol=1e-3)
+    else:
+        raise NotImplementedError()
         # return CUSTOM_SOLVERS[args.method[0]]
 
 def main():
@@ -55,25 +56,30 @@ def main():
     session = NetworkTraining()
     session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
     sampling_rate = session.dataset.subsets['train'].fs
+    session.epochs = args.epochs
+    session.segments_in_a_batch = args.batch_size
+    session.samples_between_updates = args.up_fr
+    session.initialization_length = args.init_len
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    # method = get_method(args)
     if args.method[0] == 'LSTM':
         session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=2)
     elif args.method[0] == 'STN':
         session.network = StateTrajectoryNetworkFF()
     else:
-        session.network = ODENet()
+        method = get_method(args)
+        session.network = ODENet(ODENetDerivative(), method)
 
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
 
     if args.one_cycle_lr is not None:
-        session.scheduler = torch.optim.OneCycleLR(session.optimizer,
+        session.scheduler = torch.optim.lr_scheduler.OneCycleLR(session.optimizer,
                                                     max_lr=args.one_cycle_lr,
                                                     div_factor=(args.one_cycle_lr / args.learn_rate),
                                                     final_div_factor=20,
-                                                    total_steps=500,
+                                                    epochs=session.epochs,
+                                                    steps_per_epoch=session.minibatch_count,
                                                     last_epoch=(session.epoch-1),
                                                     cycle_momentum=False)
     elif args.cyclic_lr is not None:
@@ -104,11 +110,6 @@ def main():
     session.writer.add_text('Command line arguments', json.dumps(vars(args)))
 
     session.loss = training.ESRLoss()
-    
-    session.epochs = args.epochs
-    session.segments_in_a_batch = args.batch_size
-    session.samples_between_updates = args.up_fr
-    session.initialization_length = args.init_len
 
     session.run()
 
