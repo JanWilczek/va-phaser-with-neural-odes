@@ -9,7 +9,7 @@ from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset, save_json
-from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative
+from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative, ResidualIntegrationNetworkRK4, BilinearBlock
 from models.solvers import forward_euler, trapezoid_rule
 
 
@@ -48,6 +48,18 @@ def get_method(args):
     else:
         return CUSTOM_SOLVERS[args.method[0]]
 
+def get_architecture(args):
+    if args.method[0] == 'LSTM':
+        network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
+    elif args.method[0] == 'STN':
+        network = StateTrajectoryNetworkFF()
+    elif args.method[0] == 'ResIntRK4':
+        network = ResidualIntegrationNetworkRK4(BilinearBlock())
+    else:
+        method = get_method(args)
+        network = ODENet(ODENetDerivative(), method)
+    return network
+
 def main():
     args = argument_parser().parse_args()
 
@@ -56,10 +68,8 @@ def main():
     sampling_rate = session.dataset.subsets['train'].fs
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    # session.network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
-    # session.network = StateTrajectoryNetworkFF()
-    method = get_method(args)
-    session.network = ODENet(ODENetDerivative(), method, dt=1/sampling_rate)
+
+    session.network = get_architecture(args)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
 
