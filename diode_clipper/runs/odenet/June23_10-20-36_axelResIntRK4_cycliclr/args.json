@@ -1,0 +1,17 @@
+{
+    "method": [
+        "ResIntRK4"
+    ],
+    "epochs": 500,
+    "batch_size": 512,
+    "learn_rate": 0.0005,
+    "cyclic_lr": 0.01,
+    "init_len": 0,
+    "up_fr": 1024,
+    "val_chunk": 22050,
+    "test_chunk": 22050,
+    "checkpoint": null,
+    "adjoint": false,
+    "name": "ResIntRK4_cycliclr",
+    "weight_decay": 0.0
+}
