@@ -20,6 +20,7 @@ def argument_parser():
     ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate')
     ap.add_argument('--cyclic_lr', '-y', type=float, default=None, help='If given, uses the cyclic learning rate schedule by Smith. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument''s parameter.')
+    ap.add_argument('--one_cycle_lr', '-oc', type=float, default=None, help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument''s parameter.')
     ap.add_argument('--init_len', '-il', type=int, default=1000,
                   help='Number of sequence samples to process before starting weight updates')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,
@@ -90,7 +91,7 @@ def main():
                                                                 last_epoch=(session.epoch-1),
                                                                 cycle_momentum=False)
     
-    model_directory = Path('diode_clipper', 'runs', args.method[0].lower())
+    model_directory = Path('diode_clipper', 'runs', 'odenet')
     
     # Untested
     if args.checkpoint is not None:
