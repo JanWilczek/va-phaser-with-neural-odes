@@ -18,7 +18,7 @@ def get_run_name():
     return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
 
 def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
-    d = dataset.DataSet(data_dir=str(Path('phaser', 'PhaserData').resolve()))
+    d = dataset.DataSet(data_dir=str(Path('phaser', 'data').resolve()))
 
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
@@ -26,7 +26,6 @@ def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len
     d.load_file('train/BehPhaserToneoff', 'train')
     d.load_file('validation/BehPhaserToneoff', 'validation')
     d.load_file('test/BehPhaserToneoff', 'test')
-    # d.load_file('BehPhaserToneoff', set_names=['train', 'val', 'test'], splits=[0.75, 0.125, 0.125])
 
     return d
 

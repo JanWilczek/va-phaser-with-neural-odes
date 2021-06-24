@@ -58,11 +58,44 @@ def get_architecture(args):
     elif args.method[0] == 'ResIntRK4':
         network = ResidualIntegrationNetworkRK4(BilinearBlock(input_size=3, 
                                                               output_size=1, 
-                                                              latent_size=6))
+                                                              latent_size=12))
     else:
         method = get_method(args)
         network = ODENet(ODENetDerivative(), method)
     return network
+
+def attach_scheduler(args, session):
+    if args.one_cycle_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.OneCycleLR(session.optimizer,
+                                                                max_lr=args.one_cycle_lr,
+                                                                div_factor=(args.one_cycle_lr / args.learn_rate),
+                                                                final_div_factor=20,
+                                                                epochs=session.epochs,
+                                                                steps_per_epoch=session.minibatch_count,
+                                                                last_epoch=(session.epoch-1),
+                                                                cycle_momentum=False)
+    elif args.cyclic_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
+                                                              base_lr=args.learn_rate,
+                                                              max_lr=args.cyclic_lr,
+                                                              step_size_up=250,
+                                                              last_epoch=(session.epoch-1),
+                                                              cycle_momentum=False)
+
+def load_checkpoint(args, session):
+    # Untested
+    if args.checkpoint is not None:
+        session.run_directory = model_directory / args.checkpoint
+        try:
+            session.load_checkpoint(best_validation=True)
+        except:
+            print("Failed to load a best validation checkpoint. Reverting to the last checkpoint.")
+            session.load_checkpoint(best_validation=False)
+        if session.scheduler is None:
+            # Scheduler's learning rate is not loaded but overwritten
+            for param_group in session.optimizer.param_groups:
+                param_group['lr'] = args.learn_rate
+
 
 def main():
     args = argument_parser().parse_args()
@@ -80,36 +113,11 @@ def main():
     session.network = get_architecture(args)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
-
-    if args.one_cycle_lr is not None:
-        session.scheduler = torch.optim.lr_scheduler.OneCycleLR(session.optimizer,
-                                                    max_lr=args.one_cycle_lr,
-                                                    div_factor=(args.one_cycle_lr / args.learn_rate),
-                                                    final_div_factor=20,
-                                                    epochs=session.epochs,
-                                                    steps_per_epoch=session.minibatch_count,
-                                                    last_epoch=(session.epoch-1),
-                                                    cycle_momentum=False)
-    elif args.cyclic_lr is not None:
-        session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
-                                                                base_lr=args.learn_rate,
-                                                                max_lr=args.cyclic_lr,
-                                                                step_size_up=250,
-                                                                last_epoch=(session.epoch-1),
-                                                                cycle_momentum=False)
+    attach_scheduler(args, session)
     
     model_directory = Path('phaser', 'runs', args.method[0].lower())
     
-    # Untested
-    if args.checkpoint is not None:
-        session.run_directory = model_directory / args.checkpoint
-        try:
-            session.load_checkpoint(best_validation=True)
-        except:
-            session.load_checkpoint(best_validation=False)
-        if session.scheduler is None:
-            for param_group in session.optimizer.param_groups:
-                param_group['lr'] = args.learn_rate
+    load_checkpoint(args, session)
 
     run_name = get_run_name() + args.name
     session.run_directory =  model_directory / run_name
