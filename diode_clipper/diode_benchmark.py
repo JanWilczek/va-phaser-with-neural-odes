@@ -73,7 +73,16 @@ def main():
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
 
-    if args.cyclic_lr is not None:
+    if args.one_cycle_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.OneCycleLR(session.optimizer,
+                                                    max_lr=args.one_cycle_lr,
+                                                    div_factor=(args.one_cycle_lr / args.learn_rate),
+                                                    final_div_factor=20,
+                                                    epochs=session.epochs,
+                                                    steps_per_epoch=session.minibatch_count,
+                                                    last_epoch=(session.epoch-1),
+                                                    cycle_momentum=False)
+    elif args.cyclic_lr is not None:
         session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
                                                                 base_lr=args.learn_rate,
                                                                 max_lr=args.cyclic_lr,
@@ -81,7 +90,7 @@ def main():
                                                                 last_epoch=(session.epoch-1),
                                                                 cycle_momentum=False)
     
-    model_directory = Path('diode_clipper', 'runs', 'odenet')
+    model_directory = Path('diode_clipper', 'runs', args.method[0].lower())
     
     # Untested
     if args.checkpoint is not None:
