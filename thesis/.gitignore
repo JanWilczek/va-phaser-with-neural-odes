@@ -24,3 +24,10 @@
 *.diff.tex
 fig/nvvp.eps
 !inc/*
+
+# Additional LaTeX gitignores
+*.bib.bak
+*.bib.sav
+*.ilg
+*.ind
+*.synctex.gz

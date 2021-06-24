@@ -14,9 +14,25 @@
             "args": ["-l", "0.1"]
         },
         {
+            "name": "Python: diode_ode_numerical (local)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/diode_clipper/diode_ode_numerical.py",
+            "console": "integratedTerminal",
+            "args": ["--method-name", "BDF", "--upsample-factor", "8", "--length-seconds", "10", "--input-scaling-factor", "5", "--frame-length", "128", "--normalize"]
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Current File (local)",
+            "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -39,7 +55,7 @@
             "program": "${workspaceFolder}/diode_clipper/diode_benchmark.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "args": ["--val_chunk", "0", "--test_chunk", "22050", "--init_len", "0", "--up_fr", "22050"]
+            "args": ["ResIntRK4", "--batch_size", "512", "--val_chunk", "22050", "--test_chunk", "22050", "--init_len", "0", "--up_fr", "1024", "--learn_rate", "0.001", "--epochs", "100"]
         }
     ]
 }

@@ -20,15 +20,32 @@ def diode_equation_rhs(t, v_out, v_in):
 class ODENetDerivative(nn.Module):
     def __init__(self):
         super().__init__()
-        output_scaling = nn.Linear(1, 1, bias=False)
-        output_scaling.weight.data.fill_(44100)
+        # v1
+        # output_scaling = nn.Linear(1, 1, bias=False)
+        # output_scaling.weight.data.fill_(44100)
+        # self.densely_connected_layers = nn.Sequential(
+            # nn.Linear(2, 4, bias=False), nn.Tanh(), 
+            # nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            # nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            # nn.Linear(4, 1, bias=False),
+            # output_scaling)
+        
+        # v2
+        # self.densely_connected_layers = nn.Sequential(
+        #     nn.Linear(2, 8, bias=False), nn.Tanh(), 
+        #     nn.Linear(8, 8, bias=False), nn.Tanh(), 
+        #     nn.Linear(8, 8, bias=False), nn.Tanh(), 
+        #     nn.Linear(8, 1, bias=False))
+        # self.scaling = torch.Tensor([1])
+        # self.register_buffer('constant_output_scaling', self.scaling)
+
+        # v3
         self.densely_connected_layers = nn.Sequential(
-            nn.Linear(2, 4, bias=False), nn.Tanh(), 
-            nn.Linear(4, 4, bias=False), nn.Tanh(), 
-            nn.Linear(4, 4, bias=False), nn.Tanh(), 
-            nn.Linear(4, 1, bias=False),
-            output_scaling)
-        self.t = None
+            nn.Linear(2, 8, bias=True), nn.Tanh(), 
+            nn.Linear(8, 8, bias=True), nn.Tanh(), 
+            nn.Linear(8, 8, bias=True), nn.Tanh(), 
+            nn.Linear(8, 1, bias=True), nn.Tanh())
+
         self.input = None   # Tensor of shape time_frames x batch_size
 
     def forward(self, t, y):
@@ -46,33 +63,30 @@ class ODENetDerivative(nn.Module):
         torch.Tensor of shape the same as y
             derivative of y over time at time t
         """
-        # 1st-order interpolation
-        # t_new = torch.tile(t.unsqueeze(0), (y.shape[0], 1))
-        # input_at_t = Interp1d()(self.t, self.input, t_new)
-
         # 0th-order interpolation
-        frames_count = self.input.shape[0]
-        input_at_t = self.input[int(t / self.dt) % frames_count, :]
+        input_at_t = self.input[t, :]
 
-        # mlp_input = torch.stack((y.clone(), input_at_t, t * torch.ones_like(y)), dim=1)
         mlp_input = torch.stack((y.clone(), input_at_t), dim=1)
         output = self.densely_connected_layers(mlp_input)
         
-        # Analytical RHS (not neural) for debugging
+        # Analytical RHS (not neural) for debugging`
         # ode_eq_output = diode_equation_rhs(t, y, input_at_t)
 
-        return output.squeeze_(-1)
+        # v1 
+        return output.squeeze(-1)
+
+        # v2, v3
+        # return self.scaling * output.squeeze(-1)
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint=forward_euler, dt=1.0):
+    def __init__(self, derivative_network, odeint=forward_euler):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
-        self.dt = dt
-        self.derivative_network.dt = dt
         self.__true_state = None
         self.time = None
+        self.state = None
 
     def forward(self, x):
         """
@@ -88,34 +102,37 @@ class ODENet(nn.Module):
         """
         sequence_length, minibatch_size, feature_count = x.shape
 
-        self.update_time(sequence_length, minibatch_size)
+        if self.state is None:
+            self.state = torch.zeros((minibatch_size,), device=self.device)
+
+        self.create_time_vector(sequence_length)
 
         self.derivative_network.input = x.squeeze(2)
 
-        initial_value = torch.zeros((minibatch_size,), device=self.device)
-
-        odeint_output = self.odeint(self.derivative_network, initial_value, self.time)
+        odeint_output = self.odeint(self.derivative_network, self.state, self.time)
         # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
 
-        return odeint_output.unsqueeze_(2)
+        # New state is the last output sample
+        self.state = odeint_output[-1, :]
 
-    def update_time(self, sequence_length, minibatch_size):
-        if self.time is None:
-            start_time = 0.0
-        else:
-            start_time = self.time[-1] + self.dt
-        self.time = torch.linspace(start_time, start_time + sequence_length * self.dt, sequence_length, device=self.device)
-        self.derivative_network.t = torch.tile(self.time.unsqueeze(0), (minibatch_size, 1))
+        return odeint_output[:-1, :, None]
+
+    def create_time_vector(self, sequence_length):
+        time_vector_length = sequence_length + 1 # the last sample is for the initial value for the next subsegment
+        if self.time is None or self.time.shape[0] != time_vector_length:
+            self.time = torch.arange(0, time_vector_length, device=self.device)
 
     def reset_hidden(self):
         self.true_state = None
         self.time = None
+        self.state = None
 
     def detach_hidden(self):
-        pass
+        self.state = self.state.detach()
 
     @property
     def true_state(self):
+        raise NotImplementedError()
         return self.__true_state
 
     @true_state.setter

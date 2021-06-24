@@ -1,2 +1,3 @@
 from .ODENet import ODENetDerivative, ODENet
 from .StateTrajectoryNetwork import StateTrajectoryNetworkFF
+from .ResidualIntegrationNetworkRK4 import ResidualIntegrationNetworkRK4, BilinearBlock

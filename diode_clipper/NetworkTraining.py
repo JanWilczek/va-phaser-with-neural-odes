@@ -17,10 +17,10 @@ def save_json(json_data, filepath):
 def get_run_name():
     return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
 
-def create_dataset(validation_frame_len=0, test_frame_len=0):
+def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
     d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
 
-    d.create_subset('train', frame_len=22050)
+    d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
     d.create_subset('ignore')
     d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
@@ -46,25 +46,19 @@ class NetworkTraining:
         self.enable_teacher_forcing = False
         self.writer = None
         self.__run_directory = None
+        self.scheduler = None
 
     def run(self):
         """Run full network training."""
         self.writer.add_text('Architecture', str(self.network))
         self.transfer_to_device()
-        best_validation_loss = float('inf')
+        self.best_validation_loss = float('inf')
 
         self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
-            validation_output, validation_loss = self.test('validation')
-            
+            validation_loss = self.run_validation()
             self.log_epoch_validation_loss(epoch_loss=epoch_loss, validation_loss=validation_loss)
-
-            torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
-            
-            if validation_loss < best_validation_loss:
-                torch.save(self.network.state_dict(), self.best_validation_model_path)
-                best_validation_loss = validation_loss
 
     def train_epoch(self):
         self.timer.epoch_started()
@@ -104,11 +98,27 @@ class NetworkTraining:
                 subsegment_start += self.samples_between_updates
                 epoch_loss += loss.item()
             
-                self.save_checkpoint()
+            if self.scheduler is not None:
+                self.scheduler.step()
 
         self.timer.epoch_ended()
+        self.save_checkpoint()
+
+        if self.scheduler is not None:
+            self.writer.add_scalar('Learning rate', self.scheduler.get_last_lr()[0], self.epoch)
 
         return epoch_loss / (self.segment_length * self.segments_count)
+
+    def run_validation(self):
+        validation_output, validation_loss = self.test('validation')
+
+        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
+        
+        if validation_loss < self.best_validation_loss:
+            self.save_checkpoint(best_validation=True)
+            self.best_validation_loss = validation_loss
+
+        return validation_loss
 
     def test(self, subset_name='test'):
         self.transfer_to_device()
@@ -121,18 +131,27 @@ class NetworkTraining:
         # Flatten the output properly to obtain one long frame
         return output.permute(1, 0, 2).flatten(), loss 
 
-    def save_checkpoint(self):
-        torch.save({
+    def save_checkpoint(self, best_validation=False):
+        checkpoint_dict = {
             'epoch': self.epoch,
             'model_state_dict': self.network.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict()
-        }, self.checkpoint_path)
+        }
 
-    def load_checkpoint(self):
-        checkpoint = torch.load(self.checkpoint_path)
+        if self.scheduler is not None:
+            checkpoint_dict[self.SCHEDULER_STATE_DICT_KEY] = self.scheduler.state_dict()
+
+        torch.save(checkpoint_dict, self.best_validation_model_path if best_validation else self.checkpoint_path)
+
+    def load_checkpoint(self, best_validation=False):
+        checkpoint = torch.load(self.best_validation_model_path if best_validation else self.checkpoint_path)
         self.network.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
+        
+        # Should the scheduler be loaded as well?
+        # if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
+            # self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
 
     def log_epoch_validation_loss(self, epoch_loss, validation_loss):
         print(f'Epoch: {self.epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
@@ -207,3 +226,5 @@ class NetworkTraining:
     @property
     def best_validation_model_path(self):
         return self.run_directory / 'best_validation_loss_model.pth'
+
+    SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'
