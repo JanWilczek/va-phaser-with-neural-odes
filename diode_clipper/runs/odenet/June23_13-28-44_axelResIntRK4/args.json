@@ -1,0 +1,17 @@
+{
+    "method": [
+        "ResIntRK4"
+    ],
+    "epochs": 200,
+    "batch_size": 512,
+    "learn_rate": 0.001,
+    "cyclic_lr": null,
+    "init_len": 0,
+    "up_fr": 1024,
+    "val_chunk": 22050,
+    "test_chunk": 22050,
+    "checkpoint": "June23_09-35-35_axelResIntRK4",
+    "adjoint": false,
+    "name": "ResIntRK4",
+    "weight_decay": 0.0
+}

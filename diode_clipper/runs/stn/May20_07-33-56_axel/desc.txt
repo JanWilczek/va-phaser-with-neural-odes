@@ -1,0 +1,2 @@
+STN consisted of 3 layers with 4 hidden units each.
+Command: self.densely_connected_layers = nn.Sequential(nn.Linear(2, 4, bias=False), nn.Tanh(), nn.Linear(4, 4), nn.Tanh(), nn.Linear(4, 4, bias=False), nn.Tanh(), nn.Linear(4, 1, bias=False))
