@@ -124,19 +124,83 @@ It has been observed that learning the residual instead of the function can be v
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \Ac{VA} effects are digital emulations of audio systems that were originally built using analog electronic or electromechanical components \cite{Zoelzer2011}. They arose out of the demand for the reproduction of characteristic tonal distortions of these devices but with the digital stability and the ease of integration with existing software. Devices modelled range from filters, to time-varying effects, amplifiers, mechanical reverb units, and tape or vinyl distortions.
 
-One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski2016,Wright2020}. In \emph{black-box} modelling, only the input-output relation of a system is examined and a signal model is constructed to mimic that behavior. Neural networks have successfully been applied to this kind of modeling for guitar amplifiers \cite{Wright2019,Wrightetal2020}. In \emph{white-box} modelling an internal structure of the system under study is examined and used to construct an algorithm aiming at reproducing its behavior. Sometimes it is referred to as \emph{physical modeling}. Typical approaches in this category are a derivation of \acp{ODE} from an electronic circuit analysis \cite{Yeh2007,Eichas2014} or wave-digital filters \cite{PASPWEB2010}. \emph{Grey-box} modeling falls somewhere in between the two already mentioned approaches, where we use some knowledge about the inner workings of the device under study to design a model and subsequently take advantage of the input and output data to adjust the model's parameters. This approach has been successfully applied to time-varying effects modeling, like a phaser or a flanger \cite{Kiiski2016,Wright2020}, where a \ac{LFO} signal is estimated and used for conditioning the model.
+One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski2016,Wright2020}. In \emph{black-box} modelling, only the input-output relation of a system is examined and a signal model is constructed to mimic that behavior. Neural networks have successfully been applied to this kind of modeling for guitar amplifiers \cite{Wright2019,Wrightetal2020}. In \emph{white-box} modelling an internal structure of the system under study is examined and used to construct an algorithm aiming at reproducing its behavior. Sometimes it is referred to as \emph{physical modeling}. Typical approaches in this category are a numerical solution of \acp{ODE} derived from electronic circuit analysis \cite{Yeh2007,Eichas2014} or wave-digital filters \cite{PASPWEB2010}. \emph{Grey-box} modeling falls somewhere in between the two already mentioned approaches, where we use some knowledge about the inner workings of the device under study to design a model and, subsequently, take advantage of the input and output data to adjust the model's parameters. This approach has been successfully applied to time-varying effects modeling, like a phaser or a flanger \cite{Kiiski2016,Wright2020}, where a \ac{LFO} signal is estimated and used for conditioning the model.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Modeled Systems}
 \label{sec:modeled_systems}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The aim of this work is to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. The main goal is to model a phaser pedal. However, in order to get intuition behind this type of architecture, a simpler, time-invariant system was modeled, namely, a first-order diode clipper. 
+The aim of this work is to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. The main goal is to model a phaser pedal. However, in order to get intuition behind this type of architecture, a simpler, time-invariant system was modeled, namely, a first-order diode clipper. This section describes both these devices.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Diode Clipper}
 \label{subsec:diode_clipper_intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \input{figures/tikz/diode_clipper.tex}
+  \caption{Diode clipper circuit.}
+  \label{fig:diode_clipper_circuit}
+\end{figure}
+
+The first-order diode clipper is a circuit frequently used to achieve signal distortion, e.\ g. in guitar amplifiers. Its schematic is shown on \Figure{fig:diode_clipper_circuit}. It can be regarded as consisting of two parts: an RC lowpass filter and a diode limiter.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{RC Lowpass Filter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+  \centering
+  \input{figures/tikz/rc_lowpass.tex}
+  \caption{RC lowpass filter.}
+  \label{fig:rc_lowpass}
+\end{figure}
+
+The first part of the diode clipper circuit is an RC lowpass filter. An RC lowpass filter is shown in \Figure{fig:rc_lowpass}. The input-output voltage relation is governed by the following equation
+\begin{equation}
+  V_{out} = \frac{X_C}{\sqrt{R^2 + X_C^2}} V_{in},
+  \label{eq:rc_circuit}
+\end{equation}
+where $V_{in}$ is the input voltage, $V_{out}$ is the output voltage, $X_C=\frac{1}{2\pi f C}$ is the capacitive reactance of the capacitor in the circuit, $C$ is its capacitance, $R$ is the resistor's resistance, and $f$ denotes the frequency of the input \ac{AC}.
+
+The capacitor impedes low frequencies more; the lower the frequency, the higher the capacitive reactance. More capacitive reactance means larger voltage drop on the capacitor. Thus, assuming a constant magnitude across all frequencies of the input voltage, the output voltage is higher for low frequencies and the circuit behaves like a lowpass filter.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Diode Limiter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \input{figures/tikz/diode_limiter.tex}
+  \caption{Diode limiter circuit.}
+  \label{fig:diode_limiter}
+\end{figure}
+
+The second part of the diode clipper is the diode limiter also called a \emph{diode clamp} \cite{Malvino2016}. Its circuit is shown in the \Figure{fig:diode_limiter}. It consists of two inversely polarized diodes and a series resistor. This circuit could be further divided into a \emph{positive clipper} (by removing the diode on the left) and a \emph{negative clipper} (by removing the diode on the right). These names refer to which part of the input \ac{AC} signal (the positive or the negative) will be removed at the output.
+
+If the diodes were ideal, i.\ e., they would behave as an open for voltages across smaller than 0 and as a short for voltages across larger than 0, $V_{out}$ would always be 0. However, to a second approximation, there diodes cause a voltage drop of \SI{0.7}{V} when conducting. Thus, the voltage cannot exceed the \SIrange{-0.7}{0.7}{V} range, being clamped when attempting to do so. The positive clipper guards the upper limit and the negative clipper guards the lower limit. The effect of passing an \ac{AC} signal through the diode limiter is shown in \Figure{fig:diode_limiter_signal}.
+
+\begin{figure}
+  \centering
+  \input{figures/tikz/diode_limiter_signal.tex}
+  \caption{Diode limiter impact on the input sinusoidal voltage. Values that exceed the \SIrange{-0.7}{0.7}{V} range are clamped.}
+  \label{fig:diode_limiter_signal}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{First-Order Diode Clipper}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Combining the RC lowpass filter (\Figure{fig:rc_lowpass}) and the diode limiter (\Figure{fig:diode_limiter}) yields the first-order diode clipper (\Figure{fig:diode_clipper}). It is called "first-order" because only a single capacitor is used \cite{Parker2019}. If the input voltage is within the limiter's operational range, the circuit acts as a lowpass filter. If the voltage exceeds this range, it is clipped at the output and distortion is introduced.
+
+The first-order diode clipper can be described by a nonlinear \ac{ODE} \cite{Yeh2007}
+\begin{equation}
+  \frac{\mathrm{d} V_{out}}{\mathrm{d}t} = \frac{V_{in} - V_{out}}{RC} - 2 \frac{I_s}{C} \sinh \left(\frac{V_{out}}{V_t}\right),
+\end{equation}
+where $V_{in}$ is the input voltage, $V_{out}$ is the output voltage, $t$ denotes time, $R$ is serial resistance, $C$ is the parallel capacity, $I_s$ is the reverse saturation current, and $V_t$ is the thermal voltage. The last two are parameters of the diodes and can be extracted from measurement \cite{Yeh2007}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 The first-order diode clipper is a system particularly interesting in the context of the ODENet, because it is governed by a known \ac{ODE} \cite{Yeh2007,Yeh2008}. Additionally, it was already modeled using a \ac{ResNet} type of architecture in \cite{Parker2019}. Thus, learning to imitate the diode clipper allowed for validation of the ODENet and comparison to 
 \begin{itemize}
   \item an \ac{LSTM} architecture from \cite{Wrightetal2020},
@@ -144,12 +208,6 @@ The first-order diode clipper is a system particularly interesting in the contex
   \item a numerical solution using the \ac{ODE} from \cite{Yeh2007,Yeh2008}.
 \end{itemize}
 
-\begin{figure}
-  \centering
-  \input{figures/tikz/diode_clipper.tex}
-  \caption{Diode clipper circuit.}
-  \label{fig:diode_clipper_circuit}
-\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Phaser}

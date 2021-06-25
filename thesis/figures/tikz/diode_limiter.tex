@@ -7,17 +7,13 @@
   node[xshift=-2mm,yshift=4mm] {$V_{in}$}
   to [R=\(R\)] ++(2,0) node[circ] {}
   to ++(2,0)  node[circ] {}
-  to ++(2,0)  node[circ] {}
   to ++(1,0)  node[ocirc] {} {}
   node[yshift=4mm] {$V_{out}$}
   ++(-1,0)
   to [D] ++(0,-2)
-  to ++(-2,0) node[circ] {}
-  to [D] ++(0,2)
-  ++(0,-2)
   to ++(-1,0)
   node[ground] {}
   to ++(-1,0)
-  to [C=\(C\)] ++(0,2);
+  to [D] ++(0,2);
 %--------end graphics code ----------
 \end{tikzpicture}
