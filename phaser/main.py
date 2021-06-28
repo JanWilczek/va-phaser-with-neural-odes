@@ -4,6 +4,7 @@ import json
 from functools import partial
 from pathlib import Path
 import torch
+import torch.nn as nn
 import torchaudio
 from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
@@ -56,9 +57,12 @@ def get_architecture(args):
     elif args.method[0] == 'STN':
         network = StateTrajectoryNetworkFF()
     elif args.method[0] == 'ResIntRK4':
-        network = ResidualIntegrationNetworkRK4(BilinearBlock(input_size=3, 
+        network = ResidualIntegrationNetworkRK4(nn.Sequential(BilinearBlock(input_size=3, 
+                                                              output_size=6, 
+                                                              latent_size=12),
+                                                              BilinearBlock(input_size=6, 
                                                               output_size=1, 
-                                                              latent_size=12))
+                                                              latent_size=12)))
     else:
         method = get_method(args)
         network = ODENet(ODENetDerivative(), method)
@@ -82,7 +86,7 @@ def attach_scheduler(args, session):
                                                               last_epoch=(session.epoch-1),
                                                               cycle_momentum=False)
 
-def load_checkpoint(args, session):
+def load_checkpoint(args, session, model_directory):
     # Untested
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
@@ -117,7 +121,7 @@ def main():
     
     model_directory = Path('phaser', 'runs', args.method[0].lower())
     
-    load_checkpoint(args, session)
+    load_checkpoint(args, session, model_directory)
 
     run_name = get_run_name() + args.name
     session.run_directory =  model_directory / run_name

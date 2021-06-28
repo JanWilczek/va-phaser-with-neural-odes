@@ -21,14 +21,14 @@ class ODENetDerivative(nn.Module):
     def __init__(self):
         super().__init__()
         # v1
-        # output_scaling = nn.Linear(1, 1, bias=False)
-        # output_scaling.weight.data.fill_(44100)
-        # self.densely_connected_layers = nn.Sequential(
-            # nn.Linear(2, 4, bias=False), nn.Tanh(), 
-            # nn.Linear(4, 4, bias=False), nn.Tanh(), 
-            # nn.Linear(4, 4, bias=False), nn.Tanh(), 
-            # nn.Linear(4, 1, bias=False),
-            # output_scaling)
+        output_scaling = nn.Linear(1, 1, bias=False)
+        output_scaling.weight.data.fill_(44100)
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(2, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 1, bias=False),
+            output_scaling)
         
         # v2
         # self.densely_connected_layers = nn.Sequential(
@@ -40,11 +40,11 @@ class ODENetDerivative(nn.Module):
         # self.register_buffer('constant_output_scaling', self.scaling)
 
         # v3
-        self.densely_connected_layers = nn.Sequential(
-            nn.Linear(2, 8, bias=True), nn.Tanh(), 
-            nn.Linear(8, 8, bias=True), nn.Tanh(), 
-            nn.Linear(8, 8, bias=True), nn.Tanh(), 
-            nn.Linear(8, 1, bias=True), nn.Tanh())
+        # self.densely_connected_layers = nn.Sequential(
+        #     nn.Linear(2, 8, bias=True), nn.Tanh(), 
+        #     nn.Linear(8, 8, bias=True), nn.Tanh(), 
+        #     nn.Linear(8, 8, bias=True), nn.Tanh(), 
+        #     nn.Linear(8, 1, bias=True), nn.Tanh())
 
         self.input = None   # Tensor of shape time_frames x batch_size
 
@@ -64,7 +64,8 @@ class ODENetDerivative(nn.Module):
             derivative of y over time at time t
         """
         # 0th-order interpolation
-        input_at_t = self.input[t, :]
+        # input_at_t = self.input[int(t*44100), :] # for real time instants (time has physical meaning)
+        input_at_t = self.input[t, :] # for integer time instants
 
         mlp_input = torch.stack((y.clone(), input_at_t), dim=1)
         output = self.densely_connected_layers(mlp_input)
@@ -120,7 +121,7 @@ class ODENet(nn.Module):
     def create_time_vector(self, sequence_length):
         time_vector_length = sequence_length + 1 # the last sample is for the initial value for the next subsegment
         if self.time is None or self.time.shape[0] != time_vector_length:
-            self.time = torch.arange(0, time_vector_length, device=self.device)
+            self.time = torch.arange(0, time_vector_length, device=self.device) / 44100.0 # BE CAREFUL!!!
 
     def reset_hidden(self):
         self.true_state = None

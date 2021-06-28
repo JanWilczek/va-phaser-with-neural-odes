@@ -24,3 +24,10 @@ ps -x | grep diode_clipper
 ```bash
 python -m cProfile -o diode_ode_numerical_profile.bin diode_clipper\diode_ode_numerical.py -u 38 -l 1 -s 5 -i 0 -m forward_euler -f 22050
 ```
+
+## Count the number of parameters in a model
+
+```python
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+```

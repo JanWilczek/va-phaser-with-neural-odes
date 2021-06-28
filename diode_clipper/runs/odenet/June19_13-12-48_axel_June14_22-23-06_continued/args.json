@@ -1,0 +1,18 @@
+{
+    "method": [
+        "odenet",
+        "implicit_adams"
+    ],
+    "epochs": 1000,
+    "batch_size": 64,
+    "learn_rate": 0.001,
+    "cyclic_lr": null,
+    "init_len": 0,
+    "up_fr": 22050,
+    "val_chunk": 22050,
+    "test_chunk": 0,
+    "checkpoint": "June14_22-23-06_axel",
+    "adjoint": false,
+    "name": "_June14_22-23-06_continued",
+    "weight_decay": 0.0
+}

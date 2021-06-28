@@ -11,7 +11,7 @@ class BilinearBlock(nn.Module):
         self.nl2 = nn.Tanh()
         self.fc3 = nn.Linear(input_size, latent_size)
         self.nl3 = nn.Tanh()
-        self.fc4 = nn.Linear(2 * latent_size, 1)
+        self.fc4 = nn.Linear(2 * latent_size, output_size)
         self.nl4 = nn.Tanh()
 
     def forward(self, x):
