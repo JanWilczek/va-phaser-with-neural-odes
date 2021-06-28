@@ -200,14 +200,16 @@ Because the same current flows through the resistor and the capacitor we can equ
   \label{fig:diode_limiter}
 \end{figure}
 
-The second part of the diode clipper is the diode limiter also called a \emph{diode clamp} \cite{Malvino2016}. Its circuit is shown in the \Figure{fig:diode_limiter}. It consists of two inversely polarized diodes and a series resistor. This circuit could be further divided into a \emph{positive clipper} (by removing the diode on the left) and a \emph{negative clipper} (by removing the diode on the right). These names refer to which part of the input \ac{AC} signal (the positive or the negative) will be removed at the output.
+The second part of the diode clipper is the diode limiter also called a \emph{diode clamp} \cite{Malvino2016}. Its circuit is shown in \Figure{fig:diode_limiter}. It consists of two inversely polarized diodes and a resistor. This circuit could be further divided into a \emph{positive clipper} (by removing the diode on the left) and a \emph{negative clipper} (by removing the diode on the right). These names refer to which part of the input \ac{AC} signal (the positive or the negative) is removed at the output.
 
-If the diodes were ideal, i.\ e., they would behave as an open for voltages across smaller than 0 and as a short for voltages across larger than 0, $V_{out}$ would always be 0. However, to a second approximation, there diodes cause a voltage drop of \SI{0.7}{V} when conducting. Thus, the voltage cannot exceed the \SIrange{-0.7}{0.7}{V} range, being clamped when attempting to do so. The positive clipper guards the upper limit and the negative clipper guards the lower limit. The effect of passing an \ac{AC} signal through the diode limiter is shown in \Figure{fig:diode_limiter_signal}.
+If the diodes were ideal, i.\ e., they would behave as an open for voltages across smaller than 0 and as a short for voltages across larger than 0, $V_{out}$ would always be 0. However, to a second approximation, the diodes cause a voltage drop of \SI{0.7}{V} when conducting. Thus, the voltage cannot exceed the \SIrange{-0.7}{0.7}{V} range, being clamped when attempting to do so. The positive clipper guards the upper limit and the negative clipper guards the lower limit. The effect of passing an \ac{AC} signal through the diode limiter is shown in \Figure{fig:diode_limiter_signal}.
+
+\cite{Yeh2007} contains the small-signal interpretation of the diode limiter circuit.
 
 \begin{figure}
   \centering
   \input{figures/tikz/diode_limiter_signal.tex}
-  \caption{Impact of the diode limiter on the input sinusoidal voltage. Values that exceed the \SIrange{-0.7}{0.7}{V} range are clamped.}
+  \caption{Impact of the diode limiter on the input sinusoidal voltage. Values that exceed the \SIrange{-0.7}{0.7}{V} range are clamped and the signal is distorted.}
   \label{fig:diode_limiter_signal}
 \end{figure}
 
@@ -221,7 +223,27 @@ The first-order diode clipper can be described by a nonlinear \ac{ODE} \cite{Yeh
 \begin{equation}
   \frac{\mathrm{d} V_{out}}{\mathrm{d}t} = \frac{V_{in} - V_{out}}{RC} - 2 \frac{I_s}{C} \sinh \left(\frac{V_{out}}{V_t}\right),
 \end{equation}
-where $V_{in}$ is the input voltage, $V_{out}$ is the output voltage, $t$ denotes time, $R$ is serial resistance, $C$ is the parallel capacity, $I_s$ is the reverse saturation current, and $V_t$ is the thermal voltage. The last two are parameters of the diodes and can be extracted from measurement \cite{Yeh2007}. 
+where $V_{in}$ is the input voltage, $V_{out}$ is the output voltage, $t$ denotes time, $R$ is the serial resistance, $C$ is the parallel capacity, $I_s$ is the reverse saturation current, and $V_t$ is the thermal voltage. The last two are parameters of the diodes and can be extracted from measurement \cite{Yeh2007}.
+
+The parameter values of discrete elements used in the experiments were taken from \cite{Yeh2008}. They are summarized in \Table{tab:diode_clipper_element_parameters}.
+
+\begin{table}
+  \centering
+  \caption{Parameter values of the discrete elements used in the diode clipper circuit. Source: \cite{Yeh2008}.}
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Parameter & Value \\
+    \hline
+    $R$ & \SI{2.2}{k\ohm} \\
+    $C$ & \SI{10}{nF} \\
+    $I_s$ & \SI{2.52}{nA} \\
+    $V_t$ & \SI{45.3}{mV} \\
+    \hline
+  \end{tabular}
+  \label{tab:diode_clipper_element_parameters}
+\end{table}
+
+$V_{in}$ is typically on the order of volts.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
