@@ -151,14 +151,18 @@ The first-order diode clipper is a system particularly interesting in the contex
 \label{sec:diode_clipper_training_data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The dataset to be used for the diode clipper modeling consisted of 7 minutes and 59 seconds of guitar and bass recordings from \cite{Abesser2013} and \cite{Kehling2014} respectively. The amount of guitar recordings was roughly the same as the amount of bass recordings and their ordering was arbitrary. 1 minute and 29 seconds (approximately 20\%) of these were used as the test set. Care was taken so that the test file begins with silence. The remaining data was split into the validation set (1 minute and 18 seconds) and the train set (5 minutes and 12 seconds) according to the 80:20 rule. The input were raw recordings and the target distorted signal was synthesized from a SPICE model of the circuit with the schematic from \Figure{fig:diode_clipper_circuit} and parameter values from \Table{tab:diode_clipper_element_parameters}. For the simulation, LTspice XVII by Analog Devices was used \cite{LTspice}. The synthesized target data sounds realistically and was previously used with success in \cite{Wright2019}.
+The dataset to be used for the diode clipper modeling consisted of 7 minutes and 59 seconds of guitar and bass recordings from \cite{Abesser2013} and \cite{Kehling2014} respectively. The amount of guitar recordings was roughly the same as the amount of bass recordings and their ordering was arbitrary. All recordings were single-channel and used \SI{44100}{Hz} sampling rate. 1 minute and 29 seconds (approximately 20\%) of these were used as the test set. Care was taken so that the test file begins with silence. The remaining data was split into the validation set (1 minute and 18 seconds) and the train set (5 minutes and 12 seconds) according to the 80:20 rule. The input were raw recordings and the target distorted signal was synthesized from a SPICE model of the circuit with the schematic from \Figure{fig:diode_clipper_circuit} and parameter values from \Table{tab:diode_clipper_element_parameters}. For the simulation, LTspice XVII by Analog Devices was used \cite{LTspice}. The synthesized target data sounds realistically and was previously used with success in \cite{Wright2019}.
+
+The proper training set was split into half-second segments. These segments were randomly shuffled at the beginning of each epoch and split into minibatches of a predetermined size. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Training}
 \label{sec:diode_clipper_training}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The training procedure was as follows. 
+The training procedure was as follows. Firstly, the dataset was loaded, then the network architecture was initialized, and the training parameters were set (optimization algorithm, hyperparameters, learning rate schedule, loss function). Then the proper training was run for a fixed number of epochs. After each epoch, the validation loss was computed. Finally, after finishing the last epoch, the test set was processed and the model's output along with the final loss value were recorded.
+
+A single epoch consisted of processing the minibatches of segments in chunks (subsegments) of a given length. After each subsegment, the gradient of the loss with respect to the network parameters was calculated using the \ac{BPTT}. Then, the gradient step was performed using the optimizer, the computation graph discarded and the next subsegment processed. After each minibatch, the learning rate scheduler performed its step (if such a scheduler was set). When an epoch has ended, model parameters were stored by overwriting the previously saved ones. Additionally, the training session kept track of the model which performed best on the validation set.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Compared Models}
