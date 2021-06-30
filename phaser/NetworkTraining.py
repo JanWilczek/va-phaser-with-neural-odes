@@ -106,7 +106,7 @@ class NetworkTraining:
         if self.scheduler is not None:
             self.writer.add_scalar('Learning rate', self.scheduler.get_last_lr()[0], self.epoch)
 
-        return epoch_loss / (self.segment_length * self.segments_count)
+        return epoch_loss / (self.minibatch_count * self.subsegments_count)
 
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')

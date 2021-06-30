@@ -91,7 +91,7 @@ def main():
                                                                 last_epoch=(session.epoch-1),
                                                                 cycle_momentum=False)
     
-    model_directory = Path('diode_clipper', 'runs', args.method[0])
+    model_directory = Path('diode_clipper', 'runs', args.method[0].lower())
     
     # Untested
     if args.checkpoint is not None:

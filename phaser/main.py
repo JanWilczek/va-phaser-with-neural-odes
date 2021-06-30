@@ -63,6 +63,7 @@ def get_architecture(args):
                                                               BilinearBlock(input_size=6, 
                                                               output_size=1, 
                                                               latent_size=12)))
+        res2 = ResidualIntegrationNetworkRK4(nn.Sequential(BilinearBlock(input_size=3,output_size=8,latent_size=4),BilinearBlock(input_size=8,output_size=16,latent_size=8),BilinearBlock(input_size=16,output_size=8,latent_size=32),BilinearBlock(input_size=8,output_size=1,latent_size=4)))                                                              
     else:
         method = get_method(args)
         network = ODENet(ODENetDerivative(), method)
@@ -74,7 +75,7 @@ def attach_scheduler(args, session):
                                                                 max_lr=args.one_cycle_lr,
                                                                 div_factor=(args.one_cycle_lr / args.learn_rate),
                                                                 final_div_factor=20,
-                                                                epochs=session.epochs,
+                                                                epochs=(session.epochs - session.epoch),
                                                                 steps_per_epoch=session.minibatch_count,
                                                                 last_epoch=(session.epoch-1),
                                                                 cycle_momentum=False)
