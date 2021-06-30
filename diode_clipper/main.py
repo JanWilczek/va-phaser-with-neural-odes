@@ -34,6 +34,7 @@ def argument_parser():
     ap.add_argument('--adjoint', '-adj', action='store_true', help='Use the adjoint sensitivity method for backpropagation.')
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
     ap.add_argument('--weight_decay', '-wd', type=float, default=0.0, help='Weight decay argument for the Adam optimizer.')
+    ap.add_argument('--pre_filter', '-pf', action='store_const', const=[-0.85, 1], default=None)
     return ap
 
 
@@ -61,61 +62,66 @@ def get_architecture(args):
         network = ODENet(ODENetDerivative(), method)
     return network
 
-def main():
-    args = argument_parser().parse_args()
-
-    session = NetworkTraining()
-    session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
-    sampling_rate = session.dataset.subsets['train'].fs
-    
-    session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    session.network = get_architecture(args)
-    session.transfer_to_device()
-    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
-
+def attach_scheduler(args, session):
     if args.one_cycle_lr is not None:
         session.scheduler = torch.optim.lr_scheduler.OneCycleLR(session.optimizer,
-                                                    max_lr=args.one_cycle_lr,
-                                                    div_factor=(args.one_cycle_lr / args.learn_rate),
-                                                    final_div_factor=20,
-                                                    epochs=session.epochs,
-                                                    steps_per_epoch=session.minibatch_count,
-                                                    last_epoch=(session.epoch-1),
-                                                    cycle_momentum=False)
-    elif args.cyclic_lr is not None:
-        session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
-                                                                base_lr=args.learn_rate,
-                                                                max_lr=args.cyclic_lr,
-                                                                step_size_up=250,
+                                                                max_lr=args.one_cycle_lr,
+                                                                div_factor=(args.one_cycle_lr / args.learn_rate),
+                                                                final_div_factor=20,
+                                                                epochs=(session.epochs - session.epoch),
+                                                                steps_per_epoch=session.minibatch_count,
                                                                 last_epoch=(session.epoch-1),
                                                                 cycle_momentum=False)
-    
-    model_directory = Path('diode_clipper', 'runs', args.method[0].lower())
-    
+    elif args.cyclic_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.CyclicLR(session.optimizer,
+                                                              base_lr=args.learn_rate,
+                                                              max_lr=args.cyclic_lr,
+                                                              step_size_up=250,
+                                                              last_epoch=(session.epoch-1),
+                                                              cycle_momentum=False)
+
+def load_checkpoint(args, session, model_directory):
     # Untested
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
         try:
             session.load_checkpoint(best_validation=True)
         except:
+            print("Failed to load a best validation checkpoint. Reverting to the last checkpoint.")
             session.load_checkpoint(best_validation=False)
         if session.scheduler is None:
+            # Scheduler's learning rate is not loaded but overwritten
             for param_group in session.optimizer.param_groups:
                 param_group['lr'] = args.learn_rate
+
+def main():
+    args = argument_parser().parse_args()
+
+    session = NetworkTraining()
+    session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
+    sampling_rate = session.dataset.subsets['train'].fs
+    session.epochs = args.epochs
+    session.segments_in_a_batch = args.batch_size
+    session.samples_between_updates = args.up_fr
+    session.initialization_length = args.init_len
+    session.loss = training.LossWrapper({'ESR': 1.0}, args.pre_filter)
+    
+    session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+    session.network = get_architecture(args)
+    session.transfer_to_device()
+    session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
+    attach_scheduler(args, session)
+    
+    model_directory = Path('diode_clipper', 'runs', args.method[0].lower())
+    
+    load_checkpoint(args, session, model_directory)
 
     run_name = get_run_name() + args.name
     session.run_directory =  model_directory / run_name
 
     save_json(vars(args), session.run_directory / 'args.json')
     session.writer.add_text('Command line arguments', json.dumps(vars(args)))
-
-    session.loss = training.ESRLoss()
-    
-    session.epochs = args.epochs
-    session.segments_in_a_batch = args.batch_size
-    session.samples_between_updates = args.up_fr
-    session.initialization_length = args.init_len
 
     session.run()
 

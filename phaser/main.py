@@ -112,6 +112,7 @@ def main():
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
+    session.loss = training.ESRLoss()
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -129,8 +130,6 @@ def main():
 
     save_json(vars(args), session.run_directory / 'args.json')
     session.writer.add_text('Command line arguments', json.dumps(vars(args)))
-
-    session.loss = training.ESRLoss()
 
     session.run()
 

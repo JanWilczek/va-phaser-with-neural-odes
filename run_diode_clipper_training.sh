@@ -12,4 +12,4 @@ CUDA_VISIBLE_DEVICES=0 python diode_clipper/diode_benchmark.py forward_euler --b
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/diode_benchmark.py ResIntRK4 --batch_size 512 --init_len 0 --up_fr 1024 --val_chunk 22050 --test_chunk 22050 --epochs 500 --learn_rate 0.0005 --cyclic_lr 0.01 --name ResIntRK4_cycliclr
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/diode_benchmark.py ResIntRK4 --batch_size 512 --init_len 0 --up_fr 1024 --val_chunk 22050 --test_chunk 22050 --epochs 100 --learn_rate 0.001 --name ResIntRK4
 CUDA_VISIBLE_DEVICES=0 python diode_clipper/main.py ResIntRK4 --batch_size 512 --init_len 0 --up_fr 1024 --val_chunk 22050 --test_chunk 0 --epochs 500 --learn_rate 0.0005 --cyclic_lr 0.01 --name ResIntRK4_cycliclr --checkpoint June23_10-20-36_axelResIntRK4_cycliclr
-CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py LSTM --batch_size 40 --init_len 1000 --epochs 200 --learn_rate 0.001 --up_fr 2048 --val_chunk 22050 --test_chunk 0
+CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py ResIntRK4 --batch_size 512 --pre_filter --init_len 0 --epochs 1000 --learn_rate 0.001 --one_cycle_lr 0.02 --up_fr 1024 --val_chunk 22050 --test_chunk 0

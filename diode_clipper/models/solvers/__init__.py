@@ -1,2 +1,2 @@
-from .ForwardEuler import forward_euler
+from .ForwardEuler import ForwardEuler
 from .TrapezoidRule import trapezoid_rule

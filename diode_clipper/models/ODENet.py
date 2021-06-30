@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from torchinterp1d import Interp1d
-from .solvers import forward_euler
 
 
 class DiodeEquationParameters:
@@ -81,7 +80,7 @@ class ODENetDerivative(nn.Module):
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint=forward_euler):
+    def __init__(self, derivative_network, odeint):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
