@@ -2,3 +2,4 @@ pyloudnorm
 torch
 torchaudio
 torchdiffeq
+parameterized

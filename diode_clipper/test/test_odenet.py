@@ -3,6 +3,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from functools import partial
 import unittest
+from parameterized import parameterized
+from tqdm import tqdm
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
@@ -64,51 +66,68 @@ class TestODENetPopulationGrowth(unittest.TestCase):
     class ODENetNetwork(nn.Module):
         def __init__(self):
             super().__init__()
-            self.network = nn.Sequential(nn.Linear(1, 5), nn.ReLU(), nn.Linear(5, 1), nn.ReLU())
+            self.network = nn.Sequential(nn.Linear(1, 5), nn.ReLU(), nn.Linear(5,5), nn.ReLU(), nn.Linear(5, 1))
 
         def forward(self, t, y):
             return self.network(y)
 
-    def test_main(self):
+    @parameterized.expand([
+        [odeint, "odeint"],
+        [partial(odeint, method='euler'), "odeint_euler"],
+        [ForwardEuler(), "ForwardEuler"],
+        [trapezoid_rule, "trapezoid_rule"]
+    ])
+    def test_main(self, method, method_name):
         r = 0.05
-        y0 = 10
-        network = TestODENetPopulationGrowth.ODENetNetwork()
-        train0, test0 = self.synthesize_data(r, y0, 0, 100, 1)
         epochs = 100
+
+        network = TestODENetPopulationGrowth.ODENetNetwork()
+        train0, test0 = self.synthesize_data(r, y0=10, t0=0, t1=100, dt=1)
+        train1, test1 = self.synthesize_data(r, y0=100, t0=0, t1=10, dt=0.5)
         loss_function = nn.MSELoss()
 
-        optimizer = torch.optim.Adam(network.parameters())
+        optimizer = torch.optim.Adam(network.parameters(), lr=0.001)
 
-        for epoch in range(epochs):
+        for epoch in tqdm(range(epochs)):
             epoch_loss = 0
-            for i, train in enumerate([train0]):
+            for i, train in enumerate([train0, train1]):
                 optimizer.zero_grad()
 
-                output = odeint(network, train.y0, train.t, method='euler')
-                # output = ForwardEuler()(network, train.y0, train.t)
+                output = method(network, train.y0, train.t)
+
+                # Full function learning (not function derivative learning)
+                # output = network(0, train.t.unsqueeze(1))
+
                 loss = loss_function(output, train.true_y)
 
                 loss.backward()
                 optimizer.step()
                 
                 epoch_loss += loss.item()
-            print(f'Epoch {epoch+1}/{epochs}: Train loss: {epoch_loss}.')
+            # print(f'Epoch {epoch+1}/{epochs}: Train loss: {epoch_loss}.')
         
+        testsets = [test0, test1]
         plt.figure()
         legend = []
         test_loss = 0
         with torch.no_grad():
-            for i, test in enumerate([test0]):
-                # test_output = odeint(partial(self.f, r=r), test.y0, test.t) # works great
-                test_output = odeint(network, test.y0, test.t, method='euler')
-                # test_output = ForwardEuler()(network, test.y0, test.t)
+            for i, test in enumerate(testsets):
+                test_output = method(network, test.y0, test.t)
+
+                # True derivative function
+                # test_output = odeint(partial(self.f, r=r), test.y0, test.t)
+
+                # Full function learning (not function derivative learning)
+                # test_output = network(0, test.t.unsqueeze(1))
+
                 test_loss += loss_function(test_output, test.true_y)
+                plt.subplot(len(testsets), 1, i+1)
                 plt.plot(test.t, test.true_y)
                 plt.plot(test.t, test_output)
                 legend += ['Ground truth', 'ODENet output']
         plt.legend(legend)
-        plt.savefig('odenet_population_growth.png')
-        print(f'Test loss: {test_loss}.')
+        plt.savefig(f'odenet_population_growth_{method_name}.png')
+        print(f'{method_name} Test loss: {test_loss}.')
 
 
     def synthesize_data(self, r, y0, t0, t1, dt):

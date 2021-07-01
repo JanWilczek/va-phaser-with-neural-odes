@@ -2,9 +2,12 @@ import torch
 from torch import nn
 
 
-class ForwardEuler(nn.Module):
+class ForwardEuler:
     def __init__(self):
         super().__init__()
+
+    def __call__(self, f, y0, t, args=[], **kwargs):
+        return self.forward(f, y0, t, args=[], **kwargs)
 
     def forward(self, f, y0, t, args=[], **kwargs):
         """Euler scheme of solving an ordinary differential 
@@ -27,14 +30,17 @@ class ForwardEuler(nn.Module):
 
         Returns
         -------
-        ndarray
+        torch.Tensor
             y values at points specified in t
         """
-        y = torch.zeros((t.shape[0], y0.shape[0]), device=t.device)
+        y = torch.empty((t.shape[0], y0.shape[0]), dtype=y0.dtype, device=t.device)
         y[0, :] = y0
 
-        for n in range(y.shape[0] - 1):
-            y[n + 1, :] = y[n, :] + (t[n+1] - t[n]) * f(t[n], y[n, :], *args)
-            # y[n + 1, :] = y[n, :] + f(t[n], y[n, :], *args) # STN equivalent, for debugging purposes only
+        n = 1
+        for t0, t1 in zip(t[:-1], t[1:]):
+            y1 = y0 + (t1 - t0) * f(t0, y0, *args)
+            y[n, :] = y1
+            n += 1
+            y0 = y1
 
         return y
