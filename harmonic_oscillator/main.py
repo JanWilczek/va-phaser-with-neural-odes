@@ -1,9 +1,14 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from math import pi
+from functools import partial
 from argparse import ArgumentParser
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
-from torchdiffeq import odeint
+from torchdiffeq import odeint, odeint_adjoint
+from solvers import ForwardEuler, trapezoid_rule
 
 
 def argument_parser():
@@ -16,18 +21,24 @@ def argument_parser():
     ap.add_argument('--nsteps', default=5000, type=int)
     ap.add_argument('--nperiods', default=8, type=int)
     ap.add_argument('--visualize', action='store_true')
+    ap.add_argument('--segment_size', default=100, type=int)
+    ap.add_argument('--name', default="")
+    ap.add_argument('--excitation', type=float, default=[0.0, 0.0], nargs=2)
     return ap
 
 class MLP(nn.Module):
-    def __init__(self):
+    def __init__(self, excitation):
         super().__init__()
+        self.excitation = excitation
         activation = nn.Identity()
-        self.network = nn.Sequential(nn.Linear(2, 100), activation,
+        # activation = nn.ReLU()
+        self.network = nn.Sequential(nn.Linear(3, 100), activation,
                                      nn.Linear(100, 100), activation,
                                      nn.Linear(100, 2))
 
     def forward(self, t, y):
-        return self.network(y)
+        y_with_excitation = torch.cat((y, torch.tile(self.excitation(t), (y.shape[0], 1))), dim=1)
+        return self.network(y_with_excitation)
 
 class HarmonicOscillator():
     """A damped harmonic oscillator with an excitation function
@@ -86,17 +97,23 @@ class HarmonicOscillator():
 def get_method(args):
     method_dict = {"odeint": odeint,
                    "odeint_euler": partial(odeint, method='euler'),
-                   "ForwardEuler": ForwardEuler(),
+                   "forward_euler": ForwardEuler(),
                    "trapezoid_rule": trapezoid_rule}
     return method_dict[args.method]
 
-def plot_trajectories(trajectories, time):
+def plot_trajectories(trajectories, time, estimated_trajectories=None):
     plt.figure()
     trajectories_count = trajectories.shape[1]
     for i in range(trajectories_count):
         plt.subplot(trajectories_count, 1, i+1)
         plt.plot(time, trajectories[:, i, 0])
-    plt.savefig('oscillator_trajectories.png', bbox_inches='tight', dpi=300)
+        if estimated_trajectories is not None:
+            plt.plot(time, estimated_trajectories[:, i, 0])
+    
+    if estimated_trajectories is not None:
+        legend = ["Ground truth", "ODENet"]
+        plt.legend(legend)
+
 
 def main():
     args = argument_parser().parse_args()
@@ -104,7 +121,9 @@ def main():
     dt = T / args.nsteps
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c)
+    amplitude, frequency = args.excitation
+    excitation = lambda t: amplitude * torch.sin(2 * pi * frequency * t)
+    oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation)
 
     initial_conditions = [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1], [-1, 0.5], [-2, 1]]
     trajectories = torch.empty((args.nsteps, len(initial_conditions), 2))   # time step x number of trajectory segments x number of ODEs
@@ -118,50 +137,56 @@ def main():
     
     if args.visualize:
         plot_trajectories(trajectories, t)
+        plt.savefig('oscillator_trajectories.png', bbox_inches='tight', dpi=300)
 
-    network = MLP()
+    network = MLP(excitation)
     network.to(device)
     loss_function = nn.MSELoss()
     method = get_method(args)
 
     optimizer = torch.optim.Adam(network.parameters(), lr=0.001)
 
-    return
-    for epoch in tqdm(range(args.epochs)):
-        epoch_loss = 0
-        # for i, train in enumerate(trainsets):
-        optimizer.zero_grad()
+    try:
+        for epoch in range(args.epochs):
+            epoch_loss = 0
 
-        output = method(network, train_y0.to(device), train_t.to(device))
-            # output = method(network, train.y0, train.t)
+            for i in range(test_samples_indices_start // args.segment_size):
+                optimizer.zero_grad()
 
-            # loss = loss_function(output, train.true_y)
-        loss = loss_function(output, train_target.to(device))
+                trajectories_segment = trajectories[i*args.segment_size:(i+1)*args.segment_size].to(device)
+                t_segment = t[i*args.segment_size:(i+1)*args.segment_size].to(device)
 
-        loss.backward()
-        optimizer.step()
-        
-        epoch_loss += loss.item()
-        # print(f'Epoch {epoch+1}/{epochs}: Train loss: {epoch_loss/(i+1)}.')
-        # print(f'Epoch {epoch+1}/{epochs}: Train loss: {epoch_loss}.')
+                output = method(network, trajectories_segment[0], t_segment)
+
+                loss = loss_function(output, trajectories_segment)
+
+                loss.backward()
+                optimizer.step()
+                
+                epoch_loss += loss.item()
+            print(f'Epoch {epoch+1}/{args.epochs}: Train loss: {epoch_loss/(i+1)}.')
+    except KeyboardInterrupt:
+        pass
+    except Exception:
+        raise
     
     # Test
     network.to('cpu')
-    plt.figure()
-    legend = []
-    test_loss = 0
     with torch.no_grad():
-        for i, test in enumerate(testsets):
-            test_output = method(network, test.y0, test.t)
-            test_loss += loss_function(test_output, test.true_y)
-            plt.subplot(len(testsets), 1, i+1)
-            plt.plot(test.t, test.true_y[:,0])
-            plt.plot(test.t, test_output[:,0])
-            legend += ['Ground truth', 'ODENet output']
-    plt.legend(legend)
-    i = torch.randint(0,100,1)
-    plt.savefig(f'odenet_harmonic_oscillator_{method_name}_{i}.png')
-    print(f'{method_name} {i} Test loss: {test_loss}.')
+        test_trajectories = trajectories[test_samples_indices_start:]
+        test_t = t[test_samples_indices_start:]
+        test_output = method(network, test_trajectories[0], test_t) # ground truth initialization
+        # test_output = method(network, torch.zeros_like(test_trajectories[0]), test_t) # all0 initialization
+        test_loss = loss_function(test_output, test_trajectories)
+
+    i = torch.randint(0,100,(1,))[0]
+    result = f'{args.method} {i} {args.name} Test loss: {test_loss}.'
+    print(result)
+
+    if args.visualize:
+        plot_trajectories(test_trajectories, test_t, test_output)
+        plt.title(result)
+        plt.savefig(f'odenet_harmonic_oscillator_{args.method}_{i}_{args.name}.png')
 
 
 if __name__ == '__main__':
