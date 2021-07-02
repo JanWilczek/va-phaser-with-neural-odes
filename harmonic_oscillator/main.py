@@ -24,36 +24,26 @@ def argument_parser():
     ap.add_argument('--segment_size', default=100, type=int)
     ap.add_argument('--name', default="")
     ap.add_argument('--excitation', type=float, default=[0.0, 0.0], nargs=2)
+    ap.add_argument('--duffing', type=float, default=0.0)
     return ap
-
-class MLP(nn.Module):
-    def __init__(self, excitation):
-        super().__init__()
-        self.excitation = excitation
-        activation = nn.Identity()
-        # activation = nn.ReLU()
-        self.network = nn.Sequential(nn.Linear(3, 100), activation,
-                                     nn.Linear(100, 100), activation,
-                                     nn.Linear(100, 2))
-
-    def forward(self, t, y):
-        y_with_excitation = torch.cat((y, torch.tile(self.excitation(t), (y.shape[0], 1))), dim=1)
-        return self.network(y_with_excitation)
 
 class HarmonicOscillator():
     """A damped harmonic oscillator with an excitation function
     It is a second-order ODE, which can be rewritten as a system
     of first-order ODEs
     x' = v
-    v' = - (k/m) x - (c/m) v + F(t)
-    x(0)  = x0
+    v' = - (k/m) x - (c/m) v + F(t) - e x
+    x(0) = x0
     v(0) = v0
+    
+    e is the epsilon coefficient of the Duffing equation (an anharmonic oscillator) to make the system of ODEs nonlinear.
     """
-    def __init__(self, m=1, k=1, c=0.1, F=lambda t: 0):
+    def __init__(self, m=1, k=1, c=0.1, F=lambda t: 0, duffing=0.0):
         self.m = m
         self.k = k
         self.c = c
         self.F = F
+        self.duffing = duffing
 
     def synthesize(self, y0, t0, t1, dt):
         t = torch.arange(t0, t1, dt, dtype=torch.float)
@@ -90,10 +80,24 @@ class HarmonicOscillator():
         rhs = torch.zeros_like(y)
 
         rhs[0] = v
-        rhs[1] = - (self.k / self.m) * x - (self.c / self.m) * v + self.F(t)
+        rhs[1] = - (self.k / self.m) * x - (self.c / self.m) * v + self.F(t) - self.duffing * x ** 3
 
         return rhs
 
+class MLP(nn.Module):
+    def __init__(self, excitation):
+        super().__init__()
+        self.excitation = excitation
+        # activation = nn.Identity()
+        activation = nn.ReLU()
+        self.network = nn.Sequential(nn.Linear(3, 100), activation,
+                                     nn.Linear(100, 100), activation,
+                                     nn.Linear(100, 2))
+
+    def forward(self, t, y):
+        y_with_excitation = torch.cat((y, torch.tile(self.excitation(t), (y.shape[0], 1))), dim=1)
+        return self.network(y_with_excitation)
+        
 def get_method(args):
     method_dict = {"odeint": odeint,
                    "odeint_euler": partial(odeint, method='euler'),
@@ -123,15 +127,23 @@ def main():
 
     amplitude, frequency = args.excitation
     excitation = lambda t: amplitude * torch.sin(2 * pi * frequency * t)
-    oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation)
+    oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation, duffing=args.duffing)
 
     initial_conditions = [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1], [-1, 0.5], [-2, 1]]
     trajectories = torch.empty((args.nsteps, len(initial_conditions), 2))   # time step x number of trajectory segments x number of ODEs
     for i, y0 in enumerate(initial_conditions):
         t, trajectories[:, i] = oscillator.synthesize(y0=torch.Tensor(y0), t0=0, t1=T, dt=dt)
+    
+    t_samples = torch.arange(0, args.nsteps)
+    t = t_samples # Use sample-based indexing from now on
+    # mlp_excitation = excitation
+    # mlp_excitation = lambda n: excitation(n * dt)
+    mlp_excitation = lambda n: amplitude * torch.sin(2 * pi * frequency * n * dt)
+    # import numpy as np
+    # np.testing.assert_almost_equal(excitation(t).cpu().detach().numpy(), mlp_excitation(t_samples).cpu().detach().numpy(), decimal=4)
+    # np.testing.assert_almost_equal(t.cpu().detach().numpy(), t_samples.cpu().detach().numpy() * dt, decimal=4)
+    
     ntest_samples = int(0.2 * args.nsteps)
-    # test_samples_indices_start = torch.randint(0, args.nsteps - ntest_samples, (len(initial_conditions),))
-    # test_samples_indices_start = torch.ones((len(initial_conditions),), dtype=int) * (args.nsteps // 2)
     test_samples_indices_start = args.nsteps - ntest_samples
     test_samples_indices_end = test_samples_indices_start + ntest_samples
     
@@ -139,7 +151,7 @@ def main():
         plot_trajectories(trajectories, t)
         plt.savefig('oscillator_trajectories.png', bbox_inches='tight', dpi=300)
 
-    network = MLP(excitation)
+    network = MLP(mlp_excitation)
     network.to(device)
     loss_function = nn.MSELoss()
     method = get_method(args)
