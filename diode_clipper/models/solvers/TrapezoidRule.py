@@ -28,20 +28,20 @@ def trapezoid_rule(f, y0, t, args=[], rtol=1e-4, **kwargs):
     ndarray
         y values at points specified in t
     """
-    y = torch.zeros((t.shape[0], y0.shape[0]), device=t.device)
-    y[0, :] = y0
+    y = torch.zeros((t.shape[0], *y0.shape), device=t.device)
+    y[0] = y0
 
     n = 1
     for t0, t1 in zip(t[:-1], t[1:]):
         dt = t1 - t0
         fn = f(t0, y0, *args)
         y1 = y0 + dt * fn # forward Euler
-        relative_error = 2 * rtol
-        while relative_error > rtol:
+        relative_error = torch.ones_like(y0) * 2 * rtol
+        while torch.any(relative_error > rtol):
             y1_new = y0 + 0.5 * dt * (fn + f(t1, y1.clone(), *args))
             relative_error = (y1_new - y1) / (y1 + 1e-6)
             y1 = y1_new
-        y[n, :] = y1
+        y[n] = y1
         y0 = y1
         n += 1
 

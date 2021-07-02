@@ -5,11 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Harmonic Oscillator",
+            "type": "python",
+            "request": "launch",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "program": "harmonic_oscillator/main.py",
+            "console": "integratedTerminal",
+            "args": ["--visualize", "--epochs", "100", "-m", "1", "-k", "1", "-c", "0.1", "--nsteps", "5000", "--nperiods", "8", "--method", "forward_euler"]
+        },
+        {
             "name": "Python: Test",
             "type": "python",
             "request": "launch",
             "module": "unittest",
-            "args": ["diode_clipper.test.test_odenet.TestODENetPopulationGrowth"]
+            "args": [
+                "diode_clipper.test.test_odenet.TestODENetHarmonicOscillator"
+            ]
         },
         {
             "name": "Python: Current File",

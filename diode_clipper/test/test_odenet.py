@@ -8,6 +8,7 @@ from tqdm import tqdm
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
+from math import pi
 from torchdiffeq import odeint
 from models import ODENet, ODENetDerivative
 from models.solvers import ForwardEuler, trapezoid_rule
@@ -129,7 +130,6 @@ class TestODENetPopulationGrowth(unittest.TestCase):
         plt.savefig(f'odenet_population_growth_{method_name}.png')
         print(f'{method_name} Test loss: {test_loss}.')
 
-
     def synthesize_data(self, r, y0, t0, t1, dt):
         class Dataset:
             def __init__(self, t, true_y):
@@ -163,6 +163,8 @@ class TestODENetPopulationGrowth(unittest.TestCase):
             time
         y : numeric
             y's value at t
+        r : numeric
+            rate of growth
 
         Returns
         -------
@@ -170,6 +172,140 @@ class TestODENetPopulationGrowth(unittest.TestCase):
             value of the derivative at t
         """
         return r * y
+
+class TestODENetHarmonicOscillator(unittest.TestCase):
+    """A damped harmonic oscillator with an excitation function
+    It is a second-order ODE, which can be rewritten as a system
+    of first-order ODEs
+    x' = v
+    v' = - (k/m) x - (c/m) v + F(t)
+    x(0)  = x0
+    v(0) = v0
+    """
+    m = 1
+    k = 1
+    c = 0.1
+    F = lambda t: 0
+
+    class ODENetNetwork(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.network = nn.Sequential(nn.Linear(2, 100),
+                                         nn.Linear(100, 100),
+                                         nn.Linear(100, 2))
+
+        def forward(self, t, y):
+            return self.network(y)
+
+    @parameterized.expand([
+        [odeint, "odeint"],
+        [partial(odeint, method='euler'), "odeint_euler"],
+        [ForwardEuler(), "ForwardEuler"],
+        [trapezoid_rule, "trapezoid_rule"]
+    ])
+    def test_main(self, method, method_name):
+        epochs = 100
+        T = 16 * pi
+        dt = T / 5000
+
+        trainsets = []
+        testsets = []
+        for y0 in [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1]]:
+            train, test = self.synthesize_data(y0=torch.Tensor(y0), t0=0, t1=T, dt=dt)
+            trainsets.append(train)
+            testsets.append(test)
+
+        network = TestODENetHarmonicOscillator.ODENetNetwork()
+        loss_function = nn.MSELoss()
+
+        optimizer = torch.optim.Adam(network.parameters(), lr=0.001)
+
+        for epoch in tqdm(range(epochs)):
+            epoch_loss = 0
+            for i, train in enumerate(trainsets):
+                optimizer.zero_grad()
+
+                output = method(network, train.y0, train.t)
+
+                loss = loss_function(output, train.true_y)
+
+                loss.backward()
+                optimizer.step()
+            
+                epoch_loss += loss.item()
+            # print(f'Epoch {epoch+1}/{epochs}: Train loss: {epoch_loss/(i+1)}.')
+        
+        plt.figure()
+        legend = []
+        test_loss = 0
+        with torch.no_grad():
+            for i, test in enumerate(testsets):
+                test_output = method(network, test.y0, test.t)
+                test_loss += loss_function(test_output, test.true_y)
+                plt.subplot(len(testsets), 1, i+1)
+                plt.plot(test.t, test.true_y[:,0])
+                plt.plot(test.t, test_output[:,0])
+                legend += ['Ground truth', 'ODENet output']
+        plt.legend(legend)
+        plt.savefig(f'odenet_harmonic_oscillator_{method_name}.png')
+        print(f'{method_name} Test loss: {test_loss}.')
+
+    def synthesize_data(self, y0, t0, t1, dt):
+        class Dataset:
+            def __init__(self, t, true_y):
+                self.y0 = true_y[0, :]
+                self.t = t
+                self.true_y = true_y
+
+        t = torch.arange(t0, t1, dt, dtype=torch.float)
+        true_y = torch.zeros((t.shape[0], y0.shape[0]), dtype=torch.float)
+        with torch.no_grad():
+            true_y[0, :] = y0
+            for n in range(true_y.shape[0]-1):
+                fn = self.f(t[n], true_y[n,:])
+                # Update velocity
+                true_y[n+1, 1] = true_y[n,1] + dt * fn[1]
+                # Update displacement
+                true_y[n+1, 0] = true_y[n,0] + dt * true_y[n+1,1]
+
+        plt.figure()
+        plt.plot(t, true_y[:,0])
+        plt.savefig(f'damped_harmonic_oscillation_{y0}.png')
+
+        train_set_size = int(t.shape[0] * 0.8)
+        test_set_size = t.shape[0] - train_set_size
+
+        train_t, test_t = t.split([train_set_size, test_set_size])
+        train_true_y, test_true_y = true_y.split([train_set_size, test_set_size])
+        train_set = Dataset(train_t, train_true_y)
+        test_set = Dataset(test_t, test_true_y)
+
+        return train_set, test_set
+
+    def f(self, t, y):
+        """True right-hand side of the ODE
+
+        Parameters
+        ----------
+        t : numeric
+            time
+        y : numeric
+            y's value at t
+
+        Returns
+        -------
+        numeric
+            value of the derivative at t
+        """
+        x = y[0]
+        v = y[1]
+
+        rhs = torch.zeros_like(y)
+
+        rhs[0] = v
+        rhs[1] = - (self.k / self.m) * x - (self.c / self.m) * v + TestODENetHarmonicOscillator.F(t)
+
+        return rhs
 
 
 if __name__ == '__main__':

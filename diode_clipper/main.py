@@ -10,7 +10,7 @@ import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset, save_json
 from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative, ResidualIntegrationNetworkRK4, BilinearBlock
-from models.solvers import forward_euler, trapezoid_rule
+from models.solvers import ForwardEuler, trapezoid_rule
 
 
 def argument_parser():
@@ -38,7 +38,7 @@ def argument_parser():
     return ap
 
 
-CUSTOM_SOLVERS = {'forward_euler': forward_euler,
+CUSTOM_SOLVERS = {'forward_euler': ForwardEuler(),
                   'trapezoid_rule': trapezoid_rule}
 
 def get_method(args):
