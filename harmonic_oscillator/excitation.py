@@ -25,7 +25,7 @@ class ExcitationSecondsInterpolation0:
     def __call__(self, t):
         dt = self.excitation_samples.dt
         sample_id = t // dt
-        sample_id.dtype == int
+        assert sample_id.dtype == int
         return self.excitation_samples(sample_id)
 
 class ExcitationSecondsInterpolation1:
@@ -35,7 +35,7 @@ class ExcitationSecondsInterpolation1:
     def __call__(self, t):
         dt = self.excitation_samples.dt
         last_sample_id = t // dt
-        last_sample_id.dtype == int
+        assert last_sample_id.dtype == int
         next_sample_id = last_sample_id + 1
         last_sample_weight = (next_sample_id - (t / dt))
         return last_sample_weight * self.excitation_samples(last_sample_id) + (1 - last_sample_weight) * self.excitation_samples(next_sample_id)

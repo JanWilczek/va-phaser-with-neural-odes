@@ -1,4 +1,7 @@
 """Set up an NN architecture, run its training and test on the diode clipper data."""
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import argparse
 import json
 from functools import partial
@@ -9,8 +12,8 @@ from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 from NetworkTraining import NetworkTraining, get_run_name, create_dataset, save_json
-from models import StateTrajectoryNetworkFF, ODENet, ODENetDerivative, ResidualIntegrationNetworkRK4, BilinearBlock
-from models.solvers import ForwardEuler, trapezoid_rule
+from models import StateTrajectoryNetworkFF, ODENet2, ODENetDerivative2, ResidualIntegrationNetworkRK4, BilinearBlock, ExcitationSecondsLinearInterpolation
+from solvers import ForwardEuler, trapezoid_rule
 
 
 def argument_parser():
@@ -38,10 +41,10 @@ def argument_parser():
     return ap
 
 
-CUSTOM_SOLVERS = {'forward_euler': ForwardEuler(),
-                  'trapezoid_rule': trapezoid_rule}
 
 def get_method(args):
+    CUSTOM_SOLVERS = {'forward_euler': ForwardEuler(),
+                      'trapezoid_rule': trapezoid_rule}
     if args.method[0] == 'odenet':
         if args.adjoint:
             return partial(odeint_adjoint, method=args.method[1])
@@ -50,7 +53,7 @@ def get_method(args):
     else:
         return CUSTOM_SOLVERS[args.method[0]]
 
-def get_architecture(args):
+def get_architecture(args, dt):
     if args.method[0] == 'LSTM':
         network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     elif args.method[0] == 'STN':
@@ -59,7 +62,7 @@ def get_architecture(args):
         network = ResidualIntegrationNetworkRK4(BilinearBlock())
     else:
         method = get_method(args)
-        network = ODENet(ODENetDerivative(), method)
+        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt)), method, dt)
     return network
 
 def attach_scheduler(args, session):
@@ -104,11 +107,11 @@ def main():
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
-    session.loss = training.LossWrapper({'ESR': 1.0}, args.pre_filter)
+    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, args.pre_filter)
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    session.network = get_architecture(args)
+    session.network = get_architecture(args, 1/sampling_rate)
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(session.network.parameters(), lr=args.learn_rate, weight_decay=args.weight_decay)
     attach_scheduler(args, session)

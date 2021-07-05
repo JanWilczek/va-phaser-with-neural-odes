@@ -92,13 +92,13 @@
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "request": "launch",
-            "program": "${workspaceFolder}/diode_clipper/diode_benchmark.py",
+            "program": "${workspaceFolder}/diode_clipper/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "args": [
-                "ResIntRK4",
+                "forward_euler",
                 "--batch_size",
-                "512",
+                "128",
                 "--val_chunk",
                 "22050",
                 "--test_chunk",
@@ -106,11 +106,11 @@
                 "--init_len",
                 "0",
                 "--up_fr",
-                "1024",
+                "2048",
                 "--learn_rate",
                 "0.001",
                 "--epochs",
-                "100"
+                "10"
             ]
         }
     ]
