@@ -1,3 +1,7 @@
+#!/bin/bash
+"""Sample call
+python harmonic_oscillator/main.py --visualize --epochs 100 -m 1 -k 1 -c 0.1 --nsteps 5000 --nperiods 8 --method forward_euler --excitation 1.8 0.8 --name TimeInSamples --use_samples
+"""
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -21,6 +25,7 @@ def argument_parser():
     ap.add_argument('--nsteps', default=5000, type=int)
     ap.add_argument('--nperiods', default=8, type=int)
     ap.add_argument('--visualize', action='store_true')
+    ap.add_argument('--use_samples', action='store_true')
     ap.add_argument('--segment_size', default=100, type=int)
     ap.add_argument('--name', default="")
     ap.add_argument('--excitation', type=float, default=[0.0, 0.0], nargs=2)
@@ -101,6 +106,7 @@ class MLP(nn.Module):
 def get_method(args):
     method_dict = {"odeint": odeint,
                    "odeint_euler": partial(odeint, method='euler'),
+                   "implicit_adams": partial(odeint, method='implicit_adams'),
                    "forward_euler": ForwardEuler(),
                    "trapezoid_rule": trapezoid_rule}
     return method_dict[args.method]
@@ -126,23 +132,31 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     amplitude, frequency = args.excitation
-    excitation = lambda t: amplitude * torch.sin(2 * pi * frequency * t)
-    oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation, duffing=args.duffing)
+    excitation_seconds = lambda time_in_seconds, amplitude=amplitude, frequency=frequency: amplitude * torch.sin(2 * pi * frequency * time_in_seconds)
+    oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation_seconds, duffing=args.duffing)
 
     initial_conditions = [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1], [-1, 0.5], [-2, 1]]
     trajectories = torch.empty((args.nsteps, len(initial_conditions), 2))   # time step x number of trajectory segments x number of ODEs
     for i, y0 in enumerate(initial_conditions):
-        t, trajectories[:, i] = oscillator.synthesize(y0=torch.Tensor(y0), t0=0, t1=T, dt=dt)
-    
-    t_samples = torch.arange(0, args.nsteps)
-    t = t_samples # Use sample-based indexing from now on
-    # mlp_excitation = excitation
-    # mlp_excitation = lambda n: excitation(n * dt)
-    mlp_excitation = lambda n: amplitude * torch.sin(2 * pi * frequency * n * dt)
-    # import numpy as np
-    # np.testing.assert_almost_equal(excitation(t).cpu().detach().numpy(), mlp_excitation(t_samples).cpu().detach().numpy(), decimal=4)
-    # np.testing.assert_almost_equal(t.cpu().detach().numpy(), t_samples.cpu().detach().numpy() * dt, decimal=4)
-    
+        t_seconds, trajectories[:, i] = oscillator.synthesize(y0=torch.Tensor(y0), t0=0, t1=T, dt=dt)
+    t = t_seconds
+
+    mlp_excitation = excitation_seconds
+
+    if args.use_samples:
+        t_samples = torch.arange(0, args.nsteps, dtype=torch.float)
+        excitation_samples = lambda sample_id, amplitude=amplitude, frequency=frequency, dt=dt: amplitude * torch.sin(2 * pi * frequency * sample_id * dt)
+
+        excitation_samples_values = torch.Tensor([excitation_samples(n) for n in t_samples]).unsqueeze(1).unsqueeze(2)
+        excitation_seconds_values = torch.Tensor([excitation_seconds(t_sec) for t_sec in t]).unsqueeze(1).unsqueeze(2)
+        plot_trajectories(excitation_samples_values, t_samples)
+        plt.savefig('excitation_samples_values.png', bbox_inches='tight', dpi=300)
+        plot_trajectories(excitation_samples_values, t)
+        plt.savefig('excitation_seconds_values.png', bbox_inches='tight', dpi=300)
+        
+        t = t_samples # Use sample-based indexing from now on
+        mlp_excitation = excitation_samples
+
     ntest_samples = int(0.2 * args.nsteps)
     test_samples_indices_start = args.nsteps - ntest_samples
     test_samples_indices_end = test_samples_indices_start + ntest_samples
@@ -188,10 +202,10 @@ def main():
         test_trajectories = trajectories[test_samples_indices_start:]
         test_t = t[test_samples_indices_start:]
         test_output = method(network, test_trajectories[0], test_t) # ground truth initialization
-        # test_output = method(network, torch.zeros_like(test_trajectories[0]), test_t) # all0 initialization
+        # test_output = method(network, torch.zeros_like(test_trajectories[0]), test_t) # all zeros initialization
         test_loss = loss_function(test_output, test_trajectories)
 
-    i = torch.randint(0,100,(1,))[0]
+    i = torch.randint(0,1000,(1,))[0]
     result = f'{args.method} {i} {args.name} Test loss: {test_loss}.'
     print(result)
 

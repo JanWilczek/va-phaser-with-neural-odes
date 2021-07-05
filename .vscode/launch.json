@@ -11,7 +11,7 @@
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "program": "harmonic_oscillator/main.py",
             "console": "integratedTerminal",
-            "args": ["--visualize", "--epochs", "20", "-m", "1", "-k", "1", "-c", "0.1", "--nsteps", "5000", "--nperiods", "8", "--method", "forward_euler", "--excitation", "0.5", "0.5"]
+            "args": ["--visualize", "--epochs", "20", "-m", "1", "-k", "1", "-c", "0.1", "--nsteps", "5000", "--nperiods", "8", "--method", "forward_euler", "--excitation", "1.8", "0.1", "--use_samples"]
         },
         {
             "name": "Python: Test",
