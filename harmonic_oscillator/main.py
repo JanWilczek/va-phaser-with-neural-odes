@@ -13,6 +13,7 @@ from torch import nn
 import matplotlib.pyplot as plt
 from torchdiffeq import odeint, odeint_adjoint
 from solvers import ForwardEuler, trapezoid_rule
+from excitation import ExcitationSeconds, ExcitationSamples, ExcitationSecondsInterpolation0, ExcitationSecondsInterpolation1
 
 
 def argument_parser():
@@ -26,6 +27,7 @@ def argument_parser():
     ap.add_argument('--nperiods', default=8, type=int)
     ap.add_argument('--visualize', action='store_true')
     ap.add_argument('--use_samples', action='store_true')
+    ap.add_argument('--interpolation', choices=['exact', 'zero', 'linear'])
     ap.add_argument('--segment_size', default=100, type=int)
     ap.add_argument('--name', default="")
     ap.add_argument('--excitation', type=float, default=[0.0, 0.0], nargs=2)
@@ -111,6 +113,13 @@ def get_method(args):
                    "trapezoid_rule": trapezoid_rule}
     return method_dict[args.method]
 
+def get_excitation(args, dt):
+    amplitude, frequency = args.excitation
+    excitation_dict = {'exact': ExcitationSeconds(amplitude, frequency),
+                       'zero': ExcitationSecondsInterpolation0(amplitude, frequency, dt),
+                       'linear': ExcitationSecondsInterpolation1(amplitude, frequency, dt)}
+    return excitation_dict[args.interpolation]
+
 def plot_trajectories(trajectories, time, estimated_trajectories=None):
     plt.figure()
     trajectories_count = trajectories.shape[1]
@@ -131,8 +140,7 @@ def main():
     dt = T / args.nsteps
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    amplitude, frequency = args.excitation
-    excitation_seconds = lambda time_in_seconds, amplitude=amplitude, frequency=frequency: amplitude * torch.sin(2 * pi * frequency * time_in_seconds)
+    excitation_seconds = get_excitation(args, dt)
     oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation_seconds, duffing=args.duffing)
 
     initial_conditions = [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1], [-1, 0.5], [-2, 1]]
@@ -145,7 +153,7 @@ def main():
 
     if args.use_samples:
         t_samples = torch.arange(0, args.nsteps, dtype=torch.float)
-        excitation_samples = lambda sample_id, amplitude=amplitude, frequency=frequency, dt=dt: amplitude * torch.sin(2 * pi * frequency * sample_id * dt)
+        excitation_samples = ExcitationSamples(amplitude, frequency, dt)
 
         excitation_samples_values = torch.Tensor([excitation_samples(n) for n in t_samples]).unsqueeze(1).unsqueeze(2)
         excitation_seconds_values = torch.Tensor([excitation_seconds(t_sec) for t_sec in t]).unsqueeze(1).unsqueeze(2)
