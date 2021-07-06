@@ -59,7 +59,7 @@ def get_architecture(args, dt):
     elif args.method[0] == 'STN':
         network = StateTrajectoryNetworkFF()
     elif args.method[0] == 'ResIntRK4':
-        network = ResidualIntegrationNetworkRK4(BilinearBlock())
+        network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt)
     else:
         method = get_method(args)
         network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt)), method, dt)

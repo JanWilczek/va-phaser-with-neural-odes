@@ -126,7 +126,7 @@ class ODENet2(nn.Module):
 
     @true_state.setter
     def true_state(self, true_state):
-            self.__true_state = true_state[1] # First true output sample (check NetworkTraining.true_train_state for details)
+        self.__true_state = true_state[1] # First true output sample (check NetworkTraining.true_train_state for details)
 
     @property
     def device(self):

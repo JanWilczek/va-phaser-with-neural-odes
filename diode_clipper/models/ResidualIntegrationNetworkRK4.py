@@ -23,9 +23,11 @@ class BilinearBlock(nn.Module):
         return out
 
 class ResidualIntegrationNetworkRK4(nn.Module):
-    def __init__(self, derivative_network):
-      super().__init__()
-      self.derivative_network = derivative_network
+    def __init__(self, derivative_network, dt=1.0):
+        super().__init__()
+        self.derivative_network = derivative_network
+        self.dt = dt
+        self.__true_state = None
 
     def forward(self, x):
         sequence_length, batch_size, feature_count = x.shape
@@ -34,23 +36,34 @@ class ResidualIntegrationNetworkRK4(nn.Module):
 
         # Explicit Runge-Kutta scheme of order 4
         # Time step is assumed to be 1, i.e., dt=1
-        y0 = torch.zeros((batch_size, 1), device=x.device)
+        if self.true_state is None:
+            y0 = torch.zeros((batch_size, 1), device=x.device)
+        else:
+            y0 = self.true_state
 
         for n in range(sequence_length):
             v_in = x[n, :, :]
 
             k1 = self.derivative_network(torch.cat((v_in, y0), dim=1))
-            k2 = self.derivative_network(torch.cat((v_in, y0+k1/2), dim=1))
-            k3 = self.derivative_network(torch.cat((v_in, y0+k2/2), dim=1))
-            k4 = self.derivative_network(torch.cat((v_in, y0+k3), dim=1))
+            k2 = self.derivative_network(torch.cat((v_in, y0+k1*self.dt/2), dim=1))
+            k3 = self.derivative_network(torch.cat((v_in, y0+k2*self.dt/2), dim=1))
+            k4 = self.derivative_network(torch.cat((v_in, y0+k3*self.dt), dim=1))
 
-            output[n, :, :] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4)
+            output[n, :, :] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
             y0 = output[n, :, :]
 
         return output
 
     def reset_hidden(self):
-        pass
+        self.__true_state = None
 
     def detach_hidden(self):
         pass
+
+    @property
+    def true_state(self):
+        return self.__true_state
+
+    @true_state.setter
+    def true_state(self, true_state):
+        self.__true_state = true_state[1] # First true output sample (check NetworkTraining.true_train_state for details)
