@@ -152,7 +152,7 @@ def main():
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
-    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[-0.85, 1])
+    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
 
     session.device = get_device()
     session.network = get_architecture(args, 1/session.sampling_rate)

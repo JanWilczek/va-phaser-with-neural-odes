@@ -37,7 +37,7 @@ def argument_parser():
     ap.add_argument('--adjoint', '-adj', action='store_true', help='Use the adjoint sensitivity method for backpropagation.')
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
     ap.add_argument('--weight_decay', '-wd', type=float, default=0.0, help='Weight decay argument for the Adam optimizer.')
-    ap.add_argument('--pre_filter', '-pf', action='store_const', const=[-0.85, 1], default=None)
+    ap.add_argument('--teacher_forcing', '-tf', action='store_true', help='Enable ground truth initialization of the first output sample in the minibatch.')
     return ap
 
 
@@ -107,7 +107,8 @@ def main():
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
-    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[-0.85, 1])
+    session.enable_teacher_forcing = args.teacher_forcing
+    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

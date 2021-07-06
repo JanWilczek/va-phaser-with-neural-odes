@@ -43,7 +43,7 @@ class NetworkTraining:
         self.segments_in_a_batch = -1
         self.samples_between_updates = -1
         self.initialization_length = -1
-        self.enable_teacher_forcing = True
+        self.enable_teacher_forcing = False
         self.writer = None
         self.__run_directory = None
         self.scheduler = None
