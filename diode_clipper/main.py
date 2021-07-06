@@ -107,7 +107,7 @@ def main():
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
-    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, args.pre_filter)
+    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[-0.85, 1])
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

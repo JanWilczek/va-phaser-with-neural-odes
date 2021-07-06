@@ -14,8 +14,11 @@ def save_json(json_data, filepath):
     with open(filepath, 'w') as f:
         json.dump(json_data, f, indent=4)
 
-def get_run_name():
-    return datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
+def get_run_name(suffix=''):
+    name = datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
+    if len(suffix) > 0:
+        name += '_' + suffix
+    return name
 
 def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
     d = dataset.DataSet(data_dir=str(Path('phaser', 'data').resolve()))
@@ -225,5 +228,9 @@ class NetworkTraining:
     @property
     def best_validation_model_path(self):
         return self.run_directory / 'best_validation_loss_model.pth'
+
+    @property
+    def sampling_rate(self):
+        return self.dataset.subsets['train'].fs
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'
