@@ -38,8 +38,6 @@ class ODENetDerivative2(nn.Module):
             nn.Linear(hidden_size, hidden_size), activation,
             nn.Linear(hidden_size, 1))
 
-        self.input = None   # Tensor of shape time_frames x batch_size
-
     def forward(self, t, y):
         """Return the right-hand side of the ODE
 

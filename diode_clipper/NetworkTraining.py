@@ -72,7 +72,7 @@ class NetworkTraining:
             input_minibatch, target_minibatch, true_state_minibatch = self.get_minibatch(i, segments_order, true_state)
             
             # should_include_teacher_forcing = self.enable_teacher_forcing and torch.bernoulli(torch.Tensor([1 - i / self.minibatch_count]))
-            should_include_teacher_forcing = self.enable_teacher_forcing # enable TF always
+            should_include_teacher_forcing = self.enable_teacher_forcing # enable TF in all minibatches
 
             self.network.reset_hidden()
             if self.initialization_length > 0:

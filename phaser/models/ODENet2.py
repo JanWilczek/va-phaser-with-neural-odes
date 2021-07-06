@@ -34,11 +34,9 @@ class ODENetDerivative2(nn.Module):
         self.excitation = excitation
         activation = nn.ReLU()
         self.densely_connected_layers = nn.Sequential(
-            nn.Linear(2, hidden_size), activation,
+            nn.Linear(3, hidden_size), activation,
             nn.Linear(hidden_size, hidden_size), activation,
             nn.Linear(hidden_size, 1))
-
-        self.input = None   # Tensor of shape time_frames x batch_size
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
