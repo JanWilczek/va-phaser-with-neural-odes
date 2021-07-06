@@ -79,7 +79,51 @@ A feedforward network consists of \emph{layers} which define the subsequent stag
 \section*{Training of Neural Networks}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Training of \acp{ANN} is done using an algorithm from the \emph{gradient descent} family of algorithms \cite{Goodfellow-et-al-2016}. In general, gradient descent methodology requires specifying a \emph{loss} or a \emph{target function} between the network's output and the desired output. The optimization then proceeds by sampling a \emph{minibatch} of examples from the \emph{training set} in each iteration, processing them with the network, and calculating the loss. Afterwards, the gradient of the loss with respect to the parameters is computed and \emph{backpropagated} through the network using the chain rule of derivatives. After calculating the gradient of the loss with respect to each individual parameter, a step in the direction of the negated gradient is performed (steepest descent). The size of the step is determined by the \emph{learning rate}. Some algorithms use a different step size for each parameter, for example, Adam \cite{Kingma2017}.
+Training of \acp{ANN} is done using an optimization algorithm from the \emph{gradient descent} family of algorithms \cite{Goodfellow-et-al-2016}. In general, gradient descent methodology requires specifying a \emph{loss} or a \emph{target function} between the network's output and the desired output. The optimization then proceeds by sampling a \emph{minibatch} of examples from the \emph{training set} in each iteration, processing them with the network, and calculating the loss. The loss function is a measure of dissimilarity (or distance) between the network's output and the \emph{target}. For example, the training set may consist of images (inputs) with associated labels (targets). The network should learn the mapping from an image to its label. After calculating the loss, the gradient of the loss with respect to the network's parameters (mainly weights and biases) is computed via \emph{backpropagation} through the network using the chain rule of derivatives. After calculating the gradient of the loss with respect to each individual parameter, a step in the direction of the negated gradient is performed (steepest descent). The size of the step is determined by the \emph{learning rate}. Some algorithms use a different step size for each parameter, for example, Adam \cite{Kingma2017}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Loss Functions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In order to train, test, and compare machine learning models, we need a performance measure \cite{Goodfellow-et-al-2016}. For supervised learning problems, i.e., problems where the targets of the training set are known, a natural approach is to measure the error between the network's output and the target values. One of the most popular metrics is the \ac{MSE}
+
+\begin{equation}
+  \mathcal{E}_\text{MSE}(y, \hat{y}) = \frac{1}{N} \sum \limits_{n=0}^{N-1} (y[n] - \hat{y}[n])^2,
+\end{equation}
+where $y$ is the target signal, $\hat{y}$ is the network's output and $N$ is the length of these two signals.
+
+In the context of audio processing, the \ac{MSE} loss has the drawback that it prioritizes errors of signals with large dynamics and neglects the inaccuracies of quiet parts \cite{Parker2019}. These quiet parts are often perceptually relevant. Therefore, a relative error measure is thought to be more suitable in audio applications.
+
+A commonly used relative error measure in \ac{VA} modeling is the \ac{ESR} \cite{Wright2019,Wright2019a, Wrightetal2020,Wright2020}
+
+\begin{equation}
+  \mathcal{E}_\text{ESR}(y, \hat{y}) = \frac{\sum_{n=0}^{N-1} (y[n] - \hat{y}[n])^2}{\sum_{n=0}^{N-1} (y[n])^2},
+\end{equation}
+i.e., the energy of the error signal divided by the energy of the target signal.
+
+In order to suppress the DC offset in the network's output a DC loss term may be added to the loss function \cite{Wright2019a,Wright2020}
+\begin{equation}
+  \mathcal{E}_\text{DC}(y, \hat{y}) = \frac{\left(\frac{1}{N} \sum_{n=0}^{N-1} (y[n] - \hat{y}[n])\right)^2}{\frac{1}{N} \sum_{n=0}^{N-1} (y[n])^2}.
+\end{equation}
+
+Additionally, it is important to take the perceptual aspect into account by penalizing errors that result in less perceptually convincing results. This can be achieved using a \emph{pre-emphasis filter}, i.e., a filter that boosts the perceptually relevant frequencies and suppresses the irrelevant ones.
+
+A first-order highpass filter can be used as a pre-emphasis filter as shown in \cite{Wright2019,Wrightetal2020,Wright2020}. Such a filter has a transfer function of the form
+
+\begin{equation}
+  H(z) = 1 - 0.85 z^{-1}.
+\end{equation}
+
+This form of pre-emphasis is straightforward to implement, achieves perceptually superior performance to non-preemphasized loss functions, and is just slightly inferior to much more complicated pre-emphasis filters \cite{Wright2019a}.
+
+After \cite{Wright2019a,Wright2020,Wright2019}, this works uses the following combined loss function for neural network training
+
+\begin{equation}
+  \mathcal{E}(y, \hat{y}) = \mathcal{E}_\text{ESR}(y_\text{p}, \hat{y}_\text{p}) + \mathcal{E}_\text{DC},
+\end{equation}
+where the p in the subscript marks signals that were pre-emphasized.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Architectures}
@@ -93,9 +137,11 @@ As deep learning is a widely and actively pursued field of science, there exist 
 
 \Ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.\ e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
 
-% TODO: Add figure with an LSTM
+% TODO: Add a figure with an LSTM
 
 A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to allow or disallow its \emph{memory cells} to be updated during processing. This helps to learn long-term dependencies which are crucial for the network to maintain a notion of a context.
+
+A memory cell $i$ has an associated state at time $t$.
 
 \ac{LSTM} has been successfully applied to guitar amplifier \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
 
