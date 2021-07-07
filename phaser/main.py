@@ -143,9 +143,7 @@ def log_memory_usage(session):
                                   session.epochs)
 
 
-def main():
-    args = argument_parser().parse_args()
-
+def initialize_session(args):
     session = NetworkTraining()
     session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
     session.epochs = args.epochs
@@ -172,13 +170,30 @@ def main():
 
     save_args(session, args)
 
-    session.run()
+    return session
 
-    test(session)
 
+def close_session(session):
     log_memory_usage(session)
-
     session.writer.close()
+
+
+def main():
+    args = argument_parser().parse_args()
+
+    session = initialize_session(args)
+
+    try:
+        session.run()
+    except KeyboardInterrupt:
+        print('Training interrupted, proceeding to test.')
+
+    try:
+        test(session)
+    except KeyboardInterrupt:
+        print('Test interrupted, quitting.')
+
+    close_session(session)
 
 
 if __name__ == '__main__':
