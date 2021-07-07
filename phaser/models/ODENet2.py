@@ -87,10 +87,11 @@ class ODENet2(nn.Module):
             exactly the same shape as x
         """
         sequence_length, minibatch_size, feature_count = x.shape
+        OUTPUT_FEATURES = 1
 
         if self.state is None:
             if self.true_state is None:
-                self.state = torch.zeros((minibatch_size, 1), device=self.device)
+                self.state = torch.zeros((minibatch_size, OUTPUT_FEATURES), device=self.device)
             else:
                 self.state = self.true_state
 

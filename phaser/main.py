@@ -113,7 +113,6 @@ def attach_scheduler(args, session):
 
 
 def load_checkpoint(args, session, model_directory):
-    # Untested
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
         try:
@@ -148,8 +147,9 @@ def test(session):
 
 def log_memory_usage(session):
     if torch.cuda.is_available():
+        BYTES_IN_MEGABYTE = 2 ** 20
         session.writer.add_scalar('Maximum GPU memory usage [MB]',
-                                  torch.cuda.max_memory_allocated('cuda') / (2 ** 20),
+                                  torch.cuda.max_memory_allocated('cuda') / BYTES_IN_MEGABYTE, 
                                   session.epochs)
 
 

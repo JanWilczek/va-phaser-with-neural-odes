@@ -30,29 +30,29 @@ class ResidualIntegrationNetworkRK4(nn.Module):
         self.__true_state = None
 
     def forward(self, x):
-        sequence_length, batch_size, feature_count = x.shape
+        sequence_length, minibatch_size, feature_count = x.shape
+        OUTPUT_FEATURES = 1
 
-        output = torch.empty((sequence_length, batch_size, 1), device=x.device)
+        output = torch.empty((sequence_length, minibatch_size, OUTPUT_FEATURES), device=x.device)
 
         # Explicit Runge-Kutta scheme of order 4
-        if self.true_state is None:
-            y0 = torch.zeros((batch_size, 1), device=x.device)
-            start_id = 0
-        else:
-            y0 = self.true_state
-            start_id = 1
-            output[0] = y0
+        y0 = torch.zeros((minibatch_size, OUTPUT_FEATURES), device=x.device)
 
-        for n in range(start_id, sequence_length):
-            v_in = x[n, :, :]
+        for time_frame_id in range(sequence_length):
+            # Retrieve the correct last output if available
+            if self.true_state is not None:
+                y0 = self.true_state[time_frame_id]
 
-            k1 = self.derivative_network(torch.cat((v_in, y0), dim=1))
-            k2 = self.derivative_network(torch.cat((v_in, y0+k1*self.dt/2), dim=1))
-            k3 = self.derivative_network(torch.cat((v_in, y0+k2*self.dt/2), dim=1))
-            k4 = self.derivative_network(torch.cat((v_in, y0+k3*self.dt), dim=1))
+            v_in = x[time_frame_id]
 
-            output[n, :, :] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
-            y0 = output[n, :, :]
+            TIME_FRAME_FEATURE_DIMENSION = 1
+            k1 = self.derivative_network(torch.cat((v_in, y0), dim=TIME_FRAME_FEATURE_DIMENSION))
+            k2 = self.derivative_network(torch.cat((v_in, y0+k1*self.dt/2), dim=TIME_FRAME_FEATURE_DIMENSION))
+            k3 = self.derivative_network(torch.cat((v_in, y0+k2*self.dt/2), dim=TIME_FRAME_FEATURE_DIMENSION))
+            k4 = self.derivative_network(torch.cat((v_in, y0+k3*self.dt), dim=TIME_FRAME_FEATURE_DIMENSION))
+
+            output[time_frame_id] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
+            y0 = output[time_frame_id]
 
         return output
 
@@ -68,4 +68,4 @@ class ResidualIntegrationNetworkRK4(nn.Module):
 
     @true_state.setter
     def true_state(self, true_state):
-        self.__true_state = true_state[1] # First true output sample (check NetworkTraining.true_train_state for details)
+        self.__true_state = true_state

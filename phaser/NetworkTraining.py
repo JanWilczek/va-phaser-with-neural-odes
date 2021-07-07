@@ -78,20 +78,20 @@ class NetworkTraining:
             self.network.reset_hidden()
             if self.initialization_length > 0:
                 with torch.no_grad():
-                    self.network(input_minibatch[0:self.initialization_length, :, :])
+                    self.network(input_minibatch[0:self.initialization_length])
 
             subsegment_start = self.initialization_length
 
             for subsequence_id in range(self.subsegments_count):
                 
                 if should_include_teacher_forcing:
-                    self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :]
+                    self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates]
 
                 self.optimizer.zero_grad()
 
-                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates])
 
-                loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates])
                 loss.backward()
                 self.optimizer.step()
 
@@ -151,7 +151,7 @@ class NetworkTraining:
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
         
-        # Should the scheduler be loaded as well?
+        # Scheduler loading is not recommended; uncomment the following two lines on your own risk.
         # if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
             # self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
 

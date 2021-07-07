@@ -30,26 +30,27 @@ class ResidualIntegrationNetworkRK4(nn.Module):
         self.__true_state = None
 
     def forward(self, x):
-        sequence_length, batch_size, feature_count = x.shape
+        sequence_length, minibatch_size, feature_count = x.shape
 
-        output = torch.empty((sequence_length, batch_size, 1), device=x.device)
+        output = torch.empty((sequence_length, minibatch_size, 1), device=x.device)
 
         # Explicit Runge-Kutta scheme of order 4
-        if self.true_state is None:
-            y0 = torch.zeros((batch_size, 1), device=x.device)
-        else:
-            y0 = self.true_state
+        y0 = torch.zeros((minibatch_size, 1), device=x.device)
 
         for n in range(sequence_length):
-            v_in = x[n, :, :]
+            # Retrieve the correct last output if available
+            if self.true_state is not None:
+                y0 = self.true_state[n]
+
+            v_in = x[n]
 
             k1 = self.derivative_network(torch.cat((v_in, y0), dim=1))
             k2 = self.derivative_network(torch.cat((v_in, y0+k1*self.dt/2), dim=1))
             k3 = self.derivative_network(torch.cat((v_in, y0+k2*self.dt/2), dim=1))
             k4 = self.derivative_network(torch.cat((v_in, y0+k3*self.dt), dim=1))
 
-            output[n, :, :] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
-            y0 = output[n, :, :]
+            output[n] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
+            y0 = output[n]
 
         return output
 
@@ -65,4 +66,4 @@ class ResidualIntegrationNetworkRK4(nn.Module):
 
     @true_state.setter
     def true_state(self, true_state):
-        self.__true_state = true_state[1] # First true output sample (check NetworkTraining.true_train_state for details)
+        self.__true_state = true_state
