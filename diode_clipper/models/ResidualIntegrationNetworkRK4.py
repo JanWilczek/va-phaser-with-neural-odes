@@ -32,10 +32,9 @@ class ResidualIntegrationNetworkRK4(nn.Module):
     def forward(self, x):
         sequence_length, batch_size, feature_count = x.shape
 
-        output = torch.zeros((sequence_length, batch_size, 1), device=x.device)
+        output = torch.empty((sequence_length, batch_size, 1), device=x.device)
 
         # Explicit Runge-Kutta scheme of order 4
-        # Time step is assumed to be 1, i.e., dt=1
         if self.true_state is None:
             y0 = torch.zeros((batch_size, 1), device=x.device)
         else:

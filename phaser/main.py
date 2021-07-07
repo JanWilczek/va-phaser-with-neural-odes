@@ -16,7 +16,7 @@ from solvers import ForwardEuler, trapezoid_rule
 
 def argument_parser():
     ap = argparse.ArgumentParser()
-    ap.add_argument('method', nargs='+')
+    ap.add_argument('--method', default='forward_euler', choices=['LSTM', 'STN', 'ResIntRK4', 'odeint', 'odeint_euler', 'odeint_implicit_adams', 'forward_euler', 'trapezoid_rule'])
     ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run')
     ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate')
@@ -50,33 +50,32 @@ def argument_parser():
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
     ap.add_argument('--weight_decay', '-wd', type=float, default=0.0,
                     help='Weight decay argument for the Adam optimizer.')
+    ap.add_argument('--teacher_forcing', '-tf', action='store_true', help='Enable ground truth initialization of the first output sample in the minibatch.')
     return ap
 
 
 def get_method(args):
-    CUSTOM_SOLVERS = {'forward_euler': ForwardEuler(),
-                      'trapezoid_rule': trapezoid_rule}
-    if args.method[0] == 'odenet':
-        if args.adjoint:
-            return partial(odeint_adjoint, method=args.method[1])
-        else:
-            return partial(odeint, method=args.method[1])
-    else:
-        return CUSTOM_SOLVERS[args.method[0]]
+    odeint_method = odeint_adjoint if args.adjoint else odeint
+    method_dict = {"odeint": odeint,
+                   "odeint_euler": partial(odeint_method, method='euler'),
+                   "odeint_implicit_adams": partial(odeint_method, method='implicit_adams'),
+                   "forward_euler": ForwardEuler(),
+                   "trapezoid_rule": trapezoid_rule}
+    return method_dict[args.method]
 
 
 def get_architecture(args, dt):
-    if args.method[0] == 'LSTM':
+    if args.method == 'LSTM':
         network = networks.SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=2)
-    elif args.method[0] == 'STN':
+    elif args.method == 'STN':
         network = StateTrajectoryNetworkFF()
-    elif args.method[0] == 'ResIntRK4':
+    elif args.method == 'ResIntRK4':
         network = ResidualIntegrationNetworkRK4(nn.Sequential(BilinearBlock(input_size=3,
                                                               output_size=6,
                                                               latent_size=12),
                                                               BilinearBlock(input_size=6,
                                                               output_size=1,
-                                                              latent_size=12)), dt)
+                                                              latent_size=12)), dt=1.0)
     else:
         method = get_method(args)
         network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt)), method, dt)
@@ -150,6 +149,7 @@ def initialize_session(args):
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
+    session.enable_teacher_forcing = args.teacher_forcing
     session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
 
     session.device = get_device()
@@ -161,7 +161,7 @@ def initialize_session(args):
         weight_decay=args.weight_decay)
     attach_scheduler(args, session)
 
-    model_directory = Path('phaser', 'runs', args.method[0].lower())
+    model_directory = Path('phaser', 'runs', args.method.lower())
 
     load_checkpoint(args, session, model_directory)
 
