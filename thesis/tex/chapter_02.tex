@@ -113,7 +113,29 @@ Output gate's purpose is to determine whether the cell can produce output at tim
 
 where $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function applied element-wise.
 
-\ac{LSTM} has been successfully applied to guitar amplifier \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
+% TODO: Was sigmoid defined at this point?
+
+Input gate vector $\pmb{i}_t$ and forget gate vector $\pmb{f}_t$ are defined analogously
+
+\begin{align}
+  \pmb{i}_t &= \sigma (\pmb{W}_{ii} \pmb{x}_t + \pmb{b}_{ii} + \pmb{W}_{hi} \pmb{h}_{t-1} + \pmb{b}_{hi}), \\
+  \pmb{f}_t &= \sigma (\pmb{W}_{if} \pmb{x}_t + \pmb{b}_{if} + \pmb{W}_{hf} \pmb{h}_{t-1} + \pmb{b}_{hf}).
+\end{align}
+
+The input and forget gates control the amount of information introduced to the cell state from the current input and the amount of information preserved from the previous cell state respectively. Finally, the cell state is updated as follows
+
+\begin{equation}
+  \pmb{c}_t = \pmb{f}_t \odot \pmb{c}_{t-1} + \pmb{i}_t \odot \pmb{g}_t,
+\end{equation}
+
+where $\pmb{g}_t$ represents the proposed update to the cell state
+
+\begin{equation}
+  \pmb{g}_t = \tanh (\pmb{W}_{ig} \pmb{x}_t + \pmb{b}_{ig} + \pmb{W}_{hg} \pmb{h}_{t-1} + \pmb{b}_{hg}).
+\end{equation}
+
+
+\ac{LSTM} has been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Residual Networks}
