@@ -65,13 +65,20 @@ to approximate the value $y$ at the points on the grid, $y(t_1), y(t_2), \dots, 
 \label{section:deep_learning}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Broadly speaking, machine learning is a field of engineering using data to improve on a task at hand \cite{Goodfellow-et-al-2016}. A subfield of machine learning called deep learning uses \acp{ANN} for the improvement process. 
+Broadly speaking, machine learning is a field of engineering using data to improve on a task at hand \cite{Goodfellow-et-al-2016}. A subfield of machine learning called deep learning uses multi-layer \acp{ANN} for the improvement process. 
 
-An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_{in}(t)$ to an output signal $s_{out}(t)$, i.\ e., $s_{out}(t) = f*(s_{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_{out}(t) = f(s_{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims at finding a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
+An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_{in}(t)$ to an output signal $s_{out}(t)$, i.\ e., $s_{out}(t) = f^*(s_{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_{out}(t) = f(s_{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims at finding a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
 
 % TODO: Add figure with a MLP
 
 A feedforward network consists of \emph{layers} which define the subsequent stages of computations. The first layer is called the \emph{input layer} and the last layer is called the \emph{output layer}. The layers in between are called the \emph{hidden layers}, because we do not observe their output directly. Each layer consists of a set of \emph{units}: affine transformations of unit's inputs followed by a nonlinearity. Each unit in a layer receives outputs of all units in the previous layer at its input and outputs a single scalar. The number of layers determines the \emph{depth} of the model. Feedforward networks with at least 1 hidden layer are called \emph{deep}. The number of units in a layer determines its \emph{width}.
+
+More formally, the $l$-th layer of an \ac{MLP} outputs a vector $\pmb{y}^{(l)}$ according to the following formula
+
+\begin{equation}
+  \pmb{y}^{(l)} = g ( \pmb{W}^{(l)} \pmb{y}^{(l-1)} + \pmb{b}^{(l)}),
+\end{equation}
+where $\pmb{W}^{(l)}$ is the weight matrix of the $l$-th layer with the $i$-th row associated with the $i$-th unit in the layer, $\pmb{b}$ is a vector of units' biases, $g(\cdot)$ is a nonlinear function applied element wise, and $\pmb{y}^{(0)}$ is the network's input vector. In this notation, $f(\pmb{y}^{(0)};\pmb{\theta}) = \pmb{y}^{(L)}$.
 
 \acp{MLP} are \emph{universal function approximators}, i.\ e., they can approximate an arbitrary function (fulfilling very mild criteria) with an arbitrarily small error given enough width or depth \cite{Goodfellow-et-al-2016}.
 
@@ -92,7 +99,19 @@ As deep learning is a widely and actively pursued field of science, there exist 
 
 A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to allow or disallow its \emph{memory cells} to be updated during processing. This helps to learn long-term dependencies which are crucial for the network to maintain a notion of a context.
 
-A memory cell $i$ has an associated state at time $t$.
+A memory cell $i$ has an associated state at time step $t$ denoted $c_t$. The output of a memory cell is the \emph{hidden state} $h_t$, which is an element-wise (Hadamard) product of the output gate and the cell state processed by $\tanh$
+
+\begin{equation}
+  h_t = o_t \odot \tanh (c_t).
+\end{equation}
+
+Output gate's purpose is to determine whether the cell can produce output at time step $t$. Output gate is a function of the current input and previous hidden state
+
+\begin{equation}
+  o_t = \sigma (\pmb{W}_{io} \pmb{x}_t + \pmb{b}_{io} + \pmb{W}_{ho} \pmb{h}_t + \pmb{b}_{ho}),
+\end{equation}
+
+where $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function applied element-wise.
 
 \ac{LSTM} has been successfully applied to guitar amplifier \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
 
@@ -154,11 +173,28 @@ After \cite{Wright2019a,Wright2020,Wright2019}, this works uses the following co
 where "p" in the subscript marks signals that were pre-emphasized.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Backpropagation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Backpropagation is an algorithm of calculating the gradient of the loss function with respect to the model parameters. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Hyperparameters}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The settings that control the learning process of machine learning models are called \emph{hyperparameters} \cite{Goodfellow-et-al-2016}. They differ from the model parameters in that they are not optimized during training. For example, the number and size of layers in an \ac{MLP} are hyperparameters but the weights and biases of particular units are not.
+
+One of the most influential hyperparameters that can make or break the training are the optimization algorithm and the learning rate. The optimization algorithm determines the possible functional solution space the learning algorithm can explore during training and the learning rate controls how fast that space is explored. From the implementation side, the optimization algorithm often comes down to a weighting scheme of the gradient entries, e.g., it can control the learning rate of particular parameters separately with a global learning rate controlling the overall scale of the steps. One of the most widely used optimization algorithms is Adam \cite{Kingma2017}.
+
+While the optimization algorithm is typically chosen initially and stays fixed among experiments, the learning rate is often fine-tuned to the problem at hand. It is deemed to have a significant impact on model performance \cite{Goodfellow-et-al-2016}. It can be searched for manually via trial and error, automatically using grid search or random search \cite{Goodfellow-et-al-2016}, or changed dynamically during training. The last strategy is referred to as the \emph{learning rate schedule}.
+
+There are a few popular schedules \cite{Smith2018}. In \emph{cyclical learning rate}, the learning rate varies linearly or exponentially in a specified range. In \emph{one-cycle} schedule, learning rate increases exponentially to a maximum value and then decreases exponentially below the initial value. Another approach is to reduce the learning rate if an observed metric has stopped decreasing \cite{Pytorch}. All of the described approaches assume that a high learning rate is beneficial in the initial learning stage, acting as a regularizer against overfitting \cite{Smith2018}, but should be decreased when the loss function approaches a local minimum \cite{Goodfellow-et-al-2016}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% TODO: Add a figure on teacher forcing
-% TODO: Cite Goodfellow and "Scheduled Sampling(...)"
+% TODO: Add a figure on teacher forcing and curriculum learning
 
 A sequence-to-sequence \ac{RNN} during processing is using its previous output, previous hidden state, and current input to produce an output at a single time step. If the network's outputs diverge from the target outputs introducing an error, the error will accumulate and eventually lead the network to a completely wrong part of the solution space \cite{Goodfellow-et-al-2016}. To prevent this, one may supply the true target of the previous time step as the input at the current time step. Since the previous output is still accounted for in the loss function, the gradient will continue account for it, however, the network will be more "guided" during training. The act of supplying the ground truth output at time step $t$ as an input at time step $t+1$ of an \ac{RNN} is called \emph{teacher forcing} \cite{Goodfellow-et-al-2016}.
 
