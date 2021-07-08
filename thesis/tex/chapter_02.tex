@@ -154,10 +154,15 @@ After \cite{Wright2019a,Wright2020,Wright2019}, this works uses the following co
 where "p" in the subscript marks signals that were pre-emphasized.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Teacher Forcing}
+\subsection*{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An \ac{RNN} during processing is using its previous outputs 
+% TODO: Add a figure on teacher forcing
+% TODO: Cite Goodfellow and "Scheduled Sampling(...)"
+
+A sequence-to-sequence \ac{RNN} during processing is using its previous output, previous hidden state, and current input to produce an output at a single time step. If the network's outputs diverge from the target outputs introducing an error, the error will accumulate and eventually lead the network to a completely wrong part of the solution space \cite{Goodfellow-et-al-2016}. To prevent this, one may supply the true target of the previous time step as the input at the current time step. Since the previous output is still accounted for in the loss function, the gradient will continue account for it, however, the network will be more "guided" during training. The act of supplying the ground truth output at time step $t$ as an input at time step $t+1$ of an \ac{RNN} is called \emph{teacher forcing} \cite{Goodfellow-et-al-2016}.
+
+The guidance provided by teacher forcing is especially important in the initial phase of the training, where the network's output has still relatively high validation error. Ultimately, during test, the network should operate using only self-produced outputs (without ground truth knowledge). Therefore, the better the performance of the network during training the less guidance should be provided resulting in no guidance at test time. Decreasing the amount of ground truth output supply throughout training is called \emph{curriculum learning}. The decrease can be fixed or random. In the latter case, for each minibatch, we "flip the coin" to determine whether teacher forcing should be used. "Flipping the coin" may be implemented as sampling from a Bernoulli distribution with parameter $\epsilon$ determining the probability of using teacher forcing. For example, at test time, we have $\epsilon=0$. This approach bears the name of \emph{scheduled sampling} \cite{Bengio2015}. Again, the $\epsilon$ parameter may be decreased with each minibatch. In this work, we only consider a linear decay of $\epsilon$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Software for Deep Learning}
