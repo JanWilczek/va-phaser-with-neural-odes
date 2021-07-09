@@ -78,7 +78,14 @@ More formally, the $l$-th layer of an \ac{MLP} outputs a vector $\pmb{y}^{(l)}$ 
 \begin{equation}
   \pmb{y}^{(l)} = g ( \pmb{W}^{(l)} \pmb{y}^{(l-1)} + \pmb{b}^{(l)}),
 \end{equation}
-where $\pmb{W}^{(l)}$ is the weight matrix of the $l$-th layer with the $i$-th row associated with the $i$-th unit in the layer, $\pmb{b}$ is a vector of units' biases, $g(\cdot)$ is a nonlinear function applied element wise, and $\pmb{y}^{(0)}$ is the network's input vector. In this notation, $f(\pmb{y}^{(0)};\pmb{\theta}) = \pmb{y}^{(L)}$.
+where $\pmb{W}^{(l)}$ is the weight matrix of the $l$-th layer with the $i$-th row associated with the $i$-th unit in the layer, $\pmb{b}$ is a vector of units' biases, $g(\cdot)$ is a nonlinear function applied element wise, and $\pmb{y}^{(0)}$ is the network's input vector. In this notation, $f(\pmb{y}^{(0)};\pmb{\theta}) = \pmb{y}^{(L)}$, where $L$ denotes the number of layers of the \ac{MLP}.
+
+Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (\Equation{eq:relu}), and the logistic sigmoid function $\sigma$ (\Equation{eq:logistic_sigmoid}) \cite{Goodfellow-et-al-2016}
+
+\begin{align}
+  \text{ReLU}(x) &= \max\{0, x\},\label{eq:relu}\\
+  \sigma (x) &= \frac{1}{1 + \exp (-x)}.\label{eq:logistic_sigmoid}
+\end{align}
 
 \acp{MLP} are \emph{universal function approximators}, i.\ e., they can approximate an arbitrary function (fulfilling very mild criteria) with an arbitrarily small error given enough width or depth \cite{Goodfellow-et-al-2016}.
 
@@ -113,9 +120,7 @@ Output gate's purpose is to determine whether the cell will produce output at ti
   \label{eq:lstm_output_gate}
 \end{equation}
 
-where $\pmb{x}_t$ is the cell's input at time $t$, $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices for input and hidden state respectively, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function applied element-wise.
-
-% TODO: Was sigmoid defined at this point?
+where $\pmb{x}_t$ is the cell's input at time $t$, $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices for input and hidden state respectively, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function (\Equation{eq:logistic_sigmoid}) applied element-wise.
 
 Input gate vector $\pmb{i}_t$ and forget gate vector $\pmb{f}_t$ are defined analogously
 
