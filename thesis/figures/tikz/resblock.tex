@@ -1,11 +1,11 @@
 \begin{tikzpicture}
     \node[dspnodeopen,dsp/label=above]              (x) {$\pmb{x}$};
-    \node[dspnodefull, below=of x]              (c0) {};
-    \node[right=of c0] (c1) {};
-    \node[dspsquare,below=of c1] (network) {$h(\pmb{x})$};
-    \node[below=of network] (c3) {};
-    \node[dspadder,left=of c3] (adder) {};
-    \node[dspnodeopen,below=of adder,dsp/label=below] (fx) {$f(\pmb{x})$};
+    \node[dspnodefull, right=of x]              (c0) {};
+    \node[coordinate,above=of c0] (c1) {};
+    \node[dspsquare,right=of c1] (network) {$h(\pmb{x})$};
+    \node[coordinate,right=of network] (c3) {};
+    \node[dspadder,below=of c3,yshift=1mm] (adder) {};
+    \node[dspnodeopen,right=of adder,dsp/label=above] (fx) {$f(\pmb{x})$};
 
     \draw[dspline] (x) -- (c0);
     \draw[dspline] (c0) -- (c1);

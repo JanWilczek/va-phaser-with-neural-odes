@@ -50,29 +50,29 @@
   \global\let\svgwidth\undefined%
   \global\let\svgscale\undefined%
   \makeatother%
-  \begin{picture}(1,1.41428571)%
+  \begin{picture}(1,0.56190476)%
     \lineheight{1}%
     \setlength\tabcolsep{0pt}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{figures/svg/lstm.pdf}}%
-    \put(0.43769252,0.91157596){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{x}_t$\end{tabular}}}}%
+    \put(0.43769252,0.05919501){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{x}_t$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/lstm.pdf}}%
-    \put(0.24705391,1.2120169){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{f}_t$\end{tabular}}}}%
+    \put(0.24705391,0.35963594){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{f}_t$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/lstm.pdf}}%
-    \put(0.6547852,1.0756198){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{o}_t$\end{tabular}}}}%
+    \put(0.6547852,0.22323885){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{o}_{t}$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=4]{figures/svg/lstm.pdf}}%
-    \put(0.23112856,1.36212392){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{c}_{t-1}$\end{tabular}}}}%
+    \put(0.23112856,0.50974297){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{c}_{t-1}$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=5]{figures/svg/lstm.pdf}}%
-    \put(0.13036679,0.90709308){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{h}_{t-1}$\end{tabular}}}}%
+    \put(0.13036679,0.05471213){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{h}_{t-1}$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=6]{figures/svg/lstm.pdf}}%
-    \put(0.36062729,1.21275855){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{i}_t$\end{tabular}}}}%
+    \put(0.36062729,0.3603776){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{i}_t$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=7]{figures/svg/lstm.pdf}}%
-    \put(0.46352176,1.07547114){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{g}_t$\end{tabular}}}}%
+    \put(0.46352176,0.22309018){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{g}_t$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=8]{figures/svg/lstm.pdf}}%
-    \put(0.84019207,1.21651224){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{h}_t$\end{tabular}}}}%
+    \put(0.84019207,0.36413129){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{h}_t$\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=9]{figures/svg/lstm.pdf}}%
-    \put(0.72653518,1.26825381){\rotatebox{-17.150393}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}tanh\end{tabular}}}}}%
+    \put(0.72653518,0.41587286){\rotatebox{-17.150393}{\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}tanh\end{tabular}}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=10]{figures/svg/lstm.pdf}}%
-    \put(0.65562517,1.2768308){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{c}_t$\end{tabular}}}}%
-    \put(0.58069465,1.27142127){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+\end{tabular}}}}%
+    \put(0.65562517,0.42444985){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\pmb{c}_t$\end{tabular}}}}%
+    \put(0.58069465,0.41904032){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}+\end{tabular}}}}%
   \end{picture}%
 \endgroup%
