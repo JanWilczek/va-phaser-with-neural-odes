@@ -212,7 +212,24 @@ where "p" in the subscript marks signals that were pre-emphasized.
 \subsection*{Backpropagation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Backpropagation is an algorithm of calculating the gradient of the loss function with respect to the model parameters. 
+Backpropagation is an algorithm of calculating the gradient of the loss function with respect to the model parameters. The gradient is used in the optimization algorithm to update the network parameters at each step. Thus, backpropagation enables successful \ac{ANN} training.
+
+The basis of the backpropagation algorithm is the chain rule of calculus. Using its vector-valued formulation, one can derive the scalar as well as the tensor formulations \cite{Goodfellow-et-al-2016}.
+
+Assuming that $\pmb{x} \in \mathbb{R}^m, \pmb{y} \in \mathbb{R}^n$, and given functions $g: \mathbb{R}^m \rightarrow \mathbb{R}^n, f: \mathbb{R}^n \rightarrow \mathbb{R}$, we can compute the gradient of $z = f(\pmb{y}) = f(g(\pmb{x}))$ with respect to $x_i$ as follows
+
+\begin{equation}
+  \frac{\partial z}{\partial x_i} = \sum \limits_j \frac{\partial z}{\partial y_j} \frac{\partial y_j}{\partial x_i}.
+  \label{eq:chain_rule_of_calculus}
+\end{equation}
+
+In other words, to compute the influence of change in $x_i$ on $z$, we need to compute the rate of change of $z$ with respect to each element $y_i$ of $\pmb{y}$ multiplied by the rate of change of this element with respect to $x_i$. Speaking in terms of computational graphs, one needs to examine the influence of each path of computations from $x_i$ to $z$.
+
+% TODO: Add a figure of a computational graph with the above-specified connections
+
+The backpropagation algorithm applied to an \ac{MLP} comes down to applying \Equation{eq:chain_rule_of_calculus} layer-wise from the output layer to the input layer (hence the name \emph{back}propagation) after a \emph{forward pass}, i.\ e., output computation from an input minibatch.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Hyperparameters}
