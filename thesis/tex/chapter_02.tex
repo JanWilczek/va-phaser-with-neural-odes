@@ -99,43 +99,52 @@ As deep learning is a widely and actively pursued field of science, there exist 
 
 A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to allow or disallow its \emph{memory cells} to be updated during processing. This helps to learn long-term dependencies which are crucial for the network to maintain a notion of a context.
 
-A memory cell $i$ has an associated state at time step $t$ denoted $c_t$. The output of a memory cell is the \emph{hidden state} $h_t$, which is an element-wise (Hadamard) product of the output gate and the cell state processed by $\tanh$
+A memory cell $i$ has an associated state vector at time step $t$ denoted $\pmb{c}_t$. The output of a memory cell is the \emph{hidden state} $\pmb{h}_t$, which is an element-wise (Hadamard) product of the output gate $\pmb{o}_t$ and the cell state processed by hyperbolic tangent
 
 \begin{equation}
-  h_t = o_t \odot \tanh (c_t).
+  \pmb{h}_t = \pmb{o}_t \odot \tanh (\pmb{c}_t).
+  \label{eq:lstm_hidden_state}
 \end{equation}
 
-Output gate's purpose is to determine whether the cell can produce output at time step $t$. Output gate is a function of the current input and previous hidden state
+Output gate's purpose is to determine whether the cell will produce output at time step $t$. Output gate is a function of the current input and the previous hidden state
 
 \begin{equation}
-  o_t = \sigma (\pmb{W}_{io} \pmb{x}_t + \pmb{b}_{io} + \pmb{W}_{ho} \pmb{h}_t + \pmb{b}_{ho}),
+  \pmb{o}_t = \sigma (\pmb{W}_{io} \pmb{x}_t + \pmb{b}_{io} + \pmb{W}_{ho} \pmb{h}_{t-1} + \pmb{b}_{ho}),
+  \label{eq:lstm_output_gate}
 \end{equation}
 
-where $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function applied element-wise.
+where $\pmb{x}_t$ is the cell's input at time $t$, $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices for input and hidden state respectively, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function applied element-wise.
 
 % TODO: Was sigmoid defined at this point?
 
 Input gate vector $\pmb{i}_t$ and forget gate vector $\pmb{f}_t$ are defined analogously
 
 \begin{align}
-  \pmb{i}_t &= \sigma (\pmb{W}_{ii} \pmb{x}_t + \pmb{b}_{ii} + \pmb{W}_{hi} \pmb{h}_{t-1} + \pmb{b}_{hi}), \\
-  \pmb{f}_t &= \sigma (\pmb{W}_{if} \pmb{x}_t + \pmb{b}_{if} + \pmb{W}_{hf} \pmb{h}_{t-1} + \pmb{b}_{hf}).
+  \pmb{i}_t &= \sigma (\pmb{W}_{ii} \pmb{x}_t + \pmb{b}_{ii} + \pmb{W}_{hi} \pmb{h}_{t-1} + \pmb{b}_{hi}), \label{eq:lstm_input_gate}\\
+  \pmb{f}_t &= \sigma (\pmb{W}_{if} \pmb{x}_t + \pmb{b}_{if} + \pmb{W}_{hf} \pmb{h}_{t-1} + \pmb{b}_{hf}). \label{eq:lstm_forget_gate}
 \end{align}
 
-The input and forget gates control the amount of information introduced to the cell state from the current input and the amount of information preserved from the previous cell state respectively. Finally, the cell state is updated as follows
+The input gate determines the amount of information introduced to the cell state from the current input. The forget gate controls the amount of information preserved from the previous cell state. Finally, at each time step, the cell state is updated as follows
 
 \begin{equation}
   \pmb{c}_t = \pmb{f}_t \odot \pmb{c}_{t-1} + \pmb{i}_t \odot \pmb{g}_t,
+  \label{eq:lstm_cell_update}
 \end{equation}
 
 where $\pmb{g}_t$ represents the proposed update to the cell state
 
 \begin{equation}
-  \pmb{g}_t = \tanh (\pmb{W}_{ig} \pmb{x}_t + \pmb{b}_{ig} + \pmb{W}_{hg} \pmb{h}_{t-1} + \pmb{b}_{hg}).
+  \pmb{g}_t = \tanh (\pmb{W}_{ig} \pmb{x}_t + \pmb{b}_{ig} + \pmb{W}_{hg} \pmb{h}_{t-1} + \pmb{b}_{hg}),
+  \label{eq:lstm_proposed_update}
 \end{equation}
 
+which has its own weight matrices $\pmb{W}_{ig}, \pmb{W}_{hg}$, and bias vectors $\pmb{b}_{ig}, \pmb{b}_{hg}$.
 
-\ac{LSTM} has been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
+In order of computations, at time step $t$, we calculate the values of the gating vectors $\pmb{i}_t, \pmb{f}_t, \pmb{o}_t$ (\Equationst{eq:lstm_input_gate}{eq:lstm_forget_gate}{eq:lstm_output_gate} respectively), the proposed cell state update (\Equation{eq:lstm_proposed_update}), update the cell state (\Equation{eq:lstm_cell_update}), and the hidden state, which is also the output (\Equation{eq:lstm_hidden_state}) \cite{Pytorch}.
+
+\ac{LSTM} cells can be stacked in layers. The input to the $l$-th layer is the output of the $(l-1)$-th layer, $\pmb{x}_t^{(l)} = \pmb{h}_y^{(l-1)}$, with $\pmb{x}_t^{(0)} = \pmb{x}_t$ being the network input at time $t$.
+
+In audio processing, \ac{LSTM} has been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Residual Networks}
