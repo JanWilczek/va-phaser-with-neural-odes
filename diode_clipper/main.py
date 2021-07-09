@@ -37,7 +37,7 @@ def argument_parser():
     ap.add_argument('--adjoint', '-adj', action='store_true', help='Use the adjoint sensitivity method for backpropagation.')
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
     ap.add_argument('--weight_decay', '-wd', type=float, default=0.0, help='Weight decay argument for the Adam optimizer.')
-    ap.add_argument('--teacher_forcing', '-tf', action='store_true', help='Enable ground truth initialization of the first output sample in the minibatch.')
+    ap.add_argument('--teacher_forcing', '-tf', nargs='?', const='always', default='never', choices=['always', 'never', 'bernoulli'], help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
     return ap
 
 
@@ -97,6 +97,15 @@ def load_checkpoint(args, session, model_directory):
             for param_group in session.optimizer.param_groups:
                 param_group['lr'] = args.learn_rate
 
+
+def get_teacher_forcing_gate(teacher_forcing_description):
+    description_to_gate = {'always': lambda epoch_progress: True,
+                           'never': lambda epoch_progress: False,
+                           'bernoulli': lambda epoch_progress: torch.bernoulli(torch.Tensor([1 - epoch_progress]))
+                           }
+    return description_to_gate[teacher_forcing_description]
+
+
 def main():
     args = argument_parser().parse_args()
 
@@ -107,7 +116,7 @@ def main():
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
-    session.enable_teacher_forcing = args.teacher_forcing
+    session.enable_teacher_forcing = get_teacher_forcing_gate(args.teacher_forcing)
     session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
     
     session.device = 'cuda' if torch.cuda.is_available() else 'cpu'
