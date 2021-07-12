@@ -86,11 +86,14 @@ class ODENet2(nn.Module):
             exactly the same shape as x
         """
         sequence_length, minibatch_size, feature_count = x.shape
+        OUTPUT_FEATURES = 1
 
-        if self.true_state is None:
-            self.state = torch.zeros((minibatch_size, 1), device=self.device)
-        else:
+        # If there is a ground-truth state provided, use it.
+        if self.true_state is not None:
             self.state = self.true_state
+        # Else, if there is no state stored from the previous segment computations, initialize the state with 0s.
+        elif self.state is None:
+            self.state = torch.zeros((minibatch_size, OUTPUT_FEATURES), device=self.device)
 
         self.create_time_vector(sequence_length)
 
@@ -98,6 +101,9 @@ class ODENet2(nn.Module):
 
         odeint_output = self.odeint(self.derivative_network, self.state, self.time)
         # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
+        
+        # Store the last output sample as the initial value for the next segment computation
+        self.state = odeint_output[-1]
 
         return odeint_output
 
