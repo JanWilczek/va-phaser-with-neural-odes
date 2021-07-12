@@ -5,7 +5,6 @@ from torch.utils.tensorboard import SummaryWriter
 class TrainingTimeLogger:
     def __init__(self, writer: SummaryWriter, epoch=0):
         self.writer = writer
-        self.total_time = 0
         self.start_epoch = epoch
         self.epoch_count = 0
         self.epoch_start_time = None
@@ -16,11 +15,9 @@ class TrainingTimeLogger:
     def epoch_ended(self):
         self.epoch_count += 1
         epoch_duration = time.time() - self.epoch_start_time
-        self.total_time += epoch_duration
-        average_epoch_duration = self.total_time / self.epoch_count
-
-        current_epoch = self.start_epoch + self.epoch_count
-
-        self.writer.add_scalar('Average epoch duration [s]', average_epoch_duration, current_epoch)
-
+        self.writer.add_scalar('Epoch duration [s]', epoch_duration, self.current_epoch)
         self.writer.flush()
+
+    @property
+    def current_epoch(self):
+        return self.start_epoch + self.epoch_count

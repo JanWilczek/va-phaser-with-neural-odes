@@ -190,7 +190,7 @@ def initialize_session(args):
         weight_decay=args.weight_decay)
     attach_scheduler(args, session)
 
-    model_directory = Path('diode_clipper', 'runs', args.method[0].lower())
+    model_directory = Path('diode_clipper', 'runs', args.method.lower())
 
     load_checkpoint(args, session, model_directory)
 
