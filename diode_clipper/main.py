@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 def argument_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument('method', nargs='+')
-    ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run')
-    ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size')
-    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate')
+    ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run (default: %(default)s).')
+    ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size (default: %(default)s).')
+    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate (default: %(default)s).')
     ap.add_argument(
         '--cyclic_lr',
         '-y',
@@ -37,21 +37,21 @@ def argument_parser():
         help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
         's parameter.')
     ap.add_argument('--init_len', '-il', type=int, default=1000,
-                    help='Number of sequence samples to process before starting weight updates')
+                    help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,
                     help='For recurrent models, number of samples to run in between updating network weights, i.e the '
-                    'default argument updates every 1000 samples')
+                    'default argument updates every %(default)s samples (default: %(default)s).')
     ap.add_argument('--val_chunk', '-vs', type=int, default=0, help='Number of sequence samples to process'
-                    'in each chunk of validation ')
+                    'in each chunk of validation (default: %(default)s).')
     ap.add_argument('--test_chunk', '-tc', type=int, default=0, help='Number of sequence samples to process'
-                    'in each chunk of test')
+                    'in each chunk of test (default: %(default)s).')
     ap.add_argument('--checkpoint', '-c', type=str, default=None,
                     help='Load a checkpoint of the given architecture with the specified name.')
     ap.add_argument('--adjoint', '-adj', action='store_true',
                     help='Use the adjoint sensitivity method for backpropagation.')
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
     ap.add_argument('--weight_decay', '-wd', type=float, default=0.0,
-                    help='Weight decay argument for the Adam optimizer.')
+                    help='Weight decay argument for the Adam optimizer (default: %(default)s).')
     ap.add_argument(
         '--teacher_forcing',
         '-tf',
@@ -63,6 +63,7 @@ def argument_parser():
             'never',
             'bernoulli'],
         help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
+    ap.add_argument('--hidden_size', default=100, type=int, help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
     return ap
 
 
