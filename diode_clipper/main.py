@@ -18,7 +18,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 def argument_parser():
     ap = argparse.ArgumentParser()
-    ap.add_argument('method', nargs='+')
+    ap.add_argument(
+        '--method',
+        default='forward_euler',
+        choices=[
+            'LSTM',
+            'STN',
+            'ResIntRK4',
+            'odeint_dopri5',
+            'odeint_euler',
+            'odeint_implicit_adams',
+            'forward_euler',
+            'trapezoid_rule'],help='(default: %(default)s)')
     ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run (default: %(default)s).')
     ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size (default: %(default)s).')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate (default: %(default)s).')
@@ -68,27 +79,26 @@ def argument_parser():
 
 
 def get_method(args):
-    CUSTOM_SOLVERS = {'forward_euler': ForwardEuler(),
-                      'trapezoid_rule': trapezoid_rule}
-    if args.method[0] == 'odenet':
-        if args.adjoint:
-            return partial(odeint_adjoint, method=args.method[1])
-        else:
-            return partial(odeint, method=args.method[1])
-    else:
-        return CUSTOM_SOLVERS[args.method[0]]
+    if args.method.startswith('odeint'):
+        odeint_method = odeint_adjoint if args.adjoint else odeint
+        method_name = args.method[(len('odeint') + 1):]
+        return partial(odeint_method, method=method_name)
+
+    method_dict = {"forward_euler": ForwardEuler(),
+                   "trapezoid_rule": trapezoid_rule}
+    return method_dict[args.method]
 
 
 def get_architecture(args, dt):
-    if args.method[0] == 'LSTM':
+    if args.method == 'LSTM':
         network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
-    elif args.method[0] == 'STN':
+    elif args.method == 'STN':
         network = StateTrajectoryNetworkFF()
-    elif args.method[0] == 'ResIntRK4':
-        network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt)
+    elif args.method == 'ResIntRK4':
+        network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt=1.0)
     else:
         method = get_method(args)
-        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt)), method, dt)
+        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt), args.hidden_size), method, dt)
     return network
 
 

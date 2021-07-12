@@ -23,7 +23,7 @@ def argument_parser():
             'LSTM',
             'STN',
             'ResIntRK4',
-            'odeint',
+            'odeint_dopri5',
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
@@ -66,11 +66,12 @@ def argument_parser():
 
 
 def get_method(args):
-    odeint_method = odeint_adjoint if args.adjoint else odeint
-    method_dict = {"odeint": odeint,
-                   "odeint_euler": partial(odeint_method, method='euler'),
-                   "odeint_implicit_adams": partial(odeint_method, method='implicit_adams'),
-                   "forward_euler": ForwardEuler(),
+    if args.method.startswith('odeint'):
+        odeint_method = odeint_adjoint if args.adjoint else odeint
+        method_name = args.method[(len('odeint') + 1):]
+        return partial(odeint_method, method=method_name)
+
+    method_dict = {"forward_euler": ForwardEuler(),
                    "trapezoid_rule": trapezoid_rule}
     return method_dict[args.method]
 
