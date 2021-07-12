@@ -27,7 +27,7 @@ class ResidualIntegrationNetworkRK4(nn.Module):
         super().__init__()
         self.derivative_network = derivative_network
         self.dt = dt
-        self.__true_state = None
+        self.true_state = None
 
     def forward(self, x):
         sequence_length, minibatch_size, feature_count = x.shape
@@ -55,7 +55,7 @@ class ResidualIntegrationNetworkRK4(nn.Module):
         return output
 
     def reset_hidden(self):
-        self.__true_state = None
+        self.true_state = None
 
     def detach_hidden(self):
         pass
@@ -67,3 +67,11 @@ class ResidualIntegrationNetworkRK4(nn.Module):
     @true_state.setter
     def true_state(self, true_state):
         self.__true_state = true_state
+
+    @property
+    def dt(self):
+        return 1.0  # Enforce time step 1
+
+    @dt.setter
+    def dt(self, value):
+        pass

@@ -16,4 +16,9 @@ CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py ResIntRK4 --batch_size 512 -
 
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 300 --learn_rate 0.001 --one_cycle_lr 0.02 --teacher_forcing always --name ODENet2Hidden100 --hidden_size 100
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 300 --learn_rate 0.001 --one_cycle_lr 0.02 --teacher_forcing always --name ODENet2Hidden50 --hidden_size 50
-CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 300 --learn_rate 0.001 --one_cycle_lr 0.02 --teacher_forcing always --name ODENet2Hidden10 --hidden_size 10
+CUDA_VISIBLE_DEVICES=0 python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 300 --learn_rate 0.001 --one_cycle_lr 0.02 --teacher_forcing always --name ODENet2Hidden10 --hidden_size 10
+
+CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method ResIntRK4 --batch_size 512 --init_len 0 --epochs 2 --learn_rate 0.001 --up_fr 1024 --val_chunk 22050 --test_chunk 0 --name TimeStepSetterTest
+CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method forward_euler --batch_size 512 --init_len 0 --epochs 2 --learn_rate 0.001 --up_fr 1024 --val_chunk 22050 --test_chunk 0 --name TimeStepSetterTest
+CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method LSTM --batch_size 512 --init_len 0 --epochs 2 --learn_rate 0.001 --up_fr 1024 --val_chunk 22050 --test_chunk 0 --name TimeStepSetterTest
+CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method STN --batch_size 512 --init_len 0 --epochs 2 --learn_rate 0.001 --up_fr 1024 --val_chunk 22050 --test_chunk 0 --name TimeStepSetterTest

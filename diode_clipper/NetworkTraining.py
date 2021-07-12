@@ -126,6 +126,8 @@ class NetworkTraining:
     def test(self, subset_name='test'):
         self.transfer_to_device()
         self.network.reset_hidden()
+        if hasattr(self.network, 'dt'):
+            self.network.dt = 1 / self.sampling_rate(subset_name)
         
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
@@ -229,5 +231,8 @@ class NetworkTraining:
     @property
     def best_validation_model_path(self):
         return self.run_directory / 'best_validation_loss_model.pth'
+
+    def sampling_rate(self, subset_name='train'):
+        return self.dataset.subsets[subset_name].fs
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'

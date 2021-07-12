@@ -95,10 +95,10 @@ def get_architecture(args, dt):
     elif args.method == 'STN':
         network = StateTrajectoryNetworkFF()
     elif args.method == 'ResIntRK4':
-        network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt=1.0)
+        network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt)
     else:
         method = get_method(args)
-        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt), args.hidden_size), method, dt)
+        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(), args.hidden_size), method, dt)
     return network
 
 
@@ -145,14 +145,14 @@ def save_args(args, session):
     session.writer.add_text('Command line arguments', json.dumps(vars(args)))
 
 
-def test(session, sampling_rate):
+def test(session):
     session.device = 'cpu'
     test_output, test_loss = session.test()
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
 
     test_output_path = (session.run_directory / 'test_output.wav').resolve()
-    torchaudio.save(test_output_path, test_output[None, :], sampling_rate)
+    torchaudio.save(test_output_path, test_output[None, :], session.sampling_rate('test'))
 
 
 def log_memory_usage(session):
@@ -173,7 +173,6 @@ def get_teacher_forcing_gate(teacher_forcing_description):
 def initialize_session(args):
     session = NetworkTraining()
     session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
-    sampling_rate = session.dataset.subsets['train'].fs
     session.epochs = args.epochs
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
@@ -182,7 +181,7 @@ def initialize_session(args):
     session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
 
     session.device = get_device()
-    session.network = get_architecture(args, 1 / sampling_rate)
+    session.network = get_architecture(args, 1 / session.sampling_rate('train'))
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(
         session.network.parameters(),
@@ -199,7 +198,7 @@ def initialize_session(args):
 
     save_args(args, session)
 
-    return session, sampling_rate
+    return session
 
 
 def close_session(session):
@@ -210,7 +209,7 @@ def close_session(session):
 def main():
     args = argument_parser().parse_args()
 
-    session, sampling_rate = initialize_session(args)
+    session = initialize_session(args)
 
     try:
         session.run()
