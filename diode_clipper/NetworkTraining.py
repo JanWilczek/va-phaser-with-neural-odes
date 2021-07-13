@@ -26,7 +26,7 @@ def resample_file(filename, target_sampling_rate):
     hyphen_index = filename.index('-')
     resampled_filename = filename[:hyphen_index] + f'{target_sampling_rate}Hz' + filename[hyphen_index:]
     if not Path(resampled_filename).exists():
-        print(f'Resampling the testset to {target_sampling_rate} Hz...')
+        print(f'Resampling {filename} to {target_sampling_rate} Hz...')
         data, sampling_rate = sf.read(filename)
         resampled_length = data.shape[-1] * target_sampling_rate // sampling_rate
         resampled = resample(data, resampled_length, axis=-1)
@@ -202,6 +202,11 @@ class NetworkTraining:
         true_state_minibatch = extract_minibatch_segment_and_transfer_to_device(true_state)
 
         return input_minibatch, target_minibatch, true_state_minibatch
+
+    def save_subsets(self):
+        for subset_name in ['train', 'validation', 'test']:
+            torchaudio.save(self.run_directory / (subset_name + '-input.wav'), self.input_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
+            torchaudio.save(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
 
     @property
     def run_directory(self):

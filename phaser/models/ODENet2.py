@@ -35,12 +35,10 @@ class ODENetDerivative2(nn.Module):
         activation = nn.ReLU()
         self.densely_connected_layers = nn.Sequential(
             nn.Linear(3, hidden_size), activation,
-            nn.Linear(hidden_size, hidden_size), activation,
-            nn.Linear(hidden_size, hidden_size), activation,
-            nn.Linear(hidden_size, hidden_size), activation,
-            nn.Linear(hidden_size, hidden_size), activation,
-            nn.Linear(hidden_size, hidden_size), activation,
-            nn.Linear(hidden_size, hidden_size), activation,
+            nn.Linear(hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, hidden_size), activation,
             nn.Linear(hidden_size, 1))
 
     def forward(self, t, y):

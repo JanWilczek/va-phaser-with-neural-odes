@@ -76,6 +76,7 @@ def argument_parser():
         help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
     ap.add_argument('--hidden_size', default=100, type=int, help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
     ap.add_argument('--test_sampling_rate', type=int, default=44100, help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
+    ap.add_argument('--save_sets', action='store_true', help='If set, the training, validation and test sets will be saved in the output folder.')
     return ap
 
 
@@ -94,7 +95,7 @@ def get_architecture(args, dt):
     if args.method == 'LSTM':
         network = networks.SimpleRNN(unit_type="LSTM", hidden_size=8, skip=0)
     elif args.method == 'STN':
-        network = StateTrajectoryNetworkFF()
+        network = StateTrajectoryNetworkFF(training_time_step=dt)
     elif args.method == 'ResIntRK4':
         network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt)
     else:
@@ -198,6 +199,9 @@ def initialize_session(args):
 
     save_args(args, session)
 
+    if args.save_sets:
+        session.save_subsets()
+
     return session
 
 
@@ -211,6 +215,7 @@ def main():
 
     session = initialize_session(args)
 
+    print('Training started.')
     try:
         session.run()
     except KeyboardInterrupt:

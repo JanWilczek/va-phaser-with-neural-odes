@@ -3,7 +3,7 @@ from torch import nn
 
 
 class StateTrajectoryNetworkFF(nn.Module):
-    def __init__(self):
+    def __init__(self, training_time_step=1.0):
         super().__init__()
         self.densely_connected_layers = nn.Sequential(
             nn.Linear(2, 4, bias=False), nn.Tanh(), 
@@ -13,6 +13,8 @@ class StateTrajectoryNetworkFF(nn.Module):
         self.state = None
         self.device = 'cpu'
         self.__true_state = None
+        self.training_time_step = training_time_step
+        self.test_time_step = self.training_time_step
 
     def forward(self, x):
         sequence_length, minibatch_size, feature_count = x.shape
@@ -38,7 +40,7 @@ class StateTrajectoryNetworkFF(nn.Module):
             # State update
             self.state[:, 0, :] = output[:, n, :]
 
-        return output.permute(1, 0, 2)
+        return self.output_scaling * output.permute(1, 0, 2)
 
     def reset_hidden(self):
         self.state = None
@@ -61,3 +63,15 @@ class StateTrajectoryNetworkFF(nn.Module):
             self.__true_state = true_state
         else:
             self.__true_state = true_state.permute(1, 0, 2)
+
+    @property
+    def dt(self):
+        return self.test_time_step
+
+    @dt.setter
+    def dt(self, value):
+        self.test_time_step = value
+
+    @property
+    def output_scaling(self):
+        return self.test_time_step / self.training_time_step
