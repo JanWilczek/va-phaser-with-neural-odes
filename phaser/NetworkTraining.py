@@ -26,9 +26,11 @@ def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
     d.create_subset('test', frame_len=test_frame_len)
-    d.load_file('train/BehPhaserToneoff', 'train')
-    d.load_file('validation/BehPhaserToneoff', 'validation')
-    d.load_file('test/BehPhaserToneoff', 'test')
+    # dataset_name = 'BehPhaserToneoff'
+    dataset_name = 'FameSweetToneOffNoFb'
+    d.load_file(Path('train', dataset_name) , 'train')
+    d.load_file(Path('validation', dataset_name), 'validation')
+    d.load_file(Path('test', dataset_name), 'test')
 
     return d
 

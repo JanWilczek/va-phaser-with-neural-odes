@@ -20,7 +20,7 @@ def get_run_name(suffix=''):
         name += '_' + suffix
     return name
 
-def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
+def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=''):
     d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
 
     d.create_subset('train', frame_len=train_frame_len)
@@ -29,7 +29,8 @@ def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len
     d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
 
     d.create_subset('test', frame_len=test_frame_len)
-    d.load_file('test', set_names='test')
+    test_filename = 'test' + test_sampling_rate
+    d.load_file(test_filename, set_names='test')    
 
     return d
 

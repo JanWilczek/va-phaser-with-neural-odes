@@ -75,6 +75,7 @@ def argument_parser():
             'bernoulli'],
         help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
     ap.add_argument('--hidden_size', default=100, type=int, help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
+    ap.add_argument('--test_sampling_rate', default='', choices=['', '48kHz'], help='Sampling rate to use at test time. Empty string denotes 44.1 kHz (default, same as training set).')
     return ap
 
 
@@ -122,7 +123,6 @@ def attach_scheduler(args, session):
 
 
 def load_checkpoint(args, session, model_directory):
-    # Untested
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
         try:
@@ -172,7 +172,7 @@ def get_teacher_forcing_gate(teacher_forcing_description):
 
 def initialize_session(args):
     session = NetworkTraining()
-    session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
+    session.dataset = create_dataset(validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk, test_sampling_rate=args.test_sampling_rate)
     session.epochs = args.epochs
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr

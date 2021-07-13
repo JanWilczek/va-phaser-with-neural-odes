@@ -5,7 +5,11 @@ from torch import nn
 class StateTrajectoryNetworkFF(nn.Module):
     def __init__(self):
         super().__init__()
-        self.densely_connected_layers = nn.Sequential(nn.Linear(2, 4, bias=False), nn.Tanh(), nn.Linear(4, 4), nn.Tanh(), nn.Linear(4, 4, bias=False), nn.Tanh(), nn.Linear(4, 1, bias=False))
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(2, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 4), nn.Tanh(), 
+            nn.Linear(4, 4, bias=False), nn.Tanh(), 
+            nn.Linear(4, 1, bias=False))
         self.state = None
         self.device = 'cpu'
         self.__true_state = None
@@ -22,9 +26,9 @@ class StateTrajectoryNetworkFF(nn.Module):
         for n in range(sequence_length):
             if self.true_state is not None:
                 self.state[:, 0, :] = self.true_state[:, n, :]
-            
+
             mlp_input = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
-            
+
             # MLPs
             dense_output = self.densely_connected_layers(mlp_input)
 
@@ -57,4 +61,3 @@ class StateTrajectoryNetworkFF(nn.Module):
             self.__true_state = true_state
         else:
             self.__true_state = true_state.permute(1, 0, 2)
-
