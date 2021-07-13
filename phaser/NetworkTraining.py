@@ -1,6 +1,7 @@
 import socket
 from datetime import datetime
 import torch
+import os
 import torchaudio
 import math
 import json
@@ -28,9 +29,9 @@ def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len
     d.create_subset('test', frame_len=test_frame_len)
     # dataset_name = 'BehPhaserToneoff'
     dataset_name = 'FameSweetToneOffNoFb'
-    d.load_file(Path('train', dataset_name) , 'train')
-    d.load_file(Path('validation', dataset_name), 'validation')
-    d.load_file(Path('test', dataset_name), 'test')
+    d.load_file(os.path.join('train', dataset_name) , 'train')
+    d.load_file(os.path.join('validation', dataset_name), 'validation')
+    d.load_file(os.path.join('test', dataset_name), 'test')
 
     return d
 

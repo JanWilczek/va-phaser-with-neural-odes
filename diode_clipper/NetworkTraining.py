@@ -6,6 +6,8 @@ import math
 import json
 from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
+import soundfile as sf
+from scipy.signal import resample
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
 
@@ -20,8 +22,28 @@ def get_run_name(suffix=''):
         name += '_' + suffix
     return name
 
-def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=''):
-    d = dataset.DataSet(data_dir=str(Path('diode_clipper', 'data').resolve()))
+def resample_file(filename, target_sampling_rate):
+    hyphen_index = filename.index('-')
+    resampled_filename = filename[:hyphen_index] + f'{target_sampling_rate}Hz' + filename[hyphen_index:]
+    if not Path(resampled_filename).exists():
+        data, sampling_rate = sf.read(filename)
+        resampled_length = data.shape[-1] * target_sampling_rate // sampling_rate
+        resampled = resample(data, resampled_length, axis=-1)
+        sf.write(resampled_filename, resampled, target_sampling_rate)
+    return resampled_filename
+
+def resample_test_files(dataset_path, test_filename, target_sampling_rate):
+    files = [dataset_path / (test_filename + '-input.wav'),
+             dataset_path / (test_filename + '-target.wav'),]
+
+    for file in files:
+        resampled_filename = resample_file(str(file), target_sampling_rate)
+    
+    return resampled_filename[:str(resampled_filename).index('-')]
+
+def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
+    dataset_path = Path('diode_clipper', 'data').resolve()
+    d = dataset.DataSet(data_dir=str(dataset_path))
 
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
@@ -29,9 +51,10 @@ def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len
     d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
 
     d.create_subset('test', frame_len=test_frame_len)
-    test_filename = 'test' + test_sampling_rate
+    test_filename = 'test'
+    if test_sampling_rate != d.subsets['train'].fs:
+        test_filename = resample_test_files(dataset_path, test_filename, test_sampling_rate)
     d.load_file(test_filename, set_names='test')    
-
     return d
 
 class NetworkTraining:
@@ -116,7 +139,7 @@ class NetworkTraining:
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')
 
-        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
+        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
         
         if validation_loss < self.best_validation_loss:
             self.save_checkpoint(best_validation=True)
