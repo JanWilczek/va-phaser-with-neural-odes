@@ -3,10 +3,9 @@
 \chapter{Phaser}
 \label{chap:phaser}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%TODO add a figure of the phaser
-Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and constantly vary with respect to one another, each moving up and down the frequency range. The time-varying notches create a "swooshing" sound that is often identified as "robotic" in sound.
+Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and vary periodically over time, moving up and down the frequency range. The time-varying notches create a "swooshing" sound that is often identified as "robotic".
 
-Phaser should not be confused with another notch-sweeping effect, namely, flanger. Flanging differs from phasing in that the time-varying notches are equally-spaced and infinite in number (limited only by the sampling rate). The notches are created by summing the direct path with an output of a variable-length delay line, whose length is controlled by an \ac{LFO}. The result is a time-varying comb filter. Its sound is often compared to a jet taking off.
+Phaser should not be confused with another notch-sweeping effect, namely, flanger. Flanging differs from phasing in that the time-varying notches are equally-spaced and seemingly infinite in number (limited only by the sampling rate), whereas in phasing the notches are nonuniformly spaced and their number is fixed. In flanging, the notches are created by summing the direct path with an output of a variable-length delay line, whose length is controlled by an \ac{LFO}. The result is a time-varying comb filter. Its sound is often compared to a jet taking off.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,12 +13,25 @@ Phaser should not be confused with another notch-sweeping effect, namely, flange
 \label{sec:phasing_effect}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+This section explains the basics of phasing and a typical implementation of a phaser using allpass filters. Firstly, a high-level view is presented followed by an explanation of an allpass filter and its impact on the phaser's behavior. Finally, known digital phaser models are presented.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Overview}
+\label{sec:phaser_overview}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{figure}
     \centering
     \input{figures/tikz/phaser.tex}
+    \caption{A phaser implementation.}
+    \label{fig:phaser}
 \end{figure}
 
 Phaser is typically implemented by summing the input signal processed by a series of notch or allpass filters with a direct path \cite{Zoelzer2011}. Additionally, a feedback connection can be added around the filter chain \cite{Kiiski2016}. The feedback connection makes the phaser behavior more complex by introducing resonances and non-notch frequency boosting.
+
+In \Figure{fig:phaser}, a basic diagram of a phaser is depicted. This schematic holds for analog as well as digital phasers \cite{PASPWEB2010}. The direct path consists of a simple scaling by $D$ ("dry" signal). The indirect path is a series of allpass filters followed by a scaling by $W$ ("wet" signal). The allpass filters introduce frequency-dependent delay. Due to these shifts, summation of the two paths causes destructive and constructive interference, resulting in notches and peaks in the magnitude spectrum of the phaser. Scaling factors $D$ and $W$ control the amount of interference. The deepest possible notches appear when $D = W$. To keep the amplitude constant, one typically couples $D$ and $W$ so that $D + W = 1$.
+
+% TODO: Insert a spectrogram of phaser's effect on white noise
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{First-Order Allpass Filter}
@@ -31,6 +43,10 @@ Phaser is typically implemented by summing the input signal processed by a serie
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Digital Phasers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Phaser Modeling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
