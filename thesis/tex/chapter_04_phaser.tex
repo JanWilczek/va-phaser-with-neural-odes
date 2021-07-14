@@ -4,8 +4,34 @@
 \label{chap:phaser}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %TODO add a figure of the phaser
-Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and constantly vary with respect to one another, each moving up and down the frequency range. Phaser is typically implemented by summing the input signal processed by a series of notch or allpass filters with a direct path \cite{Zoelzer2011}. Additionally, a feedback connection can be added around the filter chain \cite{Kiiski2016}. The feedback connection makes the phaser behavior more complex by introducing resonances and non-notch frequency boosting.
+Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and constantly vary with respect to one another, each moving up and down the frequency range. The time-varying notches create a "swooshing" sound that is often identified as "robotic" in sound.
 
+Phaser should not be confused with another notch-sweeping effect, namely, flanger. Flanging differs from phasing in that the time-varying notches are equally-spaced and infinite in number (limited only by the sampling rate). The notches are created by summing the direct path with an output of a variable-length delay line, whose length is controlled by an \ac{LFO}. The result is a time-varying comb filter. Its sound is often compared to a jet taking off.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Phasing Effect}
+\label{sec:phasing_effect}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+    \centering
+    \input{figures/tikz/phaser.tex}
+\end{figure}
+
+Phaser is typically implemented by summing the input signal processed by a series of notch or allpass filters with a direct path \cite{Zoelzer2011}. Additionally, a feedback connection can be added around the filter chain \cite{Kiiski2016}. The feedback connection makes the phaser behavior more complex by introducing resonances and non-notch frequency boosting.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{First-Order Allpass Filter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Analog Phasers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Digital Phasers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Training Data}

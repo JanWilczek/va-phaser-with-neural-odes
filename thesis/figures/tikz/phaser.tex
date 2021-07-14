@@ -1,0 +1,27 @@
+\begin{tikzpicture}
+    \node[dspnodeopen,dsp/label=above]              (x) {$x[n]$};
+    \node[dspnodefull, right=of x]              (d0) {};
+    \node[coordinate,below=of d0,yshift=-0.5cm] (ap0) {};
+    
+    \foreach \i in {1,...,4}
+    {
+        \pgfmathtruncatemacro{\im}{\i - 1};
+        \node[dspsquare,minimum size=1cm,right=of ap\im] (ap\i) {AP\textsubscript{\i}};
+        \draw[dspconn] (ap\im) -- (ap\i);
+    }
+    
+    \node[dspmultiplier,right=of ap4] (wet) {$W$};
+    \node[dspmultiplier,above=of wet,yshift=1mm] (dry) {$D$};
+    \node[coordinate,right=of wet] (c3) {};
+    \node[dspadder,above=of c3,yshift=3mm] (adder) {};
+    \node[dspnodeopen,right=of adder,dsp/label=above] (fx) {$y[n]$};
+
+    \draw[dspline] (x) -- (d0);
+    \draw[dspline] (d0) -- (ap0);
+    \draw[dspconn] (ap4) -- (wet);
+    \draw[dspline] (wet) -- (c3);
+    \draw[dspconn] (c3) -- (adder);
+    \draw[dspconn] (d0) -- (dry);
+    \draw[dspconn] (dry) -- (adder);
+    \draw[dspconn] (adder) -- (fx);
+\end{tikzpicture}
