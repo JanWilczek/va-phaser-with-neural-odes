@@ -1,7 +1,5 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import sounddevice as sd
-import soundfile as sf
 
 
 class DigitalPhaser:
@@ -147,5 +145,7 @@ def main():
     phaser_test()
 
 if __name__=='__main__':
+    import sounddevice as sd
+    import soundfile as sf
     main()
 
