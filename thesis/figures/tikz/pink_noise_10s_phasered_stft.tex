@@ -1,0 +1,21 @@
+% This file was created by tikzplotlib v0.9.9.
+\begin{tikzpicture}
+
+\begin{axis}[
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xlabel={Time [s]},
+xmin=0, xmax=9.98458049886621,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel={Frequency [kHz]},
+ymin=0, ymax=22,
+ytick style={color=black},
+ytick={0,5,10,15,20,25},
+yticklabels={0.0,2.5,5.0,7.5,10.0,12.5}
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=0, xmax=9.98458049886621, ymin=0, ymax=22] {pink_noise_10s_phasered_stft-000.png};
+\end{axis}
+
+\end{tikzpicture}

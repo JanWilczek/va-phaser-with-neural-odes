@@ -31,11 +31,27 @@ Phaser is typically implemented by summing the input signal processed by a serie
 
 In \Figure{fig:phaser}, a basic diagram of a phaser is depicted. This schematic holds for analog as well as digital phasers \cite{PASPWEB2010}. The direct path consists of a simple scaling by $D$ ("dry" signal). The indirect path is a series of allpass filters followed by a scaling by $W$ ("wet" signal). The allpass filters introduce frequency-dependent delay. Due to these shifts, summation of the two paths causes destructive and constructive interference, resulting in notches and peaks in the magnitude spectrum of the phaser. Scaling factors $D$ and $W$ control the amount of interference. The deepest possible notches appear when $D = W$. To keep the amplitude constant, one typically couples $D$ and $W$ so that $D + W = 1$.
 
+To understand phaser's effect on the signal, one should examine the allpass filters first. That is the topic of the next section.
+
 % TODO: Insert a spectrogram of phaser's effect on white noise
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{First-Order Allpass Filter}
+\label{sec:first_order_allpass_filter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \input{figures/tikz/first_order_allpass_filter.tex}
+    \caption{First-order digital allpass filter.}
+    \label{fig:first_order_allpass_filter}
+\end{figure}
+
+An allpass filter is a filter with unit magnitude gain at all frequencies. The general allpass filter has the following transfer function
+
+\begin{equation}
+    H_\text{allpass}(z) = \frac{a_1 + z^{-1}}{1 + a_1 z^{-1}},
+\end{equation}
+where $a_1$ coefficient determines the break frequency of the allpass, i.e., the frequency at which the phase shift is exactly $\frac{\pi}{2}$ $\frac{\text{rad}}{\text{s}}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Analog Phasers}
