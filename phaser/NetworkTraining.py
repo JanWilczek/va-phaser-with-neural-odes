@@ -63,7 +63,7 @@ class NetworkTraining:
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
 
-            if torch.isnan(epoch_loss):
+            if math.isnan(epoch_loss):
                 raise RuntimeError('NaN encountered in the training loss. Aborting training.')
 
             validation_loss = self.run_validation()

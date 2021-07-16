@@ -4,6 +4,7 @@ import librosa
 import soundfile as sf
 import numpy as np
 import matplotlib.pyplot as plt
+from plot_utils import setup_pyplot_for_latex, save_tikz
 
 
 def T_coef(time_index, hop_size, sampling_rate):
@@ -31,6 +32,8 @@ def plot_stft(signal, output_filepath, sampling_rate):
     plt.xlabel('Time [s]')
     plt.ylabel('Frequency [kHz]')
     plt.savefig(f'{output_filepath}.png', bbox_inches='tight', dpi=300, transparent=True)
+    setup_pyplot_for_latex()
+    save_tikz(output_filepath)
 
 def main():
     ap = ArgumentParser()
