@@ -46,20 +46,61 @@ To understand phaser's effect on the signal, one should examine the allpass filt
     \label{fig:first_order_allpass_filter}
 \end{figure}
 
-An allpass filter is a filter with unit magnitude gain at all frequencies. The general allpass filter has the following transfer function
+An allpass filter is a filter with unit magnitude gain at all frequencies. The general digital allpass filter has the following transfer function \cite{Zoelzer2011,PASPWEB2010,Kiiski2016}
 
 \begin{equation}
     H_\text{allpass}(z) = \frac{a_1 + z^{-1}}{1 + a_1 z^{-1}},
 \end{equation}
-where $a_1$ coefficient determines the break frequency of the allpass, i.e., the frequency at which the phase shift is exactly $\frac{\pi}{2}$ $\frac{\text{rad}}{\text{s}}$.
+where $a_1$ coefficient determines the break frequency of the allpass, i.e., the frequency at which the phase shift is exactly $\frac{\pi}{2}$ $\frac{\text{rad}}{\text{s}}$. Given the break frequency $f_c$ in Hz and the sampling rate $f_s$ in Hz, the $a_1$ coefficient can be calculated as
+
+\begin{equation}
+    a_1 = \frac{\tan (\pi f_c / f_s) - 1}{\tan(\pi f_c / f_s) + 1}.
+    \label{eq:allpass_coefficient}
+\end{equation}
+
+\Equation{eq:allpass_coefficient} is the result of applying the bilinear transform to the transfer function of an analog allpass
+
+\begin{equation}
+    H_{\text{allpass}}^{\text{a}} (s) = \frac{s - 2\pi f_c}{s + 2\pi f_c},
+\end{equation}
+where 'a' superscript marks the analog (continuous) domain of the transfer function.
+
+% TODO: Insert phase response formula
+
+In \Figure{fig:phase_response_allpass_filter} the phase responses of a digital allpass filters with different break frequencies are shown. An allpass does not change the magnitude of any frequency and it introduces a frequency-dependent delay that varies from 0 at DC to $\pi$ at $\frac{f_c}{2}$. 
+
+\begin{figure}
+    \centering
+    \input{figures/tikz/allpass_phase_response.tex}
+    \caption{Phase response of a first-order allpass filter.}
+    \label{fig:phase_response_allpass_filter}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Analog Phasers}
+\subsection{Analog and Digital Phasers}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Digital Phasers}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Cascading \ac{LTI} systems results in the summation of their phase responses \cite{Oppenheim1997}. Thus, a cascade of $N$ allpass filters introduces a frequency dependent delay that varies from 0 at DC to $N\pi$ at $\frac{f_c}{2}$ \cite{PASPWEB2010}. Summing the cascaded filters with the direct path (as in \Figure{fig:phaser}) leads to the appearance of notches in the output spectrum of a phaser at frequencies for which the phase shift is an odd multiplicity of $\pi$, i.e., $\pi, 3\pi, 5\pi$, etc. Since each first-order allpass filter has a maximum phase shift of $\pi$, $N$ allpass filters result in $\frac{N}{2}$ notches (assuming that $N$ is even).
+
+The core idea of a phaser is to modulate the break frequencies of the allpass filters so that the notches sweep up and down the frequency range creating an audibly interesting effect. In analog phasers, that are implemented using analog electronic circuitry, the values of physical components may be modulated. In digital phasers, the implementers can decide whether to modulate the break frequencies directly or to modulate just the allpass coefficients \cite{Kiiski2016}. The difference between these two design decisions are shown in the .%TODO: Add pink spectrum figure.
+
+\begin{figure}
+    \begin{subfigure}{0.33\textwidth}
+        \centering
+        \input{figures/tikz/pink_noise_10s_stft.tex}
+        % \includegraphics[width=\textwidth]{figures/png/pink_noise_10s}
+    \end{subfigure}
+    \begin{subfigure}{0.33\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{figures/png/pink_noise_10s}
+        \input{figures/tikz/pink_noise_10s_stft.tex}
+    \end{subfigure}
+    \begin{subfigure}{0.33\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{figures/png/pink_noise_10s}
+        \input{figures/tikz/pink_noise_10s_stft.tex}
+    \end{subfigure}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Phaser Modeling}
