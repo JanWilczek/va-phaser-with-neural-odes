@@ -32,7 +32,7 @@ class ODENetDerivative2(nn.Module):
     def __init__(self, excitation, hidden_size=100):
         super().__init__()
         self.excitation = excitation
-        activation = nn.ReLU()
+        activation = nn.Tanh()
         self.densely_connected_layers = nn.Sequential(
             nn.Linear(3, hidden_size), activation,
             nn.Linear(hidden_size, 2*hidden_size), activation,

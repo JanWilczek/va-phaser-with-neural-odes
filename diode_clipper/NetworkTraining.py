@@ -10,6 +10,7 @@ import soundfile as sf
 from scipy.signal import resample
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
+import os
 
 
 def save_json(json_data, filepath):
@@ -42,17 +43,18 @@ def resample_test_files(dataset_path, test_filename, target_sampling_rate):
     
     return resampled_filename[:str(resampled_filename).index('-')]
 
-def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
+def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
     dataset_path = Path('diode_clipper', 'data').resolve()
     d = dataset.DataSet(data_dir=str(dataset_path))
 
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
-    d.create_subset('ignore')
-    d.load_file('diodeclip', set_names=['train', 'validation', 'ignore'], splits=[0.8*0.8, 0.8*0.2, (1.0 - 0.8*0.8 - 0.8*0.2)])
-
     d.create_subset('test', frame_len=test_frame_len)
-    test_filename = 'test'
+
+    d.load_file(os.path.join('train', dataset_name) , 'train')
+    d.load_file(os.path.join('validation', dataset_name), 'validation')
+
+    test_filename = os.path.join('test', dataset_name)
     if test_sampling_rate != d.subsets['train'].fs:
         test_filename = resample_test_files(dataset_path, test_filename, test_sampling_rate)
     d.load_file(test_filename, set_names='test')    

@@ -95,10 +95,12 @@
             "program": "${workspaceFolder}/diode_clipper/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
+            "env": {"CUDA_VISIBLE_DEVICES": "1"},
             "args": [
+                "--method",
                 "forward_euler",
                 "--batch_size",
-                "128",
+                "512",
                 "--val_chunk",
                 "22050",
                 "--test_chunk",
@@ -110,7 +112,9 @@
                 "--learn_rate",
                 "0.001",
                 "--epochs",
-                "10"
+                "10",
+                "--test_sampling_rate",
+                "48000",
             ]
         }
     ]
