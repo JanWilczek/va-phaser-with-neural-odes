@@ -74,6 +74,10 @@ def argument_parser():
     ap.add_argument('--test_sampling_rate', type=int, default=44100,
                     help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
     ap.add_argument(
+        '--save_sets',
+        action='store_true',
+        help='If set, the training, validation and test sets will be saved in the output folder.')
+    ap.add_argument(
         '--dataset_name',
         default='FameSweetToneOffNoFb',
         choices=[
@@ -103,7 +107,12 @@ def get_architecture(args, dt):
 
 def initialize_session(args):
     session = NetworkTraining()
-    session.dataset = create_dataset(args.dataset_name, validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk, test_sampling_rate=args.test_sampling_rate)
+    session.dataset = create_dataset(
+        Path('phaser', 'data'),
+        args.dataset_name,
+        validation_frame_len=args.val_chunk,
+        test_frame_len=args.test_chunk,
+        test_sampling_rate=args.test_sampling_rate)
     session.epochs = args.epochs
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
@@ -120,7 +129,7 @@ def initialize_session(args):
         weight_decay=args.weight_decay)
     attach_scheduler(args, session)
 
-    model_directory = Path('phaser', 'runs', args.method.lower())
+    model_directory = Path('phaser', 'runs', args.dataset_name, args.method.lower())
 
     load_checkpoint(args, session, model_directory)
 
@@ -129,8 +138,10 @@ def initialize_session(args):
 
     save_args(session, args)
 
-    return session
+    if args.save_sets:
+        session.save_subsets()
 
+    return session
 
 
 def main():
@@ -142,8 +153,9 @@ def main():
     try:
         session.run()
     except KeyboardInterrupt:
-        print('Training interrupted, proceeding to test.')
+        print('Training interrupted.')
 
+    print('Test started.')
     try:
         test(session)
     except KeyboardInterrupt:

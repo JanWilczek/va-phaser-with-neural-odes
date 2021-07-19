@@ -10,7 +10,7 @@ from common import close_session, get_teacher_forcing_gate, attach_scheduler, ge
 
 
 def argument_parser():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument(
         '--method',
         default='forward_euler',
@@ -108,6 +108,7 @@ def get_architecture(args, dt):
 def initialize_session(args):
     session = NetworkTraining()
     session.dataset = create_dataset(
+        Path('diode_clipper','data'), 
         args.dataset_name,
         validation_frame_len=args.val_chunk,
         test_frame_len=args.test_chunk,
@@ -152,8 +153,9 @@ def main():
     try:
         session.run()
     except KeyboardInterrupt:
-        print('Training interrupted, proceeding to test.')
+        print('Training interrupted.')
 
+    print('Test started.')
     try:
         test(session)
     except KeyboardInterrupt:

@@ -1,18 +1,49 @@
-import torch
-import torchaudio
+import os
 import math
 import json
 from pathlib import Path
+import torch
+import torchaudio
 from torch.utils.tensorboard import SummaryWriter
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
-import os
 from common import resample_test_files
 
 
 
-def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
-    dataset_path = Path('diode_clipper', 'data').resolve()
+def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
+    """Build a DataSet object.
+
+    Parameters
+    ----------
+    dataset_path : Path
+        Path to the folder containing the 'train', 'validation',
+        and 'test' subfolders.
+    dataset_name : str
+        name of the dataset audio file.
+        For example: in each of the 'train', 'validation',
+        and 'test' subfolders you have files 'amplifier-input.wav' and 'amplifier-target.wav'. In this case supply the 'amplifier' string.
+    train_frame_len : int, optional
+        length of frames to split the train set into 
+        (0 for one, long frame), by default 22050
+    validation_frame_len : int, optional
+        length of frames to split the validation set into
+        (0 for one, long frame), by default 0
+    test_frame_len : int, optional
+        length of frames to split the test set into
+        (0 for one, long frame), by default 0
+    test_sampling_rate : int, optional
+        sampling rate to use at test time.
+        If different than the default (44100) the test files
+        will be resampled and saved under a new name, i.e.,
+        {dataset_path}/test/{dataset_name}{test_sampling_rate}Hz-input.wav
+        {dataset_path}/test/{dataset_name}{test_sampling_rate}Hz-target.wav
+
+    Returns
+    -------
+    DataSet
+        the created DataSet object
+    """
     d = dataset.DataSet(data_dir=str(dataset_path))
 
     d.create_subset('train', frame_len=train_frame_len)
@@ -21,11 +52,12 @@ def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, 
 
     d.load_file(os.path.join('train', dataset_name) , 'train')
     d.load_file(os.path.join('validation', dataset_name), 'validation')
-
+    
     test_filename = os.path.join('test', dataset_name)
     if test_sampling_rate != d.subsets['train'].fs:
         test_filename = resample_test_files(dataset_path, test_filename, test_sampling_rate)
-    d.load_file(test_filename, set_names='test')    
+    d.load_file(test_filename, set_names='test')
+
     return d
 
 class NetworkTraining:
@@ -55,6 +87,10 @@ class NetworkTraining:
         self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
+
+            if math.isnan(epoch_loss):
+                raise RuntimeError('NaN encountered in the training loss. Aborting training.')
+
             validation_loss = self.run_validation()
             self.log_epoch_validation_loss(epoch_loss=epoch_loss, validation_loss=validation_loss)
 
@@ -74,20 +110,20 @@ class NetworkTraining:
             self.network.reset_hidden()
             if self.initialization_length > 0:
                 with torch.no_grad():
-                    self.network(input_minibatch[0:self.initialization_length, :, :])
+                    self.network(input_minibatch[0:self.initialization_length])
 
             subsegment_start = self.initialization_length
 
             for subsequence_id in range(self.subsegments_count):
                 
                 if should_include_teacher_forcing:
-                    self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :]
+                    self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates]
 
                 self.optimizer.zero_grad()
 
-                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates])
 
-                loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates, :, :])
+                loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates])
                 loss.backward()
                 self.optimizer.step()
 
@@ -123,7 +159,7 @@ class NetworkTraining:
         self.network.reset_hidden()
         if hasattr(self.network, 'dt'):
             self.network.dt = 1 / self.sampling_rate(subset_name)
-        
+
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
             loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
@@ -149,7 +185,7 @@ class NetworkTraining:
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
         
-        # Should the scheduler be loaded as well?
+        # Scheduler loading is not recommended; uncomment the following two lines on your own risk.
         # if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
             # self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
 

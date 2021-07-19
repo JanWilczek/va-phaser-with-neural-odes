@@ -1,9 +1,9 @@
-import torch
 import os
-import torchaudio
 import math
 import json
 from pathlib import Path
+import torch
+import torchaudio
 from torch.utils.tensorboard import SummaryWriter
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
@@ -11,8 +11,39 @@ from common import resample_test_files
 
 
 
-def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
-    dataset_path = Path('phaser', 'data').resolve()
+def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
+    """Build a DataSet object.
+
+    Parameters
+    ----------
+    dataset_path : Path
+        Path to the folder containing the 'train', 'validation',
+        and 'test' subfolders.
+    dataset_name : str
+        name of the dataset audio file.
+        For example: in each of the 'train', 'validation',
+        and 'test' subfolders you have files 'amplifier-input.wav' and 'amplifier-target.wav'. In this case supply the 'amplifier' string.
+    train_frame_len : int, optional
+        length of frames to split the train set into 
+        (0 for one, long frame), by default 22050
+    validation_frame_len : int, optional
+        length of frames to split the validation set into
+        (0 for one, long frame), by default 0
+    test_frame_len : int, optional
+        length of frames to split the test set into
+        (0 for one, long frame), by default 0
+    test_sampling_rate : int, optional
+        sampling rate to use at test time.
+        If different than the default (44100) the test files
+        will be resampled and saved under a new name, i.e.,
+        {dataset_path}/test/{dataset_name}{test_sampling_rate}Hz-input.wav
+        {dataset_path}/test/{dataset_name}{test_sampling_rate}Hz-target.wav
+
+    Returns
+    -------
+    DataSet
+        the created DataSet object
+    """
     d = dataset.DataSet(data_dir=str(dataset_path))
 
     d.create_subset('train', frame_len=train_frame_len)
@@ -25,7 +56,7 @@ def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, 
     test_filename = os.path.join('test', dataset_name)
     if test_sampling_rate != d.subsets['train'].fs:
         test_filename = resample_test_files(dataset_path, test_filename, test_sampling_rate)
-    d.load_file(test_filename, set_names='test')    
+    d.load_file(test_filename, set_names='test')
 
     return d
 
@@ -115,7 +146,7 @@ class NetworkTraining:
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')
 
-        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.dataset.subsets['validation'].fs)
+        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
         
         if validation_loss < self.best_validation_loss:
             self.save_checkpoint(best_validation=True)
@@ -177,6 +208,11 @@ class NetworkTraining:
         true_state_minibatch = extract_minibatch_segment_and_transfer_to_device(true_state)
 
         return input_minibatch, target_minibatch, true_state_minibatch
+
+    def save_subsets(self):
+        for subset_name in ['train', 'validation', 'test']:
+            torchaudio.save(self.run_directory / (subset_name + '-input.wav'), self.input_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
+            torchaudio.save(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
 
     @property
     def run_directory(self):
