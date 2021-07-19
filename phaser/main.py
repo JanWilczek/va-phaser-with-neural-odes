@@ -27,10 +27,13 @@ def argument_parser():
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
-            'trapezoid_rule'],help='(default: %(default)s)')
-    ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run (default: %(default)s).')
-    ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size (default: %(default)s).')
-    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate (default: %(default)s).')
+            'trapezoid_rule'], help='(default: %(default)s)')
+    ap.add_argument('--epochs', '-eps', type=int, default=20,
+                    help='Max number of training epochs to run (default: %(default)s).')
+    ap.add_argument('--batch_size', '-bs', type=int, default=256,
+                    help='Training mini-batch size (default: %(default)s).')
+    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3,
+                    help='Initial learning rate (default: %(default)s).')
     ap.add_argument(
         '--cyclic_lr',
         '-y',
@@ -61,7 +64,17 @@ def argument_parser():
     ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
     ap.add_argument('--weight_decay', '-wd', type=float, default=0.0,
                     help='Weight decay argument for the Adam optimizer (default: %(default)s).')
-    ap.add_argument('--teacher_forcing', '-tf', nargs='?', const='always', default='never', choices=['always', 'never', 'bernoulli'], help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
+    ap.add_argument(
+        '--teacher_forcing',
+        '-tf',
+        nargs='?',
+        const='always',
+        default='never',
+        choices=[
+            'always',
+            'never',
+            'bernoulli'],
+        help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
     return ap
 
 
@@ -150,7 +163,7 @@ def log_memory_usage(session):
     if torch.cuda.is_available():
         BYTES_IN_MEGABYTE = 2 ** 20
         session.writer.add_scalar('Maximum GPU memory usage [MB]',
-                                  torch.cuda.max_memory_allocated('cuda') / BYTES_IN_MEGABYTE, 
+                                  torch.cuda.max_memory_allocated('cuda') / BYTES_IN_MEGABYTE,
                                   session.epochs)
 
 

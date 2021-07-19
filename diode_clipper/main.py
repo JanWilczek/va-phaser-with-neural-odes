@@ -11,9 +11,6 @@ from pathlib import Path
 from functools import partial
 import json
 import argparse
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 def argument_parser():
@@ -29,10 +26,13 @@ def argument_parser():
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
-            'trapezoid_rule'],help='(default: %(default)s)')
-    ap.add_argument('--epochs', '-eps', type=int, default=20, help='Max number of training epochs to run (default: %(default)s).')
-    ap.add_argument('--batch_size', '-bs', type=int, default=256, help='Training mini-batch size (default: %(default)s).')
-    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help='Initial learning rate (default: %(default)s).')
+            'trapezoid_rule'], help='(default: %(default)s)')
+    ap.add_argument('--epochs', '-eps', type=int, default=20,
+                    help='Max number of training epochs to run (default: %(default)s).')
+    ap.add_argument('--batch_size', '-bs', type=int, default=256,
+                    help='Training mini-batch size (default: %(default)s).')
+    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3,
+                    help='Initial learning rate (default: %(default)s).')
     ap.add_argument(
         '--cyclic_lr',
         '-y',
@@ -74,10 +74,25 @@ def argument_parser():
             'never',
             'bernoulli'],
         help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
-    ap.add_argument('--hidden_size', default=100, type=int, help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
-    ap.add_argument('--test_sampling_rate', type=int, default=44100, help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
-    ap.add_argument('--save_sets', action='store_true', help='If set, the training, validation and test sets will be saved in the output folder.')
-    ap.add_argument('--dataset_name', default='diodeclip', choices=['diodeclip', 'ht1', 'muff'], help='Name of the dataset to use for modeling (default: %(default)s.')
+    ap.add_argument(
+        '--hidden_size',
+        default=100,
+        type=int,
+        help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
+    ap.add_argument('--test_sampling_rate', type=int, default=44100,
+                    help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
+    ap.add_argument(
+        '--save_sets',
+        action='store_true',
+        help='If set, the training, validation and test sets will be saved in the output folder.')
+    ap.add_argument(
+        '--dataset_name',
+        default='diodeclip',
+        choices=[
+            'diodeclip',
+            'ht1',
+            'muff'],
+        help='Name of the dataset to use for modeling (default: %(default)s.')
     return ap
 
 
@@ -174,7 +189,11 @@ def get_teacher_forcing_gate(teacher_forcing_description):
 
 def initialize_session(args):
     session = NetworkTraining()
-    session.dataset = create_dataset(args.dataset_name, validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk, test_sampling_rate=args.test_sampling_rate)
+    session.dataset = create_dataset(
+        args.dataset_name,
+        validation_frame_len=args.val_chunk,
+        test_frame_len=args.test_chunk,
+        test_sampling_rate=args.test_sampling_rate)
     session.epochs = args.epochs
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
