@@ -145,6 +145,7 @@
                 "10",
                 "--test_sampling_rate",
                 "22050",
+                "--save_sets"
             ]
         }
     ]

@@ -1,9 +1,62 @@
+import os
 import json
 import torch
 import torchaudio
 import socket
 from datetime import datetime
+from pathlib import Path
+import CoreAudioML.dataset as dataset
+from .resample import resample_test_files
 
+
+def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
+    """Build a DataSet object.
+
+    Parameters
+    ----------
+    dataset_path : Path
+        Path to the folder containing the 'train', 'validation',
+        and 'test' subfolders.
+    dataset_name : str
+        name of the dataset audio file.
+        For example: in each of the 'train', 'validation',
+        and 'test' subfolders you have files 'amplifier-input.wav' and 'amplifier-target.wav'. In this case supply the 'amplifier' string.
+    train_frame_len : int, optional
+        length of frames to split the train set into 
+        (0 for one, long frame), by default 22050
+    validation_frame_len : int, optional
+        length of frames to split the validation set into
+        (0 for one, long frame), by default 0
+    test_frame_len : int, optional
+        length of frames to split the test set into
+        (0 for one, long frame), by default 0
+    test_sampling_rate : int, optional
+        sampling rate to use at test time.
+        If different than the default (44100) the test files
+        will be resampled and saved under a new name, i.e.,
+        {dataset_path}/test/{dataset_name}{test_sampling_rate}Hz-input.wav
+        {dataset_path}/test/{dataset_name}{test_sampling_rate}Hz-target.wav
+
+    Returns
+    -------
+    DataSet
+        the created DataSet object
+    """
+    d = dataset.DataSet(data_dir=str(dataset_path))
+
+    d.create_subset('train', frame_len=train_frame_len)
+    d.create_subset('validation', frame_len=validation_frame_len)
+    d.create_subset('test', frame_len=test_frame_len)
+
+    d.load_file(os.path.join('train', dataset_name) , 'train')
+    d.load_file(os.path.join('validation', dataset_name), 'validation')
+    
+    test_filename = os.path.join('test', dataset_name)
+    if test_sampling_rate != d.subsets['train'].fs:
+        test_filename = resample_test_files(dataset_path, test_filename, test_sampling_rate)
+    d.load_file(test_filename, set_names='test')
+
+    return d
 
 def attach_scheduler(args, session):
     if args.one_cycle_lr is not None:

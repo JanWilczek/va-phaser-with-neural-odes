@@ -5,8 +5,8 @@ import torch
 import CoreAudioML.training as training
 import CoreAudioML.networks as networks
 from models import StateTrajectoryNetworkFF, ODENet2, ODENetDerivative2, ResidualIntegrationNetworkRK4, BilinearBlock, ExcitationSecondsLinearInterpolation
-from NetworkTraining import NetworkTraining, create_dataset
-from common import close_session, get_teacher_forcing_gate, attach_scheduler, get_device, load_checkpoint, save_args, test, get_run_name, get_run_name, get_method
+# from NetworkTraining import NetworkTraining, create_dataset
+from common import close_session, get_teacher_forcing_gate, attach_scheduler, get_device, load_checkpoint, save_args, test, get_run_name, get_run_name, get_method, create_dataset, NetworkTraining
 
 
 def argument_parser():
@@ -105,10 +105,10 @@ def get_architecture(args, dt):
     return network
 
 
-def initialize_session(args):
+def initialize_session(model_name, args):
     session = NetworkTraining()
     session.dataset = create_dataset(
-        Path('diode_clipper','data'), 
+        Path(model_name, 'data'),
         args.dataset_name,
         validation_frame_len=args.val_chunk,
         test_frame_len=args.test_chunk,
@@ -129,7 +129,7 @@ def initialize_session(args):
         weight_decay=args.weight_decay)
     attach_scheduler(args, session)
 
-    model_directory = Path('diode_clipper', 'runs', args.dataset_name, args.method.lower())
+    model_directory = Path(model_name, 'runs', args.dataset_name, args.method.lower())
 
     load_checkpoint(args, session, model_directory)
 
@@ -147,7 +147,7 @@ def initialize_session(args):
 def main():
     args = argument_parser().parse_args()
 
-    session = initialize_session(args)
+    session = initialize_session('diode_clipper', args)
 
     print('Training started.')
     try:
