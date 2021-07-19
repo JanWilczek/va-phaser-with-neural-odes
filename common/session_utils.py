@@ -6,10 +6,10 @@ import socket
 from datetime import datetime
 import argparse
 from pathlib import Path
-import diode_clipper.CoreAudioML.dataset as dataset
+import CoreAudioML.dataset as dataset
+from CoreAudioML import training
 from .resample import resample_test_files
-from common.NetworkTraining import NetworkTraining
-from diode_clipper.CoreAudioML import training
+from .NetworkTraining import NetworkTraining
 
 
 def initialize_session(model_name, args, get_architecture):
