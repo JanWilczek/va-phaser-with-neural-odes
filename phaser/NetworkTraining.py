@@ -1,5 +1,3 @@
-import socket
-from datetime import datetime
 import torch
 import os
 import torchaudio
@@ -11,26 +9,19 @@ import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
 
 
-def save_json(json_data, filepath):
-    with open(filepath, 'w') as f:
-        json.dump(json_data, f, indent=4)
 
-def get_run_name(suffix=''):
-    name = datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
-    if len(suffix) > 0:
-        name += '_' + suffix
-    return name
-
-def create_dataset(train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
-    d = dataset.DataSet(data_dir=str(Path('phaser', 'data').resolve()))
+def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
+    dataset_path = Path('phaser', 'data').resolve()
+    d = dataset.DataSet(data_dir=str(dataset_path))
 
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
     d.create_subset('test', frame_len=test_frame_len)
-    # dataset_name = 'BehPhaserToneoff'
-    dataset_name = 'FameSweetToneOffNoFb'
+
     d.load_file(os.path.join('train', dataset_name) , 'train')
     d.load_file(os.path.join('validation', dataset_name), 'validation')
+    
+    
     d.load_file(os.path.join('test', dataset_name), 'test')
 
     return d
@@ -132,7 +123,9 @@ class NetworkTraining:
     def test(self, subset_name='test'):
         self.transfer_to_device()
         self.network.reset_hidden()
-        
+        if hasattr(self.network, 'dt'):
+            self.network.dt = 1 / self.sampling_rate(subset_name)
+
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
             loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
@@ -236,8 +229,7 @@ class NetworkTraining:
     def best_validation_model_path(self):
         return self.run_directory / 'best_validation_loss_model.pth'
 
-    @property
-    def sampling_rate(self):
-        return self.dataset.subsets['train'].fs
+    def sampling_rate(self, subset_name='train'):
+        return self.dataset.subsets[subset_name].fs
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'

@@ -4,7 +4,7 @@ import librosa
 import soundfile as sf
 import numpy as np
 import matplotlib.pyplot as plt
-from plot_utils import setup_pyplot_for_latex, save_tikz
+from .plot_utils import setup_pyplot_for_latex, save_tikz
 
 
 def T_coef(time_index, hop_size, sampling_rate):

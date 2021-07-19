@@ -1,47 +1,15 @@
-import socket
-from datetime import datetime
 import torch
 import torchaudio
 import math
 import json
 from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
-import soundfile as sf
-from scipy.signal import resample
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
 import os
+from common import resample_file, resample_test_files
 
 
-def save_json(json_data, filepath):
-    with open(filepath, 'w') as f:
-        json.dump(json_data, f, indent=4)
-
-def get_run_name(suffix=''):
-    name = datetime.now().strftime(r"%B%d_%H-%M-%S") + f'_{socket.gethostname()}'
-    if len(suffix) > 0:
-        name += '_' + suffix
-    return name
-
-def resample_file(filename, target_sampling_rate):
-    hyphen_index = filename.index('-')
-    resampled_filename = filename[:hyphen_index] + f'{target_sampling_rate}Hz' + filename[hyphen_index:]
-    if not Path(resampled_filename).exists():
-        print(f'Resampling {filename} to {target_sampling_rate} Hz...')
-        data, sampling_rate = sf.read(filename)
-        resampled_length = data.shape[-1] * target_sampling_rate // sampling_rate
-        resampled = resample(data, resampled_length, axis=-1)
-        sf.write(resampled_filename, resampled, target_sampling_rate)
-    return resampled_filename
-
-def resample_test_files(dataset_path, test_filename, target_sampling_rate):
-    files = [dataset_path / (test_filename + '-input.wav'),
-             dataset_path / (test_filename + '-target.wav'),]
-
-    for file in files:
-        resampled_filename = resample_file(str(file), target_sampling_rate)
-    
-    return resampled_filename[:str(resampled_filename).index('-')]
 
 def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
     dataset_path = Path('diode_clipper', 'data').resolve()
