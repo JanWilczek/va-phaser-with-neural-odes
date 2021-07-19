@@ -4,9 +4,51 @@ import torch
 import torchaudio
 import socket
 from datetime import datetime
+import argparse
 from pathlib import Path
-import CoreAudioML.dataset as dataset
+import diode_clipper.CoreAudioML.dataset as dataset
 from .resample import resample_test_files
+from common.NetworkTraining import NetworkTraining
+from diode_clipper.CoreAudioML import training
+
+
+def initialize_session(model_name, args, get_architecture):
+    session = NetworkTraining()
+    session.dataset = create_dataset(
+        Path(model_name, 'data'),
+        args.dataset_name,
+        validation_frame_len=args.val_chunk,
+        test_frame_len=args.test_chunk,
+        test_sampling_rate=args.test_sampling_rate)
+    session.epochs = args.epochs
+    session.segments_in_a_batch = args.batch_size
+    session.samples_between_updates = args.up_fr
+    session.initialization_length = args.init_len
+    session.enable_teacher_forcing = get_teacher_forcing_gate(args.teacher_forcing)
+    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
+
+    session.device = get_device()
+    session.network = get_architecture(args, 1 / session.sampling_rate('train'))
+    session.transfer_to_device()
+    session.optimizer = torch.optim.Adam(
+        session.network.parameters(),
+        lr=args.learn_rate,
+        weight_decay=args.weight_decay)
+    attach_scheduler(args, session)
+
+    model_directory = Path(model_name, 'runs', args.dataset_name, args.method.lower())
+
+    load_checkpoint(args, session, model_directory)
+
+    run_name = get_run_name(args.name)
+    session.run_directory = model_directory / run_name
+
+    save_args(session, args)
+
+    if args.save_sets:
+        session.save_subsets()
+
+    return session
 
 
 def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
@@ -138,3 +180,97 @@ def get_run_name(suffix=''):
     if len(suffix) > 0:
         name += '_' + suffix
     return name
+
+def argument_parser():
+    ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    ap.add_argument(
+        '--method',
+        default='forward_euler',
+        choices=[
+            'LSTM',
+            'STN',
+            'ResIntRK4',
+            'odeint_dopri5',
+            'odeint_euler',
+            'odeint_implicit_adams',
+            'forward_euler',
+            'trapezoid_rule'], help='(default: %(default)s)')
+    ap.add_argument('--epochs', '-eps', type=int, default=20,
+                    help='Max number of training epochs to run (default: %(default)s).')
+    ap.add_argument('--batch_size', '-bs', type=int, default=256,
+                    help='Training mini-batch size (default: %(default)s).')
+    ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3,
+                    help='Initial learning rate (default: %(default)s).')
+    ap.add_argument(
+        '--cyclic_lr',
+        '-y',
+        type=float,
+        default=None,
+        help='If given, uses the cyclic learning rate schedule by Smith. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
+        's parameter.')
+    ap.add_argument(
+        '--one_cycle_lr',
+        '-oc',
+        type=float,
+        default=None,
+        help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
+        's parameter.')
+    ap.add_argument('--init_len', '-il', type=int, default=1000,
+                    help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
+    ap.add_argument('--up_fr', '-uf', type=int, default=2048,
+                    help='For recurrent models, number of samples to run in between updating network weights, i.e the '
+                    'default argument updates every %(default)s samples (default: %(default)s).')
+    ap.add_argument('--val_chunk', '-vs', type=int, default=0, help='Number of sequence samples to process'
+                    'in each chunk of validation (default: %(default)s).')
+    ap.add_argument('--test_chunk', '-tc', type=int, default=0, help='Number of sequence samples to process'
+                    'in each chunk of test (default: %(default)s).')
+    ap.add_argument('--checkpoint', '-c', type=str, default=None,
+                    help='Load a checkpoint of the given architecture with the specified name.')
+    ap.add_argument('--adjoint', '-adj', action='store_true',
+                    help='Use the adjoint sensitivity method for backpropagation.')
+    ap.add_argument('--name', '-n', type=str, default='', help='Set name for the run')
+    ap.add_argument('--weight_decay', '-wd', type=float, default=0.0,
+                    help='Weight decay argument for the Adam optimizer (default: %(default)s).')
+    ap.add_argument(
+        '--teacher_forcing',
+        '-tf',
+        nargs='?',
+        const='always',
+        default='never',
+        choices=[
+            'always',
+            'never',
+            'bernoulli'],
+        help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
+    ap.add_argument(
+        '--hidden_size',
+        default=100,
+        type=int,
+        help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
+    ap.add_argument('--test_sampling_rate', type=int, default=44100,
+                    help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
+    ap.add_argument(
+        '--save_sets',
+        action='store_true',
+        help='If set, the training, validation and test sets will be saved in the output folder.')
+    ap.add_argument(
+        '--dataset_name',
+        help='Name of the dataset to use for modeling.',
+        required=True)
+    return ap
+
+
+def train_and_test(session):
+    print('Training started.')
+    try:
+        session.run()
+    except KeyboardInterrupt:
+        print('Training interrupted.')
+
+    print('Test started.')
+    try:
+        test(session)
+    except KeyboardInterrupt:
+        print('Test interrupted, quitting.')
+
+    close_session(session)
