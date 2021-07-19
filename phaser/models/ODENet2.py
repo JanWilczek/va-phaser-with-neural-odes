@@ -4,15 +4,18 @@ from torch import nn
 
 
 class ExcitationSecondsLinearInterpolation(nn.Module):
-    def __init__(self, dt):
+    def __init__(self):
         super().__init__()
-        self.dt = dt
         self.time = None
         self.excitation_data = None
 
     def set_excitation_data(self, time, excitation_data):
         self.time = time
         self.excitation_data = excitation_data
+    
+    @property
+    def dt(self):
+        return self.time[1] - self.time[0] # assume a constant time step
 
     def forward(self, t):
         last_sample_id = (t // self.dt).type(torch.long)
@@ -71,7 +74,7 @@ class ODENet2(nn.Module):
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
-        self.dt = dt
+        self.__dt = dt
         self.__true_state = None
         self.time = None
         self.state = None
@@ -133,3 +136,12 @@ class ODENet2(nn.Module):
     @property
     def device(self):
         return next(self.parameters()).device
+
+    @property
+    def dt(self):
+        return self.__dt
+
+    @dt.setter
+    def dt(self, value):
+        self.__dt = value
+        self.reset_hidden()

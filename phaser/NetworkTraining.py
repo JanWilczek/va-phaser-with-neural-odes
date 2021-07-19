@@ -7,10 +7,11 @@ from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
 import CoreAudioML.dataset as dataset
 from TrainingTimeLogger import TrainingTimeLogger
+from common import resample_test_files
 
 
 
-def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0):
+def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, test_frame_len=0, test_sampling_rate=44100):
     dataset_path = Path('phaser', 'data').resolve()
     d = dataset.DataSet(data_dir=str(dataset_path))
 
@@ -21,8 +22,10 @@ def create_dataset(dataset_name, train_frame_len=22050, validation_frame_len=0, 
     d.load_file(os.path.join('train', dataset_name) , 'train')
     d.load_file(os.path.join('validation', dataset_name), 'validation')
     
-    
-    d.load_file(os.path.join('test', dataset_name), 'test')
+    test_filename = os.path.join('test', dataset_name)
+    if test_sampling_rate != d.subsets['train'].fs:
+        test_filename = resample_test_files(dataset_path, test_filename, test_sampling_rate)
+    d.load_file(test_filename, set_names='test')    
 
     return d
 

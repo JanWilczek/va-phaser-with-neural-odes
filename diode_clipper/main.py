@@ -1,16 +1,12 @@
 """Set up an NN architecture, run its training and test on the diode clipper data."""
-from solvers import ForwardEuler, trapezoid_rule
-from models import StateTrajectoryNetworkFF, ODENet2, ODENetDerivative2, ResidualIntegrationNetworkRK4, BilinearBlock, ExcitationSecondsLinearInterpolation
-from NetworkTraining import NetworkTraining, create_dataset
+import argparse
+from pathlib import Path
+import torch
 import CoreAudioML.training as training
 import CoreAudioML.networks as networks
-from torchdiffeq import odeint, odeint_adjoint
-import torchaudio
-import torch
-from pathlib import Path
-from functools import partial
-import argparse
-from common import close_session, get_teacher_forcing_gate, attach_scheduler, get_device, load_checkpoint, save_args, test, get_run_name, get_run_name
+from models import StateTrajectoryNetworkFF, ODENet2, ODENetDerivative2, ResidualIntegrationNetworkRK4, BilinearBlock, ExcitationSecondsLinearInterpolation
+from NetworkTraining import NetworkTraining, create_dataset
+from common import close_session, get_teacher_forcing_gate, attach_scheduler, get_device, load_checkpoint, save_args, test, get_run_name, get_run_name, get_method
 
 
 def argument_parser():
@@ -94,17 +90,6 @@ def argument_parser():
             'muff'],
         help='Name of the dataset to use for modeling (default: %(default)s.')
     return ap
-
-
-def get_method(args):
-    if args.method.startswith('odeint'):
-        odeint_method = odeint_adjoint if args.adjoint else odeint
-        method_name = args.method[(len('odeint') + 1):]
-        return partial(odeint_method, method=method_name)
-
-    method_dict = {"forward_euler": ForwardEuler(),
-                   "trapezoid_rule": trapezoid_rule}
-    return method_dict[args.method]
 
 
 def get_architecture(args, dt):

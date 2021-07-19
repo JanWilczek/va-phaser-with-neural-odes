@@ -9,8 +9,8 @@ def resample_file(filename, target_sampling_rate):
     if not Path(resampled_filename).exists():
         print(f'Resampling {filename} to {target_sampling_rate} Hz...')
         data, sampling_rate = sf.read(filename)
-        resampled_length = data.shape[-1] * target_sampling_rate // sampling_rate
-        resampled = resample(data, resampled_length, axis=-1)
+        resampled_length = data.shape[0] * target_sampling_rate // sampling_rate
+        resampled = resample(data, resampled_length, axis=0)
         sf.write(resampled_filename, resampled, target_sampling_rate)
     return resampled_filename
 

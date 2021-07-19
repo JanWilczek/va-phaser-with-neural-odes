@@ -116,6 +116,36 @@
                 "--test_sampling_rate",
                 "48000",
             ]
+        },
+        {
+            "name": "Python: Phaser",
+            "type": "python",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/phaser/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {"CUDA_VISIBLE_DEVICES": "1"},
+            "args": [
+                "--method",
+                "forward_euler",
+                "--batch_size",
+                "512",
+                "--val_chunk",
+                "22050",
+                "--test_chunk",
+                "22050",
+                "--init_len",
+                "0",
+                "--up_fr",
+                "2048",
+                "--learn_rate",
+                "0.001",
+                "--epochs",
+                "10",
+                "--test_sampling_rate",
+                "22050",
+            ]
         }
     ]
 }

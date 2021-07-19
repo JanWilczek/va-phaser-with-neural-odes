@@ -1,18 +1,13 @@
 """Set up an NN architecture, run its training and test on the phaser data."""
 import argparse
-import json
-from functools import partial
 from pathlib import Path
 import torch
 import torch.nn as nn
-import torchaudio
-from torchdiffeq import odeint, odeint_adjoint
 import CoreAudioML.networks as networks
 import CoreAudioML.training as training
 from NetworkTraining import NetworkTraining, create_dataset
 from models import ODENet, ODENetDerivative, ResidualIntegrationNetworkRK4, BilinearBlock, ODENet2, ODENetDerivative2, ExcitationSecondsLinearInterpolation
-from solvers import ForwardEuler, trapezoid_rule
-from common import close_session, get_teacher_forcing_gate, attach_scheduler, get_device, load_checkpoint, save_args, test, get_run_name
+from common import close_session, get_teacher_forcing_gate, attach_scheduler, get_device, load_checkpoint, save_args, test, get_run_name, get_method
 
 
 def argument_parser():
@@ -76,18 +71,16 @@ def argument_parser():
             'never',
             'bernoulli'],
         help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
+    ap.add_argument('--test_sampling_rate', type=int, default=44100,
+                    help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
+    ap.add_argument(
+        '--dataset_name',
+        default='FameSweetToneOffNoFb',
+        choices=[
+            'BehPhaserToneoff',
+            'FameSweetToneOffNoFb'],
+        help='Name of the dataset to use for modeling (default: %(default)s.')
     return ap
-
-
-def get_method(args):
-    if args.method.startswith('odeint'):
-        odeint_method = odeint_adjoint if args.adjoint else odeint
-        method_name = args.method[(len('odeint') + 1):]
-        return partial(odeint_method, method=method_name)
-
-    method_dict = {"forward_euler": ForwardEuler(),
-                   "trapezoid_rule": trapezoid_rule}
-    return method_dict[args.method]
 
 
 def get_architecture(args, dt):
@@ -104,13 +97,13 @@ def get_architecture(args, dt):
                                                               latent_size=12)), dt=1.0)
     else:
         method = get_method(args)
-        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(dt)), method, dt)
+        network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation()), method, dt)
     return network
 
 
 def initialize_session(args):
     session = NetworkTraining()
-    session.dataset = create_dataset('FameSweetToneOffNoFb', validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk)
+    session.dataset = create_dataset(args.dataset_name, validation_frame_len=args.val_chunk, test_frame_len=args.test_chunk, test_sampling_rate=args.test_sampling_rate)
     session.epochs = args.epochs
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
@@ -145,6 +138,7 @@ def main():
 
     session = initialize_session(args)
 
+    print('Training started.')
     try:
         session.run()
     except KeyboardInterrupt:
