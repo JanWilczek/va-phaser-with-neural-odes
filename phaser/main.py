@@ -2,7 +2,8 @@
 import torch.nn as nn
 import CoreAudioML.networks as networks
 from common import initialize_session, argument_parser, train_and_test, get_method
-from models import ODENet, ODENetDerivative, ResidualIntegrationNetworkRK4, BilinearBlock, ODENet2, ODENetDerivative2, ExcitationSecondsLinearInterpolation
+from models import ODENet2, ODENetDerivative2, ExcitationSecondsLinearInterpolation
+from architectures import ResidualIntegrationNetworkRK4, BilinearBlock
 
 
 def get_architecture(args, dt):

@@ -185,7 +185,6 @@ def argument_parser():
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument(
         '--method',
-        default='forward_euler',
         choices=[
             'LSTM',
             'STN',
@@ -194,11 +193,13 @@ def argument_parser():
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
-            'trapezoid_rule'], help='(default: %(default)s)')
-    ap.add_argument('--epochs', '-eps', type=int, default=20,
-                    help='Max number of training epochs to run (default: %(default)s).')
-    ap.add_argument('--batch_size', '-bs', type=int, default=256,
-                    help='Training mini-batch size (default: %(default)s).')
+            'trapezoid_rule'], 
+            required=True,
+            help='Method to use for numerical integration of the differential equation.')
+    ap.add_argument('--epochs', '-eps', type=int, required=True,
+                    help='Max number of training epochs to run.')
+    ap.add_argument('--batch_size', '-bs', type=int, required=True,
+                    help='Training mini-batch size.')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3,
                     help='Initial learning rate (default: %(default)s).')
     ap.add_argument(
@@ -215,12 +216,12 @@ def argument_parser():
         default=None,
         help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
         's parameter.')
-    ap.add_argument('--init_len', '-il', type=int, default=1000,
+    ap.add_argument('--init_len', '-il', type=int, default=0,
                     help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,
                     help='For recurrent models, number of samples to run in between updating network weights, i.e the '
                     'default argument updates every %(default)s samples (default: %(default)s).')
-    ap.add_argument('--val_chunk', '-vs', type=int, default=0, help='Number of sequence samples to process'
+    ap.add_argument('--val_chunk', '-vs', type=int, default=22050, help='Number of sequence samples to process'
                     'in each chunk of validation (default: %(default)s).')
     ap.add_argument('--test_chunk', '-tc', type=int, default=0, help='Number of sequence samples to process'
                     'in each chunk of test (default: %(default)s).')

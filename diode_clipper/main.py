@@ -1,7 +1,8 @@
 """Set up an NN architecture, run its training and test on the diode clipper data."""
 import CoreAudioML.networks as networks
 from common import initialize_session, argument_parser, train_and_test, get_method
-from models import StateTrajectoryNetworkFF, ODENet2, ODENetDerivative2, ResidualIntegrationNetworkRK4, BilinearBlock, ExcitationSecondsLinearInterpolation
+from models import StateTrajectoryNetworkFF, ODENet2, ODENetDerivative2, ExcitationSecondsLinearInterpolation
+from architectures import ResidualIntegrationNetworkRK4, BilinearBlock
 
 
 def get_architecture(args, dt):
@@ -10,7 +11,7 @@ def get_architecture(args, dt):
     elif args.method == 'STN':
         network = StateTrajectoryNetworkFF(training_time_step=dt)
     elif args.method == 'ResIntRK4':
-        network = ResidualIntegrationNetworkRK4(BilinearBlock(), dt)
+        network = ResidualIntegrationNetworkRK4(BilinearBlock(input_size=2, output_size=1, latent_size=6), dt)
     else:
         method = get_method(args)
         network = ODENet2(ODENetDerivative2(ExcitationSecondsLinearInterpolation(), args.hidden_size), method, dt)

@@ -3,15 +3,15 @@ import torch.nn as nn
 
 
 class BilinearBlock(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size=1, output_size=1, latent_size=6):
         super().__init__()
-        self.fc1 = nn.Linear(2, 6)
+        self.fc1 = nn.Linear(input_size, latent_size)
         self.nl1 = nn.Tanh()
-        self.fc2 = nn.Linear(2, 6)
+        self.fc2 = nn.Linear(input_size, latent_size)
         self.nl2 = nn.Tanh()
-        self.fc3 = nn.Linear(2, 6)
+        self.fc3 = nn.Linear(input_size, latent_size)
         self.nl3 = nn.Tanh()
-        self.fc4 = nn.Linear(12, 1)
+        self.fc4 = nn.Linear(2 * latent_size, output_size)
         self.nl4 = nn.Tanh()
 
     def forward(self, x):
@@ -27,35 +27,37 @@ class ResidualIntegrationNetworkRK4(nn.Module):
         super().__init__()
         self.derivative_network = derivative_network
         self.dt = dt
-        self.true_state = None
+        self.__true_state = None
 
     def forward(self, x):
         sequence_length, minibatch_size, feature_count = x.shape
+        OUTPUT_FEATURES = 1
 
-        output = torch.empty((sequence_length, minibatch_size, 1), device=x.device)
+        output = torch.empty((sequence_length, minibatch_size, OUTPUT_FEATURES), device=x.device)
 
         # Explicit Runge-Kutta scheme of order 4
-        y0 = torch.zeros((minibatch_size, 1), device=x.device)
+        y0 = torch.zeros((minibatch_size, OUTPUT_FEATURES), device=x.device)
 
-        for n in range(sequence_length):
+        for time_frame_id in range(sequence_length):
             # Retrieve the correct last output if available
             if self.true_state is not None:
-                y0 = self.true_state[n]
+                y0 = self.true_state[time_frame_id]
 
-            v_in = x[n]
+            v_in = x[time_frame_id]
 
-            k1 = self.derivative_network(torch.cat((v_in, y0), dim=1))
-            k2 = self.derivative_network(torch.cat((v_in, y0+k1*self.dt/2), dim=1))
-            k3 = self.derivative_network(torch.cat((v_in, y0+k2*self.dt/2), dim=1))
-            k4 = self.derivative_network(torch.cat((v_in, y0+k3*self.dt), dim=1))
+            TIME_FRAME_FEATURE_DIMENSION = 1
+            k1 = self.derivative_network(torch.cat((v_in, y0), dim=TIME_FRAME_FEATURE_DIMENSION))
+            k2 = self.derivative_network(torch.cat((v_in, y0+k1*self.dt/2), dim=TIME_FRAME_FEATURE_DIMENSION))
+            k3 = self.derivative_network(torch.cat((v_in, y0+k2*self.dt/2), dim=TIME_FRAME_FEATURE_DIMENSION))
+            k4 = self.derivative_network(torch.cat((v_in, y0+k3*self.dt), dim=TIME_FRAME_FEATURE_DIMENSION))
 
-            output[n] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
-            y0 = output[n]
+            output[time_frame_id] = y0 + 1/6 * (k1 + 2*k2 + 2*k3 + k4) * self.dt
+            y0 = output[time_frame_id]
 
         return output
 
     def reset_hidden(self):
-        self.true_state = None
+        self.__true_state = None
 
     def detach_hidden(self):
         pass

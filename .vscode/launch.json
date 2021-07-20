@@ -88,17 +88,17 @@
             "cwd": "${workspaceFolder}/diode_clipper"
         },
         {
-            "name": "Python: diode_benchmark",
+            "name": "Python: Diode Clipper",
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "request": "launch",
             "program": "${workspaceFolder}/diode_clipper/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "env": {"CUDA_VISIBLE_DEVICES": "1"},
+            "env": {"CUDA_VISIBLE_DEVICES": "0"},
             "args": [
                 "--method",
-                "forward_euler",
+                "ResIntRK4",
                 "--batch_size",
                 "512",
                 "--val_chunk",
@@ -114,7 +114,9 @@
                 "--epochs",
                 "10",
                 "--test_sampling_rate",
-                "48000",
+                "22050",
+                "--dataset_name",
+                "diodeclip"
             ]
         },
         {
@@ -125,12 +127,12 @@
             "program": "${workspaceFolder}/phaser/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "env": {"CUDA_VISIBLE_DEVICES": "1"},
+            "env": {"CUDA_VISIBLE_DEVICES": "0"},
             "args": [
                 "--method",
-                "forward_euler",
+                "ResIntRK4",
                 "--batch_size",
-                "512",
+                "128",
                 "--val_chunk",
                 "22050",
                 "--test_chunk",
@@ -142,10 +144,11 @@
                 "--learn_rate",
                 "0.001",
                 "--epochs",
-                "10",
+                "2",
                 "--test_sampling_rate",
                 "22050",
-                "--save_sets"
+                "--dataset_name",
+                "FameSweetToneOffNoFb"
             ]
         }
     ]
