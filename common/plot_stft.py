@@ -37,7 +37,7 @@ def plot_stft(signal, output_filepath, sampling_rate):
 
 def main():
     ap = ArgumentParser()
-    ap.add_argument('filepath')
+    ap.add_argument('filepath', help='.wav file to compute STFT from.')
     args = ap.parse_args()
     filepath = Path(args.filepath)
     data, fs = sf.read(filepath)
