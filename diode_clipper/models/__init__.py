@@ -1,1 +1,0 @@
-from .StateTrajectoryNetwork import StateTrajectoryNetworkFF

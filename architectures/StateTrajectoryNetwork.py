@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-class StateTrajectoryNetworkFF(nn.Module):
+class StateTrajectoryNetwork(nn.Module):
     def __init__(self, training_time_step=1.0):
         super().__init__()
         self.densely_connected_layers = nn.Sequential(
