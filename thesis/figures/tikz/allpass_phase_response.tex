@@ -11,17 +11,23 @@
     \pgfmathsetmacro{\ad}{-(1 - tan(deg(2*\wb/2)))/(1+tan(deg(2*\wb/2)))};
     \pgfmathsetmacro{\at}{-(1 - tan(deg(3*\wb/2)))/(1+tan(deg(3*\wb/2)))};
     \begin{axis}[
-        domain=0.00001:pi,
-        axis lines = middle,
+        legend style={
+        at={(0.1,0.4)},
+        anchor=north west},
+        domain=0.003:pi,
         xmode=log,
+        xmin=0.003,
+        xmax=pi,
+        ymin=-pi,
+        ymax=0,
+        log ticks with fixed point,
+        xlabel = {$\omega \quad \left[ \text{rad} \right]$},
+        ylabel = {$\theta(\omega)$ [rad]},
     ]
-        % \addplot[smooth,mark=none,color=red] {- 2 * rad(atan(x/\wb))}; % Smith, analog
-        % \addplot[smooth,mark=none,color=blue] {rad(atan(((\a*\a - 1) * sin(deg(x))) / (2*\a + (1 + \a*\a) * cos(deg(x)))))}; % mine
-        
         \addplot[smooth,mark=none,color=black] {-x + 2 * rad(atan((\a * sin(deg(x)) / (1 + \a * cos(deg(x))))))}; % Kiiski et al.
         \addplot[smooth,mark=none,color=black,dashed] {-x + 2 * rad(atan((\ad * sin(deg(x)) / (1 + \ad * cos(deg(x))))))}; % Kiiski et al.
         \addplot[smooth,mark=none,color=black,dotted] {-x + 2 * rad(atan((\at * sin(deg(x)) / (1 + \at * cos(deg(x))))))}; % Kiiski et al.
-
+        \legend{$\omega_\text{b} = \frac{\pi}{8}$, $\omega_\text{b} = \frac{\pi}{4}$, $\omega_\text{b} = \frac{3\pi}{8}$}
         
         % \addplot[smooth,mark=none,color=black] {- 2 * rad(atan(x/0.1))};
         % \addplot[smooth,mark=none,color=black,dashed] {- 2 * rad(atan(x/0.2))};
