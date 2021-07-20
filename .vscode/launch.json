@@ -5,13 +5,41 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Harmonic Oscillator",
+            "type": "python",
+            "request": "launch",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "program": "harmonic_oscillator/main.py",
+            "console": "integratedTerminal",
+            "args": ["--visualize", "--epochs", "20", "-m", "1", "-k", "1", "-c", "0.1", "--nsteps", "5000", "--nperiods", "8", "--method", "forward_euler", "--excitation", "1.8", "0.1", "--use_samples"]
+        },
+        {
+            "name": "Python: Test",
+            "type": "python",
+            "request": "launch",
+            "module": "unittest",
+            "args": [
+                "diode_clipper.test.test_odenet.TestODENetHarmonicOscillator"
+            ]
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python: diode_ode_numerical",
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "request": "launch",
             "program": "${workspaceFolder}/diode_clipper/diode_ode_numerical.py",
             "console": "integratedTerminal",
-            "args": ["-l", "0.1"]
+            "args": [
+                "-l",
+                "0.1"
+            ]
         },
         {
             "name": "Python: diode_ode_numerical (local)",
@@ -19,7 +47,19 @@
             "request": "launch",
             "program": "${workspaceFolder}/diode_clipper/diode_ode_numerical.py",
             "console": "integratedTerminal",
-            "args": ["--method-name", "BDF", "--upsample-factor", "8", "--length-seconds", "10", "--input-scaling-factor", "5", "--frame-length", "128", "--normalize"]
+            "args": [
+                "--method-name",
+                "BDF",
+                "--upsample-factor",
+                "8",
+                "--length-seconds",
+                "10",
+                "--input-scaling-factor",
+                "5",
+                "--frame-length",
+                "128",
+                "--normalize"
+            ]
         },
         {
             "name": "Python: Current File",
@@ -48,14 +88,68 @@
             "cwd": "${workspaceFolder}/diode_clipper"
         },
         {
-            "name": "Python: diode_benchmark",
+            "name": "Python: Diode Clipper",
             "type": "python",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "request": "launch",
-            "program": "${workspaceFolder}/diode_clipper/diode_benchmark.py",
+            "program": "${workspaceFolder}/diode_clipper/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "args": ["ResIntRK4", "--batch_size", "512", "--val_chunk", "22050", "--test_chunk", "22050", "--init_len", "0", "--up_fr", "1024", "--learn_rate", "0.001", "--epochs", "100"]
+            "env": {"CUDA_VISIBLE_DEVICES": "0"},
+            "args": [
+                "--method",
+                "ResIntRK4",
+                "--batch_size",
+                "512",
+                "--val_chunk",
+                "22050",
+                "--test_chunk",
+                "22050",
+                "--init_len",
+                "0",
+                "--up_fr",
+                "2048",
+                "--learn_rate",
+                "0.001",
+                "--epochs",
+                "10",
+                "--test_sampling_rate",
+                "22050",
+                "--dataset_name",
+                "diodeclip"
+            ]
+        },
+        {
+            "name": "Python: Phaser",
+            "type": "python",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/phaser/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {"CUDA_VISIBLE_DEVICES": "0"},
+            "args": [
+                "--method",
+                "ResIntRK4",
+                "--batch_size",
+                "128",
+                "--val_chunk",
+                "22050",
+                "--test_chunk",
+                "22050",
+                "--init_len",
+                "0",
+                "--up_fr",
+                "2048",
+                "--learn_rate",
+                "0.001",
+                "--epochs",
+                "2",
+                "--test_sampling_rate",
+                "22050",
+                "--dataset_name",
+                "FameSweetToneOffNoFb"
+            ]
         }
     ]
 }

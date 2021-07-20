@@ -4,6 +4,8 @@
 *.zip
 test_output.wav
 last_validation_output.wav
+runs/
+deps/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

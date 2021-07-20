@@ -1,0 +1,19 @@
+{
+    "method": [
+        "forward_euler"
+    ],
+    "epochs": 300,
+    "batch_size": 256,
+    "learn_rate": 0.001,
+    "cyclic_lr": null,
+    "one_cycle_lr": 0.02,
+    "init_len": 0,
+    "up_fr": 2048,
+    "val_chunk": 22050,
+    "test_chunk": 0,
+    "checkpoint": null,
+    "adjoint": false,
+    "name": "ODENet2",
+    "weight_decay": 0.0,
+    "pre_filter": null
+}
