@@ -3,46 +3,14 @@ import torch
 from torch import nn
 
 
-class ExcitationSecondsLinearInterpolation(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.time = None
-        self.excitation_data = None
-
-    def set_excitation_data(self, time, excitation_data):
-        self.time = time
-        self.excitation_data = excitation_data
-    
-    @property
-    def dt(self):
-        return self.time[1] - self.time[0] # assume a constant time step
-
-    def forward(self, t):
-        last_sample_id = (t // self.dt).type(torch.long)
-        next_sample_id = last_sample_id + 1
-
-        if next_sample_id == 0:
-            return self.excitation_data[0]
-        elif next_sample_id > self.excitation_data.shape[0] - 1:
-            warnings.warn("Attempting to acces time index beyond available data.")
-            return self.excitation_data[-1]
-
-        last_sample_weight = next_sample_id - (t / self.dt)
-
-        return last_sample_weight * self.excitation_data[last_sample_id] + (1 - last_sample_weight) * self.excitation_data[next_sample_id]
-
-class ODENetDerivative2(nn.Module):
-    def __init__(self, excitation, hidden_size=100):
+class DerivativeMLP(nn.Module):
+    def __init__(self, excitation, activation, input_size=2, output_size=1, hidden_size=100):
         super().__init__()
         self.excitation = excitation
-        activation = nn.Tanh()
         self.densely_connected_layers = nn.Sequential(
-            nn.Linear(3, hidden_size), activation,
-            nn.Linear(hidden_size, 2*hidden_size), activation,
-            nn.Linear(2*hidden_size, 2*hidden_size), activation,
-            nn.Linear(2*hidden_size, 2*hidden_size), activation,
-            nn.Linear(2*hidden_size, hidden_size), activation,
-            nn.Linear(hidden_size, 1))
+            nn.Linear(input_size, hidden_size), activation,
+            nn.Linear(hidden_size, hidden_size), activation,
+            nn.Linear(hidden_size, output_size))
 
     def forward(self, t, y):
         """Return the right-hand side of the ODE
@@ -69,7 +37,7 @@ class ODENetDerivative2(nn.Module):
     def set_excitation_data(self, time, excitation_data):
         self.excitation.set_excitation_data(time, excitation_data)
 
-class ODENet2(nn.Module):
+class ODENet(nn.Module):
     def __init__(self, derivative_network, odeint, dt):
         super().__init__()
         self.derivative_network = derivative_network
