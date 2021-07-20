@@ -33,8 +33,6 @@ In \Figure{fig:phaser}, a basic diagram of a phaser is depicted. This schematic 
 
 To understand phaser's effect on the signal, one should examine the allpass filters first. That is the topic of the next section.
 
-% TODO: Insert a spectrogram of phaser's effect on white noise
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{First-Order Allpass Filter}
 \label{sec:first_order_allpass_filter}
@@ -50,6 +48,7 @@ An allpass filter is a filter with unit magnitude gain at all frequencies. The g
 
 \begin{equation}
     H_\text{allpass}(z) = \frac{a_1 + z^{-1}}{1 + a_1 z^{-1}},
+    \label{eq:allpass_transfer_function}
 \end{equation}
 where $a_1$ coefficient determines the break frequency of the allpass, i.e., the frequency at which the phase shift is exactly $-\frac{\pi}{2}$ $\frac{\text{rad}}{\text{s}}$. Given the break frequency $f_c$ in Hz and the sampling rate $f_s$ in Hz, the $a_1$ coefficient can be calculated as
 
@@ -64,6 +63,13 @@ where $a_1$ coefficient determines the break frequency of the allpass, i.e., the
     H_{\text{allpass}}^{\text{a}} (s) = \frac{s - 2\pi f_c}{s + 2\pi f_c},
 \end{equation}
 where 'a' superscript marks the analog (continuous) domain of the transfer function.
+
+The difference equation resulting from \Equation{eq:allpass_transfer_function} is
+\begin{equation}
+    y[n] = a_1 x[n] + \underbrace{x[n-1] - a_1 y[n-1]}{d[n-1]},
+    \label{eq:allpass_filter_difference_equation}
+\end{equation}
+where $x[n]$ denotes the input signal to the phaser and $y[n]$ denotes the output signal of the phaser. An diagram depicting this equation is shown in \Figure{fig:first_order_allpass_filter}. The right-hand side of \Equation{eq:allpass_filter_difference_equation} can be implemented using a one-element delay line.
 
 The phase response of an allpass filter (specified in the \SIrange{-\pi}{0}{rad} range) is given by the formula \cite{Kiiski2016}
 
@@ -113,10 +119,26 @@ The core idea of a phaser is to modulate the break frequencies of the allpass fi
 \subsection{Phaser Modeling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+The phaser effect pedal was introduced in the ...s and gained popularity with musicians like ... Especially popular were Univibe and MXR Phase 90 models, which currently can reach high price on the second-hand market. Therefore, a need arises to create a faithful \ac{VA} models of famous phaser pedals.
+
+The variety of approaches to phaser modeling is representative for any \ac{VA} model. \cite{Eichas2014} analyze a circuit schematic of the MXR Phase 90 and derive a state-space model making have use of matrices. This is an example of a white-box approach.
+
+\cite{Kiiski2016} use the chirp signal to measure the impulse response of the Fame Sweet Tone phaser, which in this approach is treated as a \ac{LTV} system. This is not a fully black-box approach, because in the signal model design they make use of the circuit schematics to derive the modulation scheme. It, thus, falls under the category of grey-box modeling.
+
+\cite{Wright2020} provide a proof of concept that a phaser pedal can be modeled in an almost black-box fashion. The only deviation from the input-to-output relationship modeling is the estimation of the \ac{LFO} signal which is used to condition the neural network. The same type of data, i.e., the input signal and the (estimated or ground truth) \ac{LFO} signal, is used for this work.
+
+This work extends the work in \cite{Wright2020} in that it examines a different approach to neural modeling of the phaser. Instead of using an \ac{RNN}, an \ac{MLP} is used to learn the derivative of the system with respect to time. The \ac{MLP} is conditioned on the input, \ac{LFO}, and output at any given time (not just in a sample-by-sample manner). A desirable property of a system capable of modeling the phaser in this way would be a smaller computational complexity in comparison to an \ac{LSTM} network.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Training Data}
 \label{sec:phaser_training_data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The training data consisted solely of guitar recordings taken from the Fraunhofer IDMT database \cite{Kehling2014}. Some of the recordings were additionally distorted using a distortion  software plug-in. The purpose of applying additional distortion is that a distorted signal is rich in harmonics and, thus, makes the effect of phaser application more audible. The underlying assumption was that the network would tend to learn better from these more pronounced parts. Additionally, a more pronounced should make the evaluation task easier during listening tests. 
+
+The acoustic, electric, and distorted guitars were evenly split among the training, validation, and test sets. The training set was 5 minutes 44 seconds long, the validation set was 1 minute 6 seconds long and the test set was 1 minute 49 seconds long. Audio data was single-channel at \SI{44100}{Hz} sampling rate.
+
+% TODO: Add part on the LFO in the dataset.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Training}
