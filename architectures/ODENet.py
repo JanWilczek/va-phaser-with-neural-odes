@@ -37,6 +37,19 @@ class DerivativeMLP(nn.Module):
     def set_excitation_data(self, time, excitation_data):
         self.excitation.set_excitation_data(time, excitation_data)
 
+
+class DerivativeMLP2(DerivativeMLP):
+    def __init__(self, excitation, activation, input_size=2, output_size=1, hidden_size=100):
+        super().__init__(excitation, activation, input_size=2, output_size=1, hidden_size=100)
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(input_size, hidden_size), activation,
+            nn.Linear(hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, hidden_size), activation,
+            nn.Linear(hidden_size, output_size))
+
+
 class ODENet(nn.Module):
     def __init__(self, derivative_network, odeint, dt):
         super().__init__()

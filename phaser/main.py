@@ -2,7 +2,7 @@
 import torch.nn as nn
 import CoreAudioML.networks as networks
 from common import initialize_session, argument_parser, train_and_test, get_method
-from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, ExcitationSecondsLinearInterpolation
+from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, DerivativeMLP2, ExcitationSecondsLinearInterpolation
 
 
 def get_architecture(args, dt):
@@ -17,7 +17,7 @@ def get_architecture(args, dt):
                                                               latent_size=12)), dt=1.0)
     else:
         method = get_method(args)
-        network = ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), nn.ReLU(), input_size=3, output_size=1, hidden_size=args.hidden_size), method, dt)
+        network = ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.Tanh(), input_size=3, output_size=1, hidden_size=args.hidden_size), method, dt)
     return network
 
 
