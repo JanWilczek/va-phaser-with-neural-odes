@@ -1,7 +1,16 @@
+import os
 import warnings
 import torch
 import torch.nn as nn
 
+
+
+def format_warning(message, category, *args, **kwargs):
+    return f'{str(category)}: {message}' + os.linesep
+
+warnings.filterwarnings("always", category=RuntimeWarning,
+                                   module=__name__)
+warnings.formatwarning = format_warning
 
 class ExcitationSecondsLinearInterpolation(nn.Module):
     def __init__(self):
@@ -45,7 +54,7 @@ class ExcitationSecondsLinearInterpolation(nn.Module):
         if next_sample_id == 0:
             return self.excitation_data[0]
         elif next_sample_id > self.excitation_data.shape[0] - 1:
-            warnings.warn("Attempting to acces time index beyond available data.")
+            warnings.warn(f'Attempting to acces time index {t} beyond available data in time range [{self.time[0]}, {self.time[-1]}].', category=RuntimeWarning)
             return self.excitation_data[-1]
 
         last_sample_weight = next_sample_id - (t / self.dt)
