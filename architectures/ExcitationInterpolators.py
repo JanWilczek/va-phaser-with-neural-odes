@@ -10,6 +10,15 @@ class ExcitationSecondsLinearInterpolation(nn.Module):
         self.excitation_data = None
 
     def set_excitation_data(self, time, excitation_data):
+        """Set the excitation data to interpolate from.
+
+        Parameters
+        ----------
+        time : torch.Tensor of shape (N,)
+            time indices of data point in excitation_data
+        excitation_data : torch.Tensor of shape (N, minibatch_size, features_dimensions...)
+            excitation data points to interpolate from
+        """
         self.time = time
         self.excitation_data = excitation_data
     
@@ -18,6 +27,18 @@ class ExcitationSecondsLinearInterpolation(nn.Module):
         return self.time[1] - self.time[0] # assume a constant time step
 
     def forward(self, t):
+        """Return interpolated excitation data.
+
+        Parameters
+        ----------
+        t : scalar
+            time in seconds at which to interpolate the data
+
+        Returns
+        -------
+        torch.Tensor of shape (minibatch_size, features_dimensions...)
+            interpolated values of the excitation data at t
+        """
         last_sample_id = (t // self.dt).type(torch.long)
         next_sample_id = last_sample_id + 1
 

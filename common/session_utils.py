@@ -190,6 +190,7 @@ def argument_parser():
             'STN',
             'ResIntRK4',
             'odeint_dopri5',
+            'odeint_rk4',
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
