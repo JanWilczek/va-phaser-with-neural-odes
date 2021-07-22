@@ -259,6 +259,7 @@ def argument_parser():
         '--dataset_name',
         help='Name of the dataset to use for modeling.',
         required=True)
+    ap.add_argument('--nonlinearity', default='ReLU', help='Name of the torch.nn nonlinearity to use in the ODENet derivative network if that method is used (default: %(default)s).')
     return ap
 
 

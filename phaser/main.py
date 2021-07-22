@@ -17,7 +17,7 @@ def get_architecture(args, dt):
                                                               latent_size=12)), dt=1.0)
     else:
         method = get_method(args)
-        network = ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.ReLU(), input_size=3, output_size=1, hidden_size=args.hidden_size), method, dt)
+        network = ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), get_nonlinearity(args), input_size=3, output_size=1, hidden_size=args.hidden_size), method, dt)
     return network
 
 
