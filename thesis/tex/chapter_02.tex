@@ -4,14 +4,13 @@
 \begin{center}
 \vspace*{3cm}
 {\huge \bf Part I}\\ \vspace*{1cm}
-{\Huge \bf Title of this Part}\\\vspace*{0.2cm}
-{\Huge \bf Being Longer than One Line}\\\vspace*{3cm}
+{\Huge \bf Theoretic Foundations}\\\vspace*{0.2cm}
 \begin{figure}[ht]
 \centering
 \includegraphics[height=6cm]{figures/part1_notesAndWaveform_orange}
 \end{figure}
 \end{center}
-\addcontentsline{toc}{part}{I\hspace {1em}Title of this Part Being Longer than One Line}
+\addcontentsline{toc}{part}{I\hspace {1em}Theoretic Foundations}
 \label{par:part1}
 \newpage
 \quad
@@ -26,20 +25,16 @@
 \label{chapter:Foundations}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Each chapter should start with a small summary discussing the content and the relation
-of the sections. In this chapter, we elaborate on the theoretical background, 
-foundations and concepts that are being used in the thesis. In particular, we 
-focus on latex construct that are typically used in thesis documents.
+The aim of the thesis is to model analog audio effects using an \ac{ODE}-inspired approach to deep learning. This chapter presents the theoretical background concerning these fields in the scope relevant for this work. 
 
-When using labels, please avoid collisions in the label names.
-
+In \Section{section:ode}, the \acp{ODE} are presented with a brief description of numerical methods used to solve them. In \Section{section:deep_learning}, the tools and methods from deep learning relevant for this thesis are presented. Finally, in \Section{section:virtual_analog_modeling}, the general concept of \ac{VA} modeling is presented.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ordinary Differential Equations}
 \label{section:ode}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An \ac{ODE} is an equation of the form
+An \acf{ODE} is an equation of the form
 \begin{equation}
   \frac{\mathrm{d} y}{\mathrm{d} t} = f(t, y),
   \label{eq:general_ode}
@@ -48,17 +43,50 @@ where $y$ is the \emph{unknown function}, $t$ is the \emph{independent variable}
 
 To \emph{solve} an \ac{ODE} means to find a function $y$ that satisfies \Equation{eq:general_ode}. Such $y$ is called a \emph{solution}.
 
-\acp{ODE} are used to model dynamical systems \cite{Karlsson2019}. An example of a dynamical system that can be described by an \ac{ODE} is an electrical circuit containing capacitive elements, such as a diode clipper circuit \cite{Yeh2007}. % TODO: Reference a section on the diode clipper
-Since an equation of the form \Equation{eq:general_ode} describes a rate of change $\frac{\mathrm{d} y}{\mathrm{d} t}$, its solution will not be a single function, but rather a family of functions or a parametrized function. To obtain a unique solution, we need to specify an \emph{\ac{IC}}. An \ac{ODE} together with an initial condition makes up an \emph{\ac{IVP}}.
+\acp{ODE} are used to model dynamical systems \cite{Karlsson2019}. An example of a dynamical system that can be described by an \ac{ODE} is an electrical circuit containing capacitive elements, such as a diode clipper circuit \cite{Yeh2007} discussed in \Chapter{chap:diode_clipper}.
+Since an equation of the form \Equation{eq:general_ode} describes a rate of change $\frac{\mathrm{d} y}{\mathrm{d} t}$, its solution will not be a single function, but rather a family of functions or a parametrized function. To obtain a unique solution, we need to specify an \emph{\ac{IC}}, i. e., the value of $y$ at some fixed point (typically at $t=0$). An \ac{ODE} together with an initial condition makes up an \emph{\ac{IVP}}.
 
-Some classes of \acp{IVP} can be solved analytically. However, for the most interesting applications, e.\ g., in the domain of analog audio effects, the corresponding \acp{IVP} are solved using numerical methods, i.\ e., specialized algorithms using discrete points to approximate the true solution \cite{Gockenbach2011}. 
+Some classes of \acp{IVP} can be solved analytically. However, for the most interesting applications, e.\ g., in the domain of analog audio effects, the corresponding \acp{IVP} are solved using numerical methods: specialized algorithms using discrete points to approximate the true solution \cite{Gockenbach2011}. 
 
-A group of numerical methods is called \emph{time-stepping methods}. Given a grid of time instants $t_0 < t_1 < \dots < t_n$ and a value of $y$ at $t_0$, $y(t_0$) these methods use the following identity
+A group of numerical methods is called \emph{time-stepping methods}. Given a grid of time instants $t_0 < t_1 < \dots < t_n$ and a value of $y$ at $t_0$, $y(t_0)$, these methods use the following identity
 \begin{equation}
-  y(t_{i+1}) = y(t_{i}) + \int \limits_{t_i}^{t_{i+1}} f(s, y(s)) \mathrm{d} s
+  y(t_{i+1}) = y(t_{i}) + \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau
   \label{eq:time_stepping_identity}
 \end{equation}
-to approximate the value $y$ at the points on the grid, $y(t_1), y(t_2), \dots, y(t_n)$. The core idea is to approximate the integral in \Equation{eq:time_stepping_identity}. Thus, the process of solving an \ac{IVP} is often referred to as \emph{integrating} the \ac{ODE} \cite{Gockenbach2011}.
+to approximate the value of $y$ at the points on the grid, $y(t_1), y(t_2), \dots, y(t_n)$. The core idea is to approximate the integral in \Equation{eq:time_stepping_identity}. Thus, the process of solving an \ac{IVP} is often referred to as \emph{integrating} the \ac{ODE} \cite{Gockenbach2011}.
+
+What follows is a description of some of the numerical schemes used to approximate the integral in \Equation{eq:time_stepping_identity}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Forward Euler}
+\label{subsection:forward_euler}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The simplest approximation of the integral in \Equation{eq:time_stepping_identity} is based on the \emph{left-endpoint rule} \cite{Gockenbach2011}
+
+\begin{equation}
+  \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau \approx f(t_i, y(t_i))\Delta t,
+  \label{eq:forward_euler}
+\end{equation}
+
+where $\Delta t = t_{i+1} - t_i$.
+
+It is important to note, that unless $y(t_i)$ is the initial value, it must be computed from previous time points. This results in error accumulation across time steps. The total error is on the order of the time step size $\Delta t$, which leads to the conclusion that in order to get a more accurate approximation with the forward Euler method, one needs to decrease the time step used \cite{Gockenbach2011}. In turn, decreasing the time step increases the number of computations needed to obtain the values of $y$ at the specified points.
+
+The benefits of Euler's method are a straightforward implementation and the least amount of computations in comparison to other schemes.
+
+Since we compute the solution according to the time steps ordering (\emph{forward} in time), this method is called an \emph{explicit} method.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Explicit Runge-Kutta Methods}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The \ac{RK} methods are based on evaluating the function and the derivative in between the time steps. Thus, the approximation of the integral in \Equation{eq:time_stepping_identity} takes on the form
+
+\begin{equation}
+  \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau \approx \Delta t \sum \limits_{j=1}^{m} \alpha_j k_j.
+\end{equation}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Deep Learning}
@@ -90,6 +118,7 @@ Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (
 
 \acp{MLP} are \emph{universal function approximators}, i.\ e., they can approximate an arbitrary function (fulfilling very mild criteria) with an arbitrarily small error given enough width or depth \cite{Goodfellow-et-al-2016}.
 
+% TODO: Add a note on the notation used to describe MLPs
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Architectures}
@@ -156,6 +185,8 @@ In order of computations, at time step $t$, we calculate the values of the gatin
 
 \ac{LSTM} cells can be stacked in layers. The input to the $l$-th layer is the output of the $(l-1)$-th layer, $\pmb{x}_t^{(l)} = \pmb{h}_y^{(l-1)}$, with $\pmb{x}_t^{(0)} = \pmb{x}_t$ being the network input at time $t$.
 
+% TODO: Add a note that Alec used an MLP on the LSTM's output
+
 In audio processing, \ac{LSTM} has been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -170,6 +201,20 @@ In audio processing, \ac{LSTM} has been successfully applied to guitar amplifier
 
 Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. Its characteristic feature is the so-called \emph{\ac{ResBlock}} containing a \emph{skip connection}. The skip connection provides a direct path from the input to the output which allows for summing the input with the network's output. It effectively makes the network learn not the mapping $f^*(\pmb{x})$ but the residual $h^*(\pmb{x}) = f^*(\pmb{x}) - \pmb{x}$. On the one hand, it alleviates the problem of the \emph{vanishing gradient} \cite{Goodfellow-et-al-2016} and eventually allows for training very deep architectures with hundreds of layers \cite{He2015}. Depth is one of the most significant factors in neural network design, thus, being able to train deeper and deeper architectures allows for improving performance on the desired tasks. On the other hand, the skip connection can simplify the training process; instead of learning a complete function, the network must only learn its residual. For example, if the true mapping is the identity function, it is easier to learn the residual (which is $0$ everywhere) rather than the identity itself, which would involve approximating a hyperplane with nonlinear units \cite{He2015}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Residual Integration Network, Bilinear Block}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The introduction of the \ac{ResNet} raised interest into its interpretation as an Euler step of solving differential equations \cite{Chen2018}.
+This led to several architectures, whose parametrization is similar to the popular numerical schemes.
+
+One of such methods is the Residual Integration Network \cite{Ouala2019}.
+In this approach the residual is computed using $S$ stages of computations, each calculating one part of the residual. The neural network used for each stage is shared among the stages. The outputs of the stages are summed with weights which may either correspond to the numerical scheme or learned jointly with the network itself.
+
+% TODO: Add figure of the ResIntNet
+
+The neural network chosen in \cite{Ouala2019}
+for the parametrization of each stage consists of three fully-connected layers. The output of the first one is concatenated with the element-wise product of the output of the two remaining layers. The goal of the multiplication is to enable second-order interactions between the variables. This parametrization is called a \emph{bilinear block} \cite{Fablet2017}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Training of Neural Networks}
@@ -273,6 +318,8 @@ While the optimization algorithm is typically chosen initially and stays fixed a
 
 There are a few popular schedules \cite{Smith2018}. In \emph{cyclical learning rate}, the learning rate varies linearly or exponentially in a specified range. In \emph{one-cycle} schedule, learning rate increases exponentially to a maximum value and then decreases exponentially below the initial value. Another approach is to reduce the learning rate if an observed metric has stopped decreasing \cite{Pytorch}. All of the described approaches assume that a high learning rate is beneficial in the initial learning stage, acting as a regularizer against overfitting \cite{Smith2018}, but should be decreased when the loss function approaches a local minimum \cite{Goodfellow-et-al-2016}. 
 
+% TODO: Add a figure with the learning rate schedules
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -302,8 +349,32 @@ It has been observed that learning the residual instead of the function can be v
 \cite{Karlsson2019} successfully applied ODENet to model dynamical systems, i.\ e., systems governed by \acp{ODE}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{ODENet Application to Time Series}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{The Problem of Initialization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{The Problem of Excitation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{The Problem of Dimensionality}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Implementation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% TODO: Discuss your chunk-wise implementation
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Virtual Analog Modeling}
-\label{sec:virtual_analog_modeling}
+\label{section:virtual_analog_modeling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \Ac{VA} effects are digital emulations of audio systems that were originally built using analog electronic or electromechanical components \cite{Zoelzer2011}. They arose out of the demand for the reproduction of characteristic tonal distortions of these devices but with the digital stability and the ease of integration with existing software. Devices modelled range from filters, to time-varying effects, amplifiers, mechanical reverb units, and tape or vinyl distortions.
 
