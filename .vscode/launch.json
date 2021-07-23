@@ -116,7 +116,9 @@
                 "--test_sampling_rate",
                 "22050",
                 "--dataset_name",
-                "diodeclip"
+                "diodeclip",
+                "--name",
+                "TEST_RUN"
             ]
         },
         {
@@ -130,7 +132,7 @@
             "env": {"CUDA_VISIBLE_DEVICES": "0"},
             "args": [
                 "--method",
-                "ResIntRK4",
+                "odeint_dopri5",
                 "--batch_size",
                 "128",
                 "--val_chunk",
@@ -145,10 +147,12 @@
                 "0.001",
                 "--epochs",
                 "2",
-                "--test_sampling_rate",
-                "22050",
                 "--dataset_name",
-                "FameSweetToneOffNoFb"
+                "FameSweetToneOffNoFb",
+                "--hidden_size",
+                "100",
+                "--name",
+                "TEST_RUN"
             ]
         }
     ]

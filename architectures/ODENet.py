@@ -96,7 +96,7 @@ class ODENet(nn.Module):
 
     def create_time_vector(self, sequence_length):
         if self.time is None or self.time.shape[0] != sequence_length:
-            self.time = self.dt * torch.arange(0, sequence_length, device=self.device)
+            self.time = self.dt * torch.arange(0, sequence_length, device=self.device, dtype=torch.double)
 
     def reset_hidden(self):
         self.__true_state = None

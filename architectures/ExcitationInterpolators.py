@@ -6,7 +6,7 @@ import torch.nn as nn
 
 
 def format_warning(message, category, *args, **kwargs):
-    return f'{str(category)}: {message}' + os.linesep
+    return f'{category.__name__}: {message}' + os.linesep
 
 warnings.filterwarnings("always", category=RuntimeWarning,
                                    module=__name__)

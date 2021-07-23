@@ -24,6 +24,7 @@ def initialize_session(model_name, args, get_architecture):
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
+    session.validate_every = args.validate_every
     session.enable_teacher_forcing = get_teacher_forcing_gate(args.teacher_forcing)
     session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
 
@@ -248,7 +249,7 @@ def argument_parser():
         '--hidden_size',
         default=100,
         type=int,
-        help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
+        help='The size of the hidden layers (model-dependent) (default: %(default)s).')
     ap.add_argument('--test_sampling_rate', type=int, default=44100,
                     help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
     ap.add_argument(
@@ -260,6 +261,7 @@ def argument_parser():
         help='Name of the dataset to use for modeling.',
         required=True)
     ap.add_argument('--nonlinearity', default='ReLU', help='Name of the torch.nn nonlinearity to use in the ODENet derivative network if that method is used (default: %(default)s).')
+    ap.add_argument('--validate_every', default=1, type=int, help='Number of epochs to calculate validation loss after (default: %(default)s).')
     return ap
 
 
