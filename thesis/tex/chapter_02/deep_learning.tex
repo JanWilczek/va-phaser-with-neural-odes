@@ -235,7 +235,12 @@ There are a few popular schedules \cite{Smith2018}. In \emph{cyclical learning r
 \subsection*{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% TODO: Add a figure on teacher forcing and curriculum learning
+\begin{figure}
+    \centering
+    \scalebox{0.8}{\input{figures/svg/teacher_forcing.pdf_tex}}
+    \caption{Teacher forcing at a single time step. At train time, true previous output is part of the input used for calculating the current hidden state. At test time, the previous output of the network is used instead.}
+    \label{fig:teacher_forcing}
+\end{figure}
 
 A sequence-to-sequence \ac{RNN} during processing is using its previous output, previous hidden state, and current input to produce an output at a single time step. If the network's outputs diverge from the target outputs introducing an error, the error will accumulate and eventually lead the network to a completely wrong part of the solution space \cite{Goodfellow-et-al-2016}. To prevent this, one may supply the true target of the previous time step as the input at the current time step. Since the previous output is still accounted for in the loss function, the gradient will continue account for it, however, the network will be more "guided" during training. The act of supplying the ground truth output at time step $t$ as an input at time step $t+1$ of an \ac{RNN} is called \emph{teacher forcing} \cite{Goodfellow-et-al-2016}.
 

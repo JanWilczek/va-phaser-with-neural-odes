@@ -1,0 +1,8 @@
+\begin{tikzpicture}
+    \node[dspnodeopen,dsp/label=above]              (input) {$\pmb{t}, \pmb{y}_0, f(t, \pmb{y})$};
+    \node[dspfilter,right=of input, minimum width=2.5cm,xshift=1cm]                                (odesolve) {\texttt{ODESolve}};
+    \node[dspnodeopen,dsp/label=above,right=of odesolve,xshift=1cm]              (output) {$[\pmb{y}_0, \pmb{y}_1, \dots, \pmb{y}_{N-1}]$};
+
+    \draw[dspconn] (input) -- (odesolve);
+    \draw[dspconn] (odesolve) -- (output);
+\end{tikzpicture}
