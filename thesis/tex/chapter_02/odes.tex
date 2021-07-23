@@ -1,0 +1,91 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ordinary Differential Equations}
+\label{section:ode}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+An \acf{ODE} is an equation of the form
+\begin{equation}
+  \frac{\mathrm{d} y}{\mathrm{d} t} = f(t, y),
+  \label{eq:general_ode}
+\end{equation}
+where $y$ is the \emph{unknown function}, $t$ is the \emph{independent variable}, and $f(t, y)$ is a function of both, $t$ and $y$. Implicitly, $y$ is dependent on $t$, i.\ e., $y = y(t)$. In the scope of this work, $t$ denotes time. The term \emph{ordinary} means that $y$ is a function of a single variable and, thus, an "ordinary" derivative is used, i.\ e., $\frac{\mathrm{d} y}{\mathrm{d} t}$ \cite{Gockenbach2011}.
+
+To \emph{solve} an \ac{ODE} means to find a function $y$ that satisfies \Equation{eq:general_ode}. Such $y$ is called a \emph{solution}.
+
+\acp{ODE} are used to model dynamical systems \cite{Karlsson2019}. An example of a dynamical system that can be described by an \ac{ODE} is an electrical circuit containing capacitive elements, such as a diode clipper circuit \cite{Yeh2007} discussed in \Chapter{chap:diode_clipper}.
+Since an equation of the form \Equation{eq:general_ode} describes a rate of change $\frac{\mathrm{d} y}{\mathrm{d} t}$, its solution will not be a single function, but rather a family of functions or a parametrized function. To obtain a unique solution, we need to specify an \emph{\ac{IC}}, i. e., the value of $y$ at some fixed point (typically at $t=0$). An \ac{ODE} together with an initial condition makes up an \emph{\ac{IVP}}.
+
+Some classes of \acp{IVP} can be solved analytically. However, for the most interesting applications, e.\ g., in the domain of analog audio effects, the corresponding \acp{IVP} are solved using numerical methods: specialized algorithms using discrete points to approximate the true solution \cite{Gockenbach2011}. 
+
+A group of numerical methods is called \emph{time-stepping methods}. Given a grid of time instants $t_0 < t_1 < \dots < t_n$ and a value of $y$ at $t_0$, $y(t_0)$, these methods use the following identity
+\begin{equation}
+  y(t_{i+1}) = y(t_{i}) + \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau
+  \label{eq:time_stepping_identity}
+\end{equation}
+to approximate the value of $y$ at the points on the grid, $y(t_1), y(t_2), \dots, y(t_n)$. The core idea is to approximate the integral in \Equation{eq:time_stepping_identity}. Thus, the process of solving an \ac{IVP} is often referred to as \emph{integrating} the \ac{ODE} \cite{Gockenbach2011}.
+
+What follows is a description of some of the numerical schemes used to approximate the integral in \Equation{eq:time_stepping_identity}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Forward Euler}
+\label{subsection:forward_euler}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The simplest approximation of the integral in \Equation{eq:time_stepping_identity} is based on the \emph{left-endpoint rule} \cite{Gockenbach2011}
+
+\begin{equation}
+  \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau \approx f(t_i, y(t_i))\Delta t,
+  \label{eq:forward_euler}
+\end{equation}
+
+where $\Delta t = t_{i+1} - t_i$.
+
+It is important to note, that unless $y(t_i)$ is the initial value, it must be computed from previous time points. This results in error accumulation across time steps. The total error is on the order of the time step size $\Delta t$, which leads to the conclusion that in order to get a more accurate approximation with the forward Euler method, one needs to decrease the time step used \cite{Gockenbach2011}. In turn, decreasing the time step increases the number of computations needed to obtain the values of $y$ at the specified points.
+
+The benefits of Euler's method are a straightforward implementation and the least amount of computations in comparison to other schemes.
+
+Since we compute the solution according to the time steps ordering (\emph{forward} in time), this method is called an \emph{explicit} method.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Explicit Runge-Kutta Methods}
+\label{subsection:runge_kutta_methods}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The \ac{RK} methods are based on evaluating the function and the derivative in between the time steps. Thus, the approximation of the integral in \Equation{eq:time_stepping_identity} takes on the form \cite{Gockenbach2011}
+
+\begin{align}
+  \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau &\approx \Delta t \sum \limits_{j=1}^{m} \alpha_j k_j,\\
+  k_1 &= f(t_i, y(t_i)),\\
+  k_2 &= f(t_i + \gamma_2 \Delta t, y(t_i) + \beta_{21} \Delta t k_1), \\
+  k_3 &= f(t_i + \gamma_3 \Delta t, y(t_i) + \beta_{31} \Delta t k_1 + \beta_{32} \Delta t k_2),\\
+  \vdots & \\
+  k_m &= f(t_i + \gamma_m \Delta t, y(t_i) + \sum \limits_{l=1}^{m-1} \beta_{ml} \Delta t k_l),
+\end{align}
+where
+\begin{equation}
+    \sum \limits_{j=1}^{m} = 1.
+\end{equation}
+
+$k_j$ are estimates of the derivative $f$ at $m$ nodes in the interval $[t_i, t_{i+1}]$, $\alpha_j$ are weights with which to sum the partial residuals $\Delta t k_j$. The $\beta$ coefficients have the same role for intermediate computations of $f$. $\gamma$ coefficients control at which node use which derivative approximations. For example, one could set $\gamma_j = \sum \limits_{l=1}^{j-1} \beta_{jl}$.
+
+By fixing the values of the coefficients $\alpha_j, \beta$, and $\gamma_j$, one obtains different numerical schemes. Their \emph{order} is the number of nodes used in between the steps. The most popular schemes are forward Euler (order 1), midpoint (order 2), \ac{RK}4 (order 4), and \ac{DOPRI} (using 4th and 5th order estimates). The values of the coefficients for the \ac{RK} methods are stored in \emph{tableaus}.
+
+The performance of numerical solvers can be further improved by using an \emph{adaptive stepsize} (changing the size of the step according to the error estimate) or using \emph{multiple steps} (using more than one of the already computed values of $y$). Different modifications lead to different accuracy-performance trade-offs.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stiffness}
+\label{subsection:stiffness}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+An \ac{ODE} is said to be \emph{stiff} if it requires the explicit methods to use a very small time step in order not to become numerically unstable. Instead of sufficiently decreasing the time step, one may turn to \emph{implicit} methods which use future time steps to compute the previous ones.
+
+A simple example of an implicit method is the \emph{backward Euler} method, which uses the \emph{right-endpoint rule} to approximate the integral in \Equation{eq:time_stepping_identity} \cite{Gockenbach2011}
+
+\begin{equation}
+    \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau \approx f(t_{i+1}, y(t_{i+1}))\Delta t.
+  \label{eq:backward_euler}
+\end{equation}
+
+Using \Equation{eq:backward_euler} in \Equation{eq:time_stepping_identity} sometimes requires iterating between the two, while the first estimate of $y(t_{i+1})$ can be computed using the forward Euler formula of \Equation{eq:forward_euler}. The iterations stop when the difference between subsequent estimates of $y(t_{i+1})$ is sufficiently small \cite{Yeh2007}.
+
+Solvers that are capable of solving stiff problems are called \emph{stiff solvers}.
