@@ -130,6 +130,7 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {"CUDA_VISIBLE_DEVICES": "0"},
+            "postDebugTask": "clean_test_run_phaser",
             "args": [
                 "--method",
                 "odeint_dopri5",
