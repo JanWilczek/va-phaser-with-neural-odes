@@ -262,6 +262,7 @@ def argument_parser():
         required=True)
     ap.add_argument('--nonlinearity', default='ReLU', help='Name of the torch.nn nonlinearity to use in the ODENet derivative network if that method is used (default: %(default)s).')
     ap.add_argument('--validate_every', default=1, type=int, help='Number of epochs to calculate validation loss after (default: %(default)s).')
+    ap.add_argument('--state_size', default=1, type=int, help='Number of elements of the state vector of the dynamical system. The first element is always taken as the audio output of the system (default: %(default)s).')
     return ap
 
 

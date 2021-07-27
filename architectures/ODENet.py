@@ -70,8 +70,6 @@ class ODENet(nn.Module):
     def __init__(self, derivative_network, odeint, dt):
         super().__init__()
         self.derivative_network = derivative_network
-        self.state_size = self.derivative_network.output_size
-        self.excitation_size = self.derivative_network.excitation_size
         self.odeint = odeint
         self.__dt = dt
         self.__true_state = None
@@ -147,3 +145,11 @@ class ODENet(nn.Module):
     def dt(self, value):
         self.__dt = value
         self.reset_hidden()
+
+    @property
+    def state_size(self):
+        return self.derivative_network.output_size
+
+    @property
+    def excitation_size(self):
+        return self.derivative_network.excitation_size

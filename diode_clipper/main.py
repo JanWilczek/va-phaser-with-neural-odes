@@ -14,7 +14,7 @@ def get_architecture(args, dt):
         network = ResidualIntegrationNetworkRK4(BilinearBlock(input_size=2, output_size=1, latent_size=args.hidden_size), dt)
     else:
         method = get_method(args)
-        network = ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), get_nonlinearity(args), excitation_size=1, output_size=1, hidden_size=args.hidden_size), method, dt)
+        network = ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), get_nonlinearity(args), excitation_size=1, output_size=args.state_size, hidden_size=args.hidden_size), method, dt)
     return network
 
 
