@@ -126,7 +126,7 @@ A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeli
   \label{fig:stn}
 \end{figure}
 
-The architecture of \ac{STN} is shown in \Figure{fig:stn}. The layers $l_1, \dots, l_L$ are an \ac{MLP}. A novelty in \ac{STN} in comparison to \ac{ResNet} is the presence of the residual scaling factor $h_\tau$. In \cite{Parker2019}, it is defined as
+The architecture of \ac{STN} is shown in \Figure{fig:stn}. The layers $l_1, \dots, l_L$ are fully-connected and, thus, form an \ac{MLP}. A novelty in \ac{STN} in comparison to \ac{ResNet} is the presence of the residual scaling factor $h_\tau$. In \cite{Parker2019}, it is defined as
 
 \begin{equation}
   h_\tau = \frac{f_{s\text{, train}}}{f_{s\text{, processing}}},
@@ -147,9 +147,22 @@ One of such methods is the \acf{RINN} \cite{Ouala2019}.
 In this approach the residual is computed using $S$ stages of computations, each calculating one part of the residual. The neural network used for each stage is shared among the stages. The outputs of the stages are summed with weights which may either correspond to the numerical scheme or learned jointly with the network itself.
 
 % TODO: Add figure of the ResIntNet
+\begin{figure}
+  \centering
+  \input{figures/svg/bilinear_block.pdf_tex}
+  \caption{A bilinear block architecture for computing a part of the residual. After \cite{Fablet2017}.}
+  \label{fig:bilinear_block}
+\end{figure}
 
 The neural network chosen in \cite{Ouala2019}
-for the parametrization of each stage consists of three fully-connected layers. The output of the first one is concatenated with the element-wise product of the output of the two remaining layers. The goal of the multiplication is to enable second-order interactions between the variables. This parametrization is called a \emph{bilinear block} \cite{Fablet2017}.
+for the parametrization of each stage consists of three fully-connected layers. The output of the first one is concatenated with the element-wise product of the output of the two remaining layers. The goal of the multiplication is to enable second-order interactions between the variables. This parametrization is called a \emph{bilinear block} \cite{Fablet2017} and is shown in \Figure{fig:bilinear_block}. $\pmb{x}_t$ denotes the input to the bilinear block at time $t$, layers $l_1, l_2,$ and $l_3$ are fully-connected and $F(t, \pmb{x}_t)$ is the partial residual. If the number of stages $S$ is equal to 1 and time step is equal to 1, then $F(t, \pmb{x}_t)$ is the full residual. The interpretation of the bilinear block depends on the computation scheme in which it is used.
+
+\begin{figure}
+  \centering
+  \input{figures/svg/rinn4.pdf_tex}
+  \caption{\Acf{RINN}. After \cite{Fablet2017}.}
+  \label{fig:rinn4}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Training of Neural Networks}

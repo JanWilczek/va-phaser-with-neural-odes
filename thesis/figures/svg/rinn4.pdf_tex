@@ -1,0 +1,78 @@
+%% Creator: Inkscape 1.1 (c68e22c387, 2021-05-23), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'figures/svg/rinn4.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{524.7348431bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.43632042)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{figures/svg/rinn4.pdf}}%
+    \put(0.02913295,0.30283686){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}xt\end{tabular}}}}%
+    \put(0.13927904,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
+    \put(0.19567323,0.32891825){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k1\end{tabular}}}}%
+    \put(0.38932819,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
+    \put(0.44277666,0.32891825){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k2\end{tabular}}}}%
+    \put(0.63937729,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
+    \put(0.69363003,0.32929559){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k3\end{tabular}}}}%
+    \put(0.91100881,0.23391177){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k4\end{tabular}}}}%
+    \put(0.88942632,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
+    \put(0.22157316,0.24574207){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}b2dt\end{tabular}}}}%
+    \put(0.47065107,0.24593073){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}b3dt\end{tabular}}}}%
+    \put(0.72122566,0.24574207){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}b4dt\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/rinn4.pdf}}%
+    \put(0.25330584,0.19753969){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a1\end{tabular}}}}%
+    \put(0.4985064,0.19753969){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a2\end{tabular}}}}%
+    \put(0.75208981,0.19772835){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a3\end{tabular}}}}%
+    \put(0.95048569,0.19735103){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a4\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/rinn4.pdf}}%
+    \put(0.55159825,0.01905331){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}xt+1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{figures/svg/rinn4.pdf}}%
+  \end{picture}%
+\endgroup%
