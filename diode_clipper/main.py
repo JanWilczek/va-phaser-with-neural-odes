@@ -1,6 +1,6 @@
 """Set up an NN architecture, run its training and test on the diode clipper data."""
 import torch.nn as nn
-from common import initialize_session, argument_parser, train_and_test, get_method
+from common import initialize_session, argument_parser, train_and_test
 from architectures import get_diode_clipper_architecture
 
 

@@ -1,5 +1,6 @@
 import torch.nn as nn
 import CoreAudioML.networks as networks
+from common import get_method
 from . import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, ExcitationSecondsLinearInterpolation, StateTrajectoryNetwork
 
 
