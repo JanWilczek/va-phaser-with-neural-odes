@@ -59,7 +59,7 @@
     \put(0.80198868,0.41421134){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\pmb{y}_t$}\end{tabular}}}}%
     \put(0.28981851,0.40811925){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$l_1$}\end{tabular}}}}%
     \put(0.53040381,0.40977349){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$l_L$}\end{tabular}}}}%
-    \put(0.60856871,0.35994447){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\pmb{h}_t$}\end{tabular}}}}%
+    \put(0.60856871,0.35994447){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$h_\tau$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/stn.pdf}}%
     \put(0.45911737,0.04378154){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$z^{-1}$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/stn.pdf}}%

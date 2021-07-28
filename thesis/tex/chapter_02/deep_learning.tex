@@ -116,8 +116,8 @@ Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. 
 \subsection*{State Trajectory Network}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The whole state is supplied together with current input sample as the input used to compute the next state, therefore, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. As most the recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing}.
-% TODO: Check the number of this section.
+A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The whole state is supplied together with current input sample as the input used to compute the next state, therefore, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
+
 
 \begin{figure}
   \centering
@@ -126,8 +126,15 @@ A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeli
   \label{fig:stn}
 \end{figure}
 
-% TODO: Mention the aliasing aspect.
+The architecture of \ac{STN} is shown in \Figure{fig:stn}. The layers $l_1, \dots, l_L$ are an \ac{MLP}. A novelty in \ac{STN} in comparison to \ac{ResNet} is the presence of the residual scaling factor $h_\tau$. In \cite{Parker2019}, it is defined as
 
+\begin{equation}
+  h_\tau = \frac{f_{s\text{, train}}}{f_{s\text{, processing}}},
+\end{equation}
+where $f_{s\text{, train}}, f_{s\text{, processing}}$ are the sampling rates used at train time and at processing time respectively. According to the authors, if the sampling rate at processing time is higher than the one used at training, high-frequency behavior of the original system may be lacking. Using sampling rates at processing time lower than the one used at training (without any additional antialiasing facility) can result in aliasing behavior. The aliasing aspect is important to this work and \ac{STN} naturally fits as a model to compare the tested methodology to.
+
+As most the recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing}.
+% TODO: Check the number of this section.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Residual Integration Network, Bilinear Block}
