@@ -1,3 +1,4 @@
+import subprocess
 import argparse
 import json
 import matplotlib.pyplot as plt
@@ -5,6 +6,12 @@ import torch
 from common import NetworkTraining, argument_parser
 from architectures import get_diode_clipper_architecture
 
+
+def clean_up(run_path):
+    bash_command = f"find {run_path} -ctime -1 -type f -not -name *.png -print -delete".split()   # This assumes that the script is running for max 60 seconds
+    process = subprocess.Popen(bash_command, stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    print(output)
 
 def main():
     # Load model
@@ -29,7 +36,7 @@ def main():
     network = session.network.derivative_network
 
     torch.no_grad()
-    # arange input and state space
+    # Arrange input and state space
     step = 1e-3
     state = torch.arange(-1, 1, step).unsqueeze(1)
     input = torch.arange(-1, 1, step).unsqueeze(1).unsqueeze(2).repeat(1, state.shape[0], 1)
@@ -42,17 +49,20 @@ def main():
         derivative_magnitude[:, i:i+1] = torch.abs(network(t, state))
 
     # Plot input vs state and display the magnitude of the learned derivative
+    test_img = torch.zeros((10, 10))
+    test_img[0, :] = -1 # bottom row
+    test_img[:, 0] = 1 # leftmost column
+
     box = (-1, 1, -1, 1)
     plt.figure()
-    plt.imshow(derivative_magnitude.detach().numpy(),
-                extent=box, origin='lower')
+    plt.imshow(derivative_magnitude.detach().numpy(), extent=box, origin='lower')
+    # plt.imshow(test_img.detach().numpy(), extent=box, origin='lower')
     plt.colorbar()
     plt.xlabel('Input')
     plt.ylabel('Output')
     plt.savefig(session.run_directory / 'derivative.png', bbox_inches='tight', dpi=300)
 
-    # TODO: Plot some points for reference
-    # https://stackoverflow.com/questions/39727040/matplotlib-2d-plot-from-x-y-z-values
+    clean_up(session.run_directory)
 
 if __name__ == '__main__':
     main()
