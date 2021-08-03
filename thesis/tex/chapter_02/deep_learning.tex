@@ -365,7 +365,7 @@ In the initial experiments, linear interpolation proved itself sufficient to mod
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Implementation}
+\subsubsection{Implementation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The task of the ODENet is to provide an output sequence $\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$ in response to an input sequence $\pmb{x} = \pmb{x}_0, \dots, \pmb{x}_{N-1}$. \Figure{fig:odenet_sequence_diagram} contains a sequence diagram of how processing is organized for a single input sequence.
@@ -382,3 +382,13 @@ At training and test time, we loop over a dataset of examples. Examples can be p
 After obtaining the output of the ODENet, we can calculate the loss with respect to the true output $\pmb{y}_0, \dots, \pmb{y}_{N-1}$ and do a gradient step (at training time).
 
 The input sequence can be multidimensional, i.e., one vector from the input sequence, $\pmb{x}_t$, may have multiple entries, which may correspond to the input signal (e.g., guitar signal) or a control signal (e.g., \ac{LFO} signal). The vectors in the output sequence may also have multiple elements. In this work, it is assumed that the first element of each output vector, i.e., $y_t[0]$, is the audio output (an audible signal) whereas all other entries may correspond to a learned latent state that is relevant for \ac{ODE} integration. Naturally, only the audible output can be used to compute the loss, unless some other state inside the analog circuit is known (as in \cite{Parker2019}, for example).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Derivative Network Parametrization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to estimate subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is possible thanks to the dependence on $t$. However, as already explained, the derivative must not hold any "state" information from previous evaluations.
+
+These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. 
+
+% TODO: layer notation, nonlinearity notation y esta :)
