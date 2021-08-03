@@ -54,12 +54,12 @@ Since we compute the solution according to the time steps ordering (\emph{forwar
 The \ac{RK} methods are based on evaluating the function and the derivative in between the time steps. Thus, the approximation of the integral in \Equation{eq:time_stepping_identity} takes on the form \cite{Gockenbach2011}
 
 \begin{align}
-  \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau &\approx \Delta t \sum \limits_{j=1}^{m} \alpha_j k_j,\\
+  \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau &\approx \Delta t \sum \limits_{j=1}^{m} \alpha_j k_j,\label{eq:rk_first}\\
   k_1 &= f(t_i, y(t_i)),\\
   k_2 &= f(t_i + \gamma_2 \Delta t, y(t_i) + \beta_{21} \Delta t k_1), \\
   k_3 &= f(t_i + \gamma_3 \Delta t, y(t_i) + \beta_{31} \Delta t k_1 + \beta_{32} \Delta t k_2),\\
   \vdots & \\
-  k_m &= f(t_i + \gamma_m \Delta t, y(t_i) + \sum \limits_{l=1}^{m-1} \beta_{ml} \Delta t k_l),
+  k_m &= f(t_i + \gamma_m \Delta t, y(t_i) + \sum \limits_{l=1}^{m-1} \beta_{ml} \Delta t k_l), \label{eq:rk_last}
 \end{align}
 where
 \begin{equation}
@@ -68,7 +68,34 @@ where
 
 $k_j$ are estimates of the derivative $f$ at $m$ nodes in the interval $[t_i, t_{i+1}]$, $\alpha_j$ are weights with which to sum the partial residuals $\Delta t k_j$. The $\beta$ coefficients have the same role for intermediate computations of $f$. $\gamma$ coefficients control at which node use which derivative approximations. For example, one could set $\gamma_j = \sum \limits_{l=1}^{j-1} \beta_{jl}$.
 
-By fixing the values of the coefficients $\alpha_j, \beta$, and $\gamma_j$, one obtains different numerical schemes. Their \emph{order} is the number of nodes used in between the steps. The most popular schemes are forward Euler (order 1), midpoint (order 2), \ac{RK}4 (order 4), and \ac{DOPRI} (using 4th and 5th order estimates). The values of the coefficients for the \ac{RK} methods are stored in \emph{tableaus}.
+By fixing the values of the coefficients $\alpha_j, \beta$, and $\gamma_j$, one obtains different numerical schemes. Their \emph{order} is the number of nodes used in between the steps. The most popular schemes are forward Euler (order 1), midpoint (order 2), \ac{RK}4 (order 4), and \ac{DOPRI} (using 4th and 5th order estimates). The values of the coefficients for the \ac{RK} methods are stored in \emph{Butcher tableaus} \cite{Atkinson2009}. The structure of a tableau corresponding to \EquationRange{eq:rk_first}{eq:rk_last}is shown in \Table{tab:rk_tableau}. A tableau for \ac{RK}4 is given in \Table{tab:rk4_tableau}.
+
+\begin{table}
+  \centering
+  \caption{Generic \acl{RK} tableau.}
+  \begin{tabular}{c | c c c c c}
+    0 & & & & &\\
+    $\gamma_2$ & $\beta_{21}$ & & & &\\
+    $\gamma_3$ & $\beta_{31}$ & $\beta_{32}$ & & &\\
+    $\vdots$ & $\vdots$ & & $\ddots$ & &\\ 
+    $\gamma_m$ & $\beta_{m,1}$ & $\beta_{m,2}$ & $\dots$ & $\beta_{m,m-1}$ &\\ \hline
+           & $\alpha_1$ & $\alpha_2$ & $\dots$ & $\alpha_{m-1}$ & $\alpha_m$ \\
+  \end{tabular}
+  \label{tab:rk_tableau}
+\end{table}
+
+\begin{table}
+  \centering
+  \caption{\ac{RK}4 scheme tableau.}
+  \begin{tabular}{c | c c c c}
+    0 & & & &\\
+    $\frac{1}{2}$ & $\frac{1}{2}$ & & &\\
+    $\frac{1}{2}$ & 0 & $\frac{1}{2}$ & &\\
+    1 & 0 & 0 & 1 &\\ \hline
+      & $\frac{1}{6}$ & $\frac{1}{3}$ & $\frac{1}{3}$ & $\frac{1}{6}$ \\    
+  \end{tabular}
+  \label{tab:rk4_tableau}
+\end{table}
 
 The performance of numerical solvers can be further improved by using an \emph{adaptive stepsize} (changing the size of the step according to the error estimate) or using \emph{multiple steps} (using more than one of the already computed values of $y$). Different modifications lead to different accuracy-performance trade-offs.
 

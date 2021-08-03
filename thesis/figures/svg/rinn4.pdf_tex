@@ -54,25 +54,25 @@
     \lineheight{1}%
     \setlength\tabcolsep{0pt}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{figures/svg/rinn4.pdf}}%
-    \put(0.02913295,0.30283686){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}xt\end{tabular}}}}%
-    \put(0.13927904,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
-    \put(0.19567323,0.32891825){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k1\end{tabular}}}}%
-    \put(0.38932819,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
-    \put(0.44277666,0.32891825){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k2\end{tabular}}}}%
-    \put(0.63937729,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
-    \put(0.69363003,0.32929559){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k3\end{tabular}}}}%
-    \put(0.91100881,0.23391177){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}k4\end{tabular}}}}%
-    \put(0.88942632,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}F\end{tabular}}}}%
-    \put(0.22157316,0.24574207){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}b2dt\end{tabular}}}}%
-    \put(0.47065107,0.24593073){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}b3dt\end{tabular}}}}%
-    \put(0.72122566,0.24574207){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}b4dt\end{tabular}}}}%
+    \put(0.02913295,0.30283686){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\pmb{x}_t$}\end{tabular}}}}%
+    \put(0.13927904,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{F}\end{tabular}}}}%
+    \put(0.19567323,0.32891825){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$k_1$}\end{tabular}}}}%
+    \put(0.38932819,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{F}\end{tabular}}}}%
+    \put(0.44277666,0.32891825){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$k_2$}\end{tabular}}}}%
+    \put(0.63937729,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{F}\end{tabular}}}}%
+    \put(0.69363003,0.32929559){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$k_3$}\end{tabular}}}}%
+    \put(0.91100881,0.23391177){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$k_4$}\end{tabular}}}}%
+    \put(0.88942632,0.30153332){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{F}\end{tabular}}}}%
+    \put(0.22157316,0.22974207){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\beta_{21} \mathrm{d}t$}\end{tabular}}}}%
+    \put(0.47065107,0.22993073){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\beta_{32} \mathrm{d}t$}\end{tabular}}}}%
+    \put(0.72122566,0.22974207){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\beta_{43} \mathrm{d}t$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/rinn4.pdf}}%
-    \put(0.25330584,0.19753969){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a1\end{tabular}}}}%
-    \put(0.4985064,0.19753969){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a2\end{tabular}}}}%
-    \put(0.75208981,0.19772835){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a3\end{tabular}}}}%
-    \put(0.95048569,0.19735103){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}a4\end{tabular}}}}%
+    \put(0.27330584,0.19753969){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\alpha_1$}\end{tabular}}}}%
+    \put(0.5185064,0.19753969){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\alpha_2$}\end{tabular}}}}%
+    \put(0.77208981,0.19772835){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\alpha_3$}\end{tabular}}}}%
+    \put(0.97048569,0.19735103){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\alpha_4$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/rinn4.pdf}}%
-    \put(0.55159825,0.01905331){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}xt+1\end{tabular}}}}%
+    \put(0.55159825,0.01905331){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$\pmb{x}_{t+1}$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=4]{figures/svg/rinn4.pdf}}%
   \end{picture}%
 \endgroup%
