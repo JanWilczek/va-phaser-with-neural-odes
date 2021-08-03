@@ -1,0 +1,35 @@
+  \begin{sequencediagram}
+    \newthread{Session}{training/test}{}
+    \newinst[1]{ODENet}{:ODENet}{}
+    \newinst[1]{Solver}{:ODESolver}{}
+    \newinst{NN}{f:DerivativeNetwork}{}
+    \newinst{interpolator}{:Interpolator}{}
+
+    \begin{sdblock}{\shortstack{for each dataset example with input sequence $\pmb{x}$\\and target sequence $\pmb{y}_0, \dots, \pmb{y}_{N-1}$}}{}
+        \postlevel
+
+        \begin{call}{Session}{\hspace{6mm}set\_initial\_value($\pmb{y}_0$)}{ODENet}{}
+        \end{call}
+    
+        \postlevel
+
+        \begin{call}{Session}{forward($\pmb{x}$)}{ODENet}{$\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$}
+            \begin{call}{ODENet}{set\_excitation\_data($\pmb{x}$)}{NN}{}
+                \begin{call}{NN}{\hspace{10mm}set\_excitation\_data($\pmb{x}$)}{interpolator}{}
+                \end{call}
+            \end{call}
+
+            \postlevel
+
+            \begin{call}{ODENet}{\hspace{1mm} integrate(f, $\pmb{t}$, $\pmb{y}_0$)}{Solver}{$\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$}
+                \begin{sdblock}{Solver Loop}{}
+                    \begin{call}{Solver}{forward($t$, $\pmb{y}_t$)}{NN}{$\hat{\pmb{y}}'_t$}
+                        \begin{call}{NN}{get\_excitation(t)}{interpolator}{$\pmb{x}_t$}                            
+                        \end{call}
+                    \end{call}
+                \end{sdblock}
+
+            \end{call}
+        \end{call}
+    \end{sdblock}
+  \end{sequencediagram}
