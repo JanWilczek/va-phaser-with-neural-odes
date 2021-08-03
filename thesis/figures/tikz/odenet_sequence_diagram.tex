@@ -21,7 +21,7 @@
 
             \postlevel
 
-            \begin{call}{ODENet}{\hspace{1mm} integrate(f, $\pmb{t}$, $\pmb{y}_0$)}{Solver}{$\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$}
+            \begin{call}{ODENet}{\hspace{1mm} integrate(f, $\pmb{y}_0$, $\pmb{t}$)}{Solver}{$\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$}
                 \begin{sdblock}{Solver Loop}{}
                     \begin{call}{Solver}{forward($t$, $\pmb{y}_t$)}{NN}{$\hat{\pmb{y}}'_t$}
                         \begin{call}{NN}{get\_excitation(t)}{interpolator}{$\pmb{x}_t$}                            
