@@ -18,12 +18,12 @@ import json
 from tqdm import trange
 from torchdiffeq import odeint
 from CoreAudioML.training import ESRLoss
-from NetworkTraining import create_dataset, get_run_name, save_json
-from models.solvers import trapezoid_rule, forward_euler
+from common import create_dataset, get_run_name, save_json
+from solvers import trapezoid_rule, ForwardEuler
 
 
 SOLVERS = {'trapezoid_rule': trapezoid_rule,
-           'forward_euler': forward_euler}
+           'forward_euler': ForwardEuler}
 
 ODENET_SOLVERS = ['implicit_adams']
 

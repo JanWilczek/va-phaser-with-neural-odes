@@ -13,6 +13,14 @@ def clean_up(run_path):
     output, error = process.communicate()
     print(output)
 
+def plot_ode(derivative_magnitude):
+    box = (-1, 1, -1, 1)
+    plt.figure()
+    plt.imshow(derivative_magnitude, extent=box, origin='lower')
+    plt.colorbar()
+    plt.xlabel('Input')
+    plt.ylabel('Output')
+
 def main():
     # Load model
     ap = argparse.ArgumentParser()
@@ -53,16 +61,11 @@ def main():
     test_img[0, :] = -1 # bottom row
     test_img[:, 0] = 1 # leftmost column
 
-    box = (-1, 1, -1, 1)
-    plt.figure()
-    plt.imshow(derivative_magnitude.detach().numpy(), extent=box, origin='lower')
-    # plt.imshow(test_img.detach().numpy(), extent=box, origin='lower')
-    plt.colorbar()
-    plt.xlabel('Input')
-    plt.ylabel('Output')
+    plot_ode(derivative_magnitude.detach().numpy())
     plt.savefig(session.run_directory / 'derivative.png', bbox_inches='tight', dpi=300)
 
-    clean_up(session.run_directory)
+    # WARNING: This function is dangerous, may delete your valuable content.
+    # clean_up(session.run_directory)
 
 if __name__ == '__main__':
     main()
