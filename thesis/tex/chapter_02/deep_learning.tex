@@ -20,16 +20,16 @@ More formally, the $l$-th layer of an \ac{MLP} outputs a vector $\pmb{y}^{(l)}$ 
 \end{equation}
 where $\pmb{W}^{(l)}$ is the weight matrix of the $l$-th layer with the $i$-th row associated with the $i$-th unit in the layer, $\pmb{b}$ is a vector of units' biases, $g(\cdot)$ is a nonlinear function applied element wise, and $\pmb{y}^{(0)}$ is the network's input vector. In this notation, $f(\pmb{y}^{(0)};\pmb{\theta}) = \pmb{y}^{(L)}$, where $L$ denotes the number of layers of the \ac{MLP}.
 
-Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (\Equation{eq:relu}), and the logistic sigmoid function $\sigma$ (\Equation{eq:logistic_sigmoid}) \cite{Goodfellow-et-al-2016}
+Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (\Equation{eq:relu}), \ac{SELU} (\Equation{eq:selu}), and the logistic sigmoid function $\sigma$ (\Equation{eq:logistic_sigmoid}) \cite{Goodfellow-et-al-2016}
 
 \begin{align}
   \text{ReLU}(x) &= \max\{0, x\},\label{eq:relu}\\
+  \text{SELU}(x;s,\lambda) &= s (\max\{0,x\} + \min\{0, \alpha(e^x-1)\}), \label{eq:selu}\\
   \sigma (x) &= \frac{1}{1 + \exp (-x)}.\label{eq:logistic_sigmoid}
 \end{align}
 
 \acp{MLP} are \emph{universal function approximators}, i.\ e., they can approximate an arbitrary function (fulfilling very mild criteria) with an arbitrarily small error given enough width or depth \cite{Goodfellow-et-al-2016}.
-
-% TODO: Add a note on the notation used to describe MLPs
+The dimensions of a 4-layer \ac{MLP} are given in a format $i \times h_1 \times h_2 \times o$, where $i$ is the size of the input layer, $h_1$ and $h_2$ are the numbers of units in the first and second hidden layers respectively, and $o$ is the size of the output layer. Along with the dimensions, one specifies the nonlinearity applied element-wise to the layers' output.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Architectures}
@@ -383,12 +383,12 @@ After obtaining the output of the ODENet, we can calculate the loss with respect
 
 The input sequence can be multidimensional, i.e., one vector from the input sequence, $\pmb{x}_t$, may have multiple entries, which may correspond to the input signal (e.g., guitar signal) or a control signal (e.g., \ac{LFO} signal). The vectors in the output sequence may also have multiple elements. In this work, it is assumed that the first element of each output vector, i.e., $y_t[0]$, is the audio output (an audible signal) whereas all other entries may correspond to a learned latent state that is relevant for \ac{ODE} integration. Naturally, only the audible output can be used to compute the loss, unless some other state inside the analog circuit is known (as in \cite{Parker2019}, for example).
 
+Finally, the input sequence may be processed in chunks, i.e., each training sequence is processed in subsequences. This allows for more frequent gradient update during training. To maintain the accuracy of the gradient estimation and increase the level of parallelism during training, the minibatches may be large. Short subsegments and large batches are used instead of small batches and long subsegments, which shortens the time needed for one epoch of training.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Derivative Network Parametrization}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to estimate subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is possible thanks to the dependence on $t$. However, as already explained, the derivative must not hold any "state" information from previous evaluations.
+Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to compute subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is possible thanks to the dependence on $t$. However, as already explained in the introduction to this section, the derivative must not hold any "memory" from previous evaluations.
 
-These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. 
-
-% TODO: layer notation, nonlinearity notation y esta :)
+These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. For the derivative network solely \acp{MLP} are used. In all cases, $i = o + e$, where $i$ is the input layer size, $o$ is the output layer size, and $e$ is the dimensionality of the excitation. All layers are fully connected and apply the same nonlinearity to their output.
