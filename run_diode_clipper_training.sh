@@ -20,6 +20,8 @@ CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method STN --batch_size 25
 
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method odeint_implicit_adams --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 22050 --epochs 600 --learn_rate 0.001 --cyclic_lr 0.01 --nonlinearity SELU --dataset_name diodeclip --teacher_forcing always --validate_every 10 --state_size 1 --hidden_size 9 --checkpoint July28_14-26-52_axel
 
+python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 22050 --epochs 0 --learn_rate 0.001 --dataset_name diodeclip --test_sampling_rate 192000
+
 # reverb-diodeclip
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --cyclic_lr 0.01 --nonlinearity SELU --dataset_name reverb-diodeclip --teacher_forcing always --validate_every 10 --state_size 1 --hidden_size 100
 
