@@ -1,0 +1,305 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Virtual Analog Modeling}
+\label{section:virtual_analog_modeling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Ac{VA} effects are digital emulations of audio systems that were originally built using analog electronic or electromechanical components \cite{Zoelzer2011}. They arose out of the demand for the reproduction of characteristic tonal distortions of these devices but with the digital stability and the ease of integration with existing software. Devices modelled range from filters, to time-varying effects, amplifiers, mechanical reverb units, and tape or vinyl distortions.
+
+One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski2016,Wright2020}. In \emph{black-box} modelling, only the input-output relation of a system is examined and a signal model is constructed to mimic that behavior. Neural networks have successfully been applied to this kind of modeling for guitar amplifiers \cite{Wright2019,Wrightetal2020}. In \emph{white-box} modelling an internal structure of the system under study is examined and used to construct an algorithm aiming at reproducing its behavior. Sometimes it is referred to as \emph{physical modeling}. Typical approaches in this category are a numerical solution of \acp{ODE} derived from electronic circuit analysis \cite{Yeh2007,Eichas2014} or wave-digital filters \cite{PASPWEB2010}. \emph{Grey-box} modeling falls somewhere in between the two already mentioned approaches, where we use some knowledge about the inner workings of the device under study to design a model and, subsequently, take advantage of the input and output data to adjust the model's parameters. This approach has been successfully applied to time-varying effects modeling, like a phaser or a flanger \cite{Kiiski2016,Wright2020}, where a \ac{LFO} signal is estimated and used for conditioning the model.
+
+The aim of this work was to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. The main goal was to model a phaser pedal. However, in order to get intuition behind this type of architecture, a simpler, time-invariant system was modeled, namely, a first-order diode clipper. The following section describes this system and current research into its modeling. The subsequent section deals with the phaser in a similar manner.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diode Clipper Circuit}
+\label{subsec:diode_clipper_intro}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \input{figures/tikz/diode_clipper.tex}
+  \caption{Diode clipper circuit.}
+  \label{fig:diode_clipper_circuit}
+\end{figure}
+
+The first-order diode clipper is a circuit frequently used to achieve signal distortion, e.\ g. in guitar amplifiers. Its schematic is shown on \Figure{fig:diode_clipper_circuit}. It can be regarded as consisting of two parts: an RC lowpass filter and a diode limiter.
+
+Voltages and currents in this section are dependent on time, i.\ e., $V = V(t), I= I(t)$. For readability, this dependence is not stated explicitly in the equations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{RC Lowpass Filter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+  \centering
+  \input{figures/tikz/rc_lowpass.tex}
+  \caption{RC lowpass filter.}
+  \label{fig:rc_lowpass}
+\end{figure}
+
+The first part of the diode clipper circuit is an RC lowpass filter. An RC lowpass filter is shown in \Figure{fig:rc_lowpass}. Given that the input voltage $V_\text{in}$ is a sine wave at frequency $f$, the input-output voltage relation is governed by the following equation
+\begin{equation}
+  V_\text{out} = \frac{X_C}{\sqrt{R^2 + X_C^2}} V_\text{in},
+  \label{eq:rc_circuit}
+\end{equation}
+where $V_\text{out}$ is the output voltage, $X_C=\frac{1}{2\pi f C}$ is the capacitive reactance of the capacitor in the circuit, $C$ is its capacitance, $R$ is the resistor's resistance.
+
+The capacitor impedes low frequencies more; the lower the frequency, the higher the capacitive reactance. More capacitive reactance means larger voltage drop on the capacitor. Thus, assuming a constant magnitude across all frequencies of the input voltage, the output voltage is higher for low frequencies and the circuit behaves like a lowpass filter.
+
+Considering an arbitrary input waveform, we may derive a differential equation that describes the circuit \cite{Horowitz2015}. The current $I$ through the capacitor is proportional to the rate of change of the voltage across it
+
+\begin{equation}
+  I = C \frac{\mathrm{d}V_\text{out}}{\mathrm{d} t}.
+  \label{eq:current_through_capacitor}
+\end{equation}
+
+The current flowing through the resistor can be calculated using the Ohm's law as a ratio of the voltage drop across the resistor to its resistance
+
+\begin{equation}
+  I = \frac{V_\text{in} - V_\text{out}}{R}.
+  \label{eq:current_through_resistor}
+\end{equation}
+
+Because the same current flows through the resistor and the capacitor we can equate the right-hand sides of \Equation{eq:current_through_capacitor} and \Equation{eq:current_through_resistor}. After dividing by $C$, we obtain the final form of the \ac{ODE} describing the RC circuit
+
+\begin{equation}
+  \frac{\mathrm{d}V_\text{out}}{\mathrm{d} t} = \frac{V_\text{in} - V_\text{out}}{RC}.
+\end{equation}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Diode Limiter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \input{figures/tikz/diode_limiter.tex}
+  \caption{Diode limiter circuit.}
+  \label{fig:diode_limiter}
+\end{figure}
+
+The second part of the diode clipper is the diode limiter also called a \emph{diode clamp} \cite{Malvino2016}. Its circuit is shown in \Figure{fig:diode_limiter}. It consists of two inversely polarized diodes and a resistor. This circuit could be further divided into a \emph{positive clipper} (by removing the diode on the left) and a \emph{negative clipper} (by removing the diode on the right). These names refer to which part of the input \ac{AC} signal (the positive or the negative) is removed at the output.
+
+If the diodes were ideal, i.\ e., they would behave as an open for voltages across smaller than 0 and as a short for voltages across larger than 0, $V_\text{out}$ would always be 0. However, to a second approximation, the diodes cause a voltage drop of \SI{0.7}{V} when conducting. Thus, the voltage cannot exceed the \SIrange{-0.7}{0.7}{V} range, being clamped when attempting to do so. The positive clipper guards the upper limit and the negative clipper guards the lower limit. The effect of passing an \ac{AC} signal through the diode limiter is shown in \Figure{fig:diode_limiter_signal}.
+
+\cite{Yeh2007} contains the small-signal interpretation of the diode limiter circuit.
+
+\begin{figure}
+  \centering
+  \input{figures/tikz/diode_limiter_signal.tex}
+  \caption{Impact of the diode limiter on the input sinusoidal voltage. Values that exceed the \SIrange{-0.7}{0.7}{V} range are clamped and the signal is distorted.}
+  \label{fig:diode_limiter_signal}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{First-Order Diode Clipper}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Combining the RC lowpass filter (\Figure{fig:rc_lowpass}) and the diode limiter (\Figure{fig:diode_limiter}) yields the first-order diode clipper (\Figure{fig:diode_clipper_circuit}). It is called "first-order" because only a single capacitor is used \cite{Parker2019}. If the input voltage is within the limiter's operational range, the circuit acts as a lowpass filter. If the voltage exceeds this range, it is clipped at the output and distortion is introduced.
+
+The first-order diode clipper can be described by a nonlinear \ac{ODE} \cite{Yeh2007}
+\begin{equation}
+  \frac{\mathrm{d} V_\text{out}}{\mathrm{d}t} = \frac{V_\text{in} - V_\text{out}}{RC} - 2 \frac{I_\text{s}}{C} \sinh \left(\frac{V_\text{out}}{V_\text{t}}\right),
+\end{equation}
+where $V_\text{in}$ is the input voltage, $V_\text{out}$ is the output voltage, $t$ denotes time, $R$ is the serial resistance, $C$ is the parallel capacity, $I_\text{s}$ is the reverse saturation current, and $V_\text{t}$ is the thermal voltage. The last two are parameters of the diodes and can be extracted from measurement \cite{Yeh2007}.
+
+The parameter values of discrete elements used in the experiments were taken from \cite{Yeh2008}. They are summarized in \Table{tab:diode_clipper_element_parameters}.
+
+\begin{table}
+  \centering
+  \caption{Parameter values of the discrete elements used in the diode clipper circuit. Source: \cite{Yeh2008}.}
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Parameter & Value \\
+    \hline
+    $R$ & \SI{2.2}{k\ohm} \\
+    $C$ & \SI{10}{nF} \\
+    $I_\text{s}$ & \SI{2.52}{nA} \\
+    $V_\text{t}$ & \SI{45.3}{mV} \\
+    \hline
+  \end{tabular}
+  \label{tab:diode_clipper_element_parameters}
+\end{table}
+
+$V_\text{in}$ is typically on the order of volts.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Relation to Other Work}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The first-order diode clipper is a system particularly interesting in the context of the ODENet, because it is governed by a known \ac{ODE} \cite{Yeh2007,Yeh2008}. Additionally, it was already modeled using a \ac{ResNet} type of architecture in \cite{Parker2019}. Thus, learning to imitate the diode clipper allowed for validation of the ODENet and comparison to 
+\begin{itemize}
+    \item an \ac{LSTM} architecture from \cite{Wrightetal2020},
+    \item a \ac{ResNet}-like architecture from \cite{Parker2019}, and
+    \item a numerical solution using the \ac{ODE} from \cite{Yeh2007,Yeh2008}.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Phaser}
+\label{chap:phaser}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and vary periodically over time, moving up and down the frequency range. The time-varying notches create a "swooshing" sound that is often identified as "robotic".
+
+Phaser should not be confused with another notch-sweeping effect, namely, flanger. Flanging differs from phasing in that the time-varying notches are equally-spaced and seemingly infinite in number (limited only by the sampling rate), whereas in phasing the notches are nonuniformly spaced and their number is fixed. In flanging, the notches are created by summing the direct path with an output of a variable-length delay line, whose length is controlled by an \ac{LFO}. The result is a time-varying comb filter. Its sound is often compared to a jet taking off.
+
+This section explains the basics of phasing and a typical implementation of a phaser using allpass filters. Firstly, a high-level view is presented followed by an explanation of an allpass filter and its impact on the phaser's behavior. Finally, known digital phaser models are presented.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Overview}
+\label{sec:phaser_overview}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+    \centering
+    \input{figures/tikz/phaser.tex}
+    \caption{A phaser implementation.}
+    \label{fig:phaser}
+\end{figure}
+
+Phaser is typically implemented by summing the input signal processed by a series of notch or allpass filters with a direct path \cite{Zoelzer2011}. Additionally, a feedback connection can be added around the filter chain \cite{Kiiski2016}. The feedback connection makes the phaser behavior more complex by introducing resonances and non-notch frequency boosting.
+
+In \Figure{fig:phaser}, a basic diagram of a phaser is depicted. This schematic holds for analog as well as digital phasers \cite{PASPWEB2010}. The direct path consists of a simple scaling by $D$ ("dry" signal). The indirect path is a series of allpass filters followed by a scaling by $W$ ("wet" signal). The allpass filters introduce frequency-dependent delay. Due to these shifts, summation of the two paths causes destructive and constructive interference, resulting in notches and peaks in the magnitude spectrum of the phaser. Scaling factors $D$ and $W$ control the amount of interference. The deepest possible notches appear when $D = W$. To keep the amplitude constant, one typically couples $D$ and $W$ so that $D + W = 1$.
+
+To understand phaser's effect on the signal, one should examine the allpass filters first. That is the topic of the next section.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{First-Order Allpass Filter}
+\label{sec:first_order_allpass_filter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \input{figures/tikz/first_order_allpass_filter.tex}
+    \caption{First-order digital allpass filter.}
+    \label{fig:first_order_allpass_filter}
+\end{figure}
+
+An allpass filter is a filter with unit magnitude gain at all frequencies. The general digital allpass filter has the following transfer function \cite{Zoelzer2011,PASPWEB2010,Kiiski2016}
+
+\begin{equation}
+    H_\text{allpass}(z) = \frac{a_1 + z^{-1}}{1 + a_1 z^{-1}},
+    \label{eq:allpass_transfer_function}
+\end{equation}
+where $a_1$ coefficient determines the break frequency of the allpass, i.e., the frequency at which the phase shift is exactly $-\frac{\pi}{2}$ $\frac{\text{rad}}{\text{s}}$. Given the break frequency $f_c$ in Hz and the sampling rate $f_s$ in Hz, the $a_1$ coefficient can be calculated as
+
+\begin{equation}
+    a_1 = \frac{\tan (\pi f_c / f_s) - 1}{\tan(\pi f_c / f_s) + 1}.
+    \label{eq:allpass_coefficient}
+\end{equation}
+
+\Equation{eq:allpass_coefficient} is the result of applying the bilinear transform to the transfer function of an analog allpass
+
+\begin{equation}
+    H_{\text{allpass}}^{\text{a}} (s) = \frac{s - 2\pi f_c}{s + 2\pi f_c},
+\end{equation}
+where 'a' superscript marks the analog (continuous) domain of the transfer function.
+
+The difference equation resulting from \Equation{eq:allpass_transfer_function} is
+\begin{equation}
+    y[n] = a_1 x[n] + \underbrace{x[n-1] - a_1 y[n-1]}{d[n-1]},
+    \label{eq:allpass_filter_difference_equation}
+\end{equation}
+where $x[n]$ denotes the input signal to the phaser and $y[n]$ denotes the output signal of the phaser. An diagram depicting this equation is shown in \Figure{fig:first_order_allpass_filter}. The right-hand side of \Equation{eq:allpass_filter_difference_equation} can be implemented using a one-element delay line.
+
+% TODO Explain shortly what you mean by the phase response (argument of the complex transfer function)
+
+The phase response of an allpass filter (specified in the \SIrange{-\pi}{0}{rad} range) is given by the formula \cite{Kiiski2016}
+
+\begin{equation}
+    \theta (\omega) = - \omega + 2 \arctan \left( \frac{a_1 \sin \omega}{1 + a_1 \cos \omega} \right),
+\end{equation}
+where $\omega = 2 \pi f / f_s$ is the angular frequency.
+
+In \Figure{fig:phase_response_allpass_filter} the phase responses of a digital allpass filters with different break frequencies are shown. An allpass does not change the magnitude of any frequency and it introduces a frequency-dependent delay that varies from 0 at DC to $-\pi$ at $f = \frac{f_s}{2}$ (or, equivalently, $\omega = \pi$). 
+
+\begin{figure}
+    \centering
+    \input{figures/tikz/allpass_phase_response.tex}
+    \caption{Phase response of a first-order allpass filter.}
+    \label{fig:phase_response_allpass_filter}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Analog and Digital Phasers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Cascading \ac{LTI} systems results in the summation of their phase responses \cite{Oppenheim1997}. Thus, a cascade of $N$ allpass filters introduces a frequency dependent delay that varies from 0 at DC to $N\pi$ at $\frac{f_c}{2}$ \cite{PASPWEB2010}. Summing the cascaded filters with the direct path (as in \Figure{fig:phaser}) leads to the appearance of notches in the output spectrum of a phaser at frequencies for which the phase shift is an odd multiplicity of $\pi$, i.e., $\pi, 3\pi, 5\pi$, etc. Since each first-order allpass filter has a maximum phase shift of $\pi$, $N$ allpass filters result in $\frac{N}{2}$ notches (assuming that $N$ is even).
+
+The core idea of a phaser is to modulate the break frequencies of the allpass filters so that the notches sweep up and down the frequency range creating an audibly interesting effect. In analog phasers, which are implemented using analog electronic circuitry, the values of physical components are be modulated. In digital phasers, the implementers can decide whether to modulate the break frequencies directly or to modulate just the allpass coefficients \cite{Kiiski2016}. The difference between these two design decisions are shown in \Figure{fig:pink_noise_phasered}. Modulating the allpass coefficients in a fixed range yields similar notch variation curves for each break frequency (middle spectrogram). Modulating the break frequencies themselves using a traditional frequency modulation scheme yields larger frequency variations for high frequencies than for low frequencies.
+
+\newcommand{\scaleboxsize}{0.7}
+\newcommand{\subfigurewidththree}{0.3\textwidth}
+\begin{figure}
+    \begin{subfigure}{0.35\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.28\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s-target_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.28\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s_phasered_stft.tex}}
+    \end{subfigure}
+    \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
+    \label{fig:pink_noise_phasered}
+\end{figure}
+% TODO: Add the LFO signal?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Phaser Modeling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The phaser effect pedal was introduced in the ...s and gained popularity with musicians like ... Especially popular were Univibe and MXR Phase 90 models, which currently can reach high price on the second-hand market. Therefore, a need arises to create a faithful \ac{VA} models of famous phaser pedals.
+
+The variety of approaches to phaser modeling is representative for any \ac{VA} model. \cite{Eichas2014} analyze a circuit schematic of the MXR Phase 90 and derive a state-space model making have use of matrices. This is an example of a white-box approach.
+
+\cite{Kiiski2016} use the chirp signal to measure the impulse response of the Fame Sweet Tone phaser, which in this approach is treated as a \ac{LTV} system. This is not a fully black-box approach, because in the signal model design they make use of the circuit schematics to derive the modulation scheme. It, thus, falls under the category of grey-box modeling.
+
+\cite{Wright2020} provide a proof of concept that a phaser pedal can be modeled in an almost black-box fashion. The only deviation from the input-to-output relationship modeling is the estimation of the \ac{LFO} signal which is used to condition the neural network. The same type of data, i.e., the input signal and the (estimated or ground truth) \ac{LFO} signal, is used for this work.
+
+This work extends the work in \cite{Wright2020} in that it examines a different approach to neural modeling of the phaser. Instead of using an \ac{RNN}, an \ac{MLP} is used to learn the derivative of the system with respect to time. The \ac{MLP} is conditioned on the input, \ac{LFO}, and output at any given time (not just in a sample-by-sample manner). A desirable property of a system capable of modeling the phaser in this way would be a smaller computational complexity in comparison to an \ac{LSTM} network.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Evaluation}
+\label{subsec:va_evaluation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+An important part of \ac{VA} modeling is validation of how well the model imitates the original device. The quality of the \ac{VA} algorithm can be assessed objectively (using a similarity or distance measure between the outputs of the model and the device for a given input signal) or subjectively (using a listening test involving human participants).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{Objective Measures}
+\label{subsubsec:va_objective_measures}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this work, a few objective measures between the target signal (device output) and the model were used. One of them was the \ac{ESR} described in \Section{sec:loss_functions}.
+% TODO Check the number of this section's reference
+\ac{ESR} is a distance measure that is minimized during neural network training, validation, and testing. We may, however, employ a different objective measure at test time than at training time. The reason for this are that not all measures are suited to neural network training and that different objective measures let us assess different aspects of the model.
+
+For the assessment of the models in this work, especially their aliasing behavior, two objective measures from the domain of speech enhancement were used.
+
+The \ac{segSNR} is an average signal-to-noise ratio across segments of the device output $s[n]$ and model output $\hat{s}[n]$ \cite{Hansen98}
+
+\begin{equation}
+    \text{segSNR}(s, \hat{s}) = \frac{1}{M} \sum \limits_{m=0}^{M-1} 10 \log_{10} \left( \frac{\sum_{n=0}^{N-1} (s[n+mR])^2}{\sum_{n=0}^{N-1} (\hat{s}[n+mR] - s[n+mR])^2} \right),
+\end{equation}
+
+where $m$ is the frame index, $R$ is the number of samples between successive frames, $N$ is the frame length, and $M$ is the number of frames.
+
+The \ac{fw-segSNR} is a perceptually motivated objective measure that uses a weighted average and a time-frequency representation \cite{Hu2008}
+
+\begin{equation}
+    \text{fw-segSNR}(s, \hat{s}) = \frac{10}{M} \sum \limits_{m=0}^{M-1} \frac{ \sum_{j=1}^{K} W(j,m) \log_{10} \left( \frac{|S(j,m)|^2}{(|S(j,m)|-|\hat{S}(j,m)|)^2} \right)}{\sum_{j=1}^{K} W(j,m)},
+\end{equation}
+where $W(j,m)$ is the weight assigned to the $j$-th frequency band, $K$ is the number of bands, $m$ is the frame index, $M$ is the number of frames, $|S(j,m)|$ is the magnitude of a Gaussian window-weighted target signal spectrum in the $j$-th frequency band and at the $m$-th frame, and $|\hat{S}(j,m)|$ is the same value computed for the signal from the model. Additionally,
+
+\begin{equation}
+    W(j,m) = |S(j,m)|^{0.2}.
+\end{equation}
+
+The frequency bands are spaced according to the 25 critical bands of the ear.
+% TODO: More details on the Gaussian weighting etc.?
+
+For computing \ac{segSNR} and \ac{fw-segSNR}, we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved: 05.08.2021.}.
+
+Both, \ac{segSNR} and \ac{fw-segSNR} are different from \ac{ESR} in that they measure the relative similarity between the target and model signals (the higher the obtained value the more accurate the model) and that they work in a frame-wise fashion. The latter allows large local errors to influence the overall measure more than non-segmental measures, which has high correlation with subjective quality when it comes to speech signals \cite{Hansen98}.

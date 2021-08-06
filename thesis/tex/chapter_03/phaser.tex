@@ -1,0 +1,31 @@
+\section{Phaser Modeling}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Training Data}
+\label{sec:phaser_training_data}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The training data consisted solely of guitar recordings taken from the Fraunhofer IDMT database \cite{Kehling2014}. Some of the recordings were additionally distorted using a distortion  software plug-in. The purpose of applying additional distortion is that a distorted signal is rich in harmonics and, thus, makes the effect of phaser application more audible. The underlying assumption was that the network would tend to learn better from these more pronounced parts. Additionally, a more pronounced should make the evaluation task easier during listening tests. 
+
+The acoustic, electric, and distorted guitars were evenly split among the training, validation, and test sets. The training set was 5 minutes 44 seconds long, the validation set was 1 minute 6 seconds long and the test set was 1 minute 49 seconds long. Audio data was single-channel at \SI{44100}{Hz} sampling rate.
+
+% TODO: Add part on the LFO in the dataset.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Training}
+\label{sec:phaser_training}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Compared Models}
+\label{sec:phaser_models}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% TODO: List the best validation loss models
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Results and Discussion}
+\label{sec:phaser_results}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% TODO: Present the test results, evaluation results and discuss them

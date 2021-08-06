@@ -3,7 +3,7 @@
     \node[dspadder, right=of x]              (adder1) {};
     \node[dspnodefull, right=of adder1]              (c0) {};
     \node[coordinate,above=of c0] (c1) {};
-    \node[dspmultiplier,right=of c1] (a1_forward) {$a_1$};
+    \node[dspmixer,right=of c1] (a1_forward) {$a_1$};
     \node[coordinate,right=of a1_forward] (c3) {};
     
     % Unit delay
@@ -12,7 +12,7 @@
     \node[dspadder,right=of c4] (adder) {};
     \node[dspnodeopen,right=of adder,dsp/label=above] (y) {$y[n]$};
     \node[coordinate, below=of c4] (c5) {};
-    \node[dspmultiplier,left= of c5,dsp/label=below] (a1_feedback) {$a_1$};
+    \node[dspmixer,left= of c5,dsp/label=below] (a1_feedback) {$a_1$};
     \node[coordinate,left=of a1_feedback] (c6) {};
 
     % Feedforward connections

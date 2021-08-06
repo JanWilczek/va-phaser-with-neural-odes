@@ -10,8 +10,8 @@
         \draw[dspconn] (ap\im) -- (ap\i);
     }
     
-    \node[dspmultiplier,right=of ap4] (wet) {$W$};
-    \node[dspmultiplier,above=of wet,yshift=1mm] (dry) {$D$};
+    \node[dspmixer,right=of ap4] (wet) {$W$};
+    \node[dspmixer,above=of wet,yshift=1mm] (dry) {$D$};
     \node[coordinate,right=of wet] (c3) {};
     \node[dspadder,above=of c3,yshift=3mm] (adder) {};
     \node[dspnodeopen,right=of adder,dsp/label=above] (fx) {$y[n]$};

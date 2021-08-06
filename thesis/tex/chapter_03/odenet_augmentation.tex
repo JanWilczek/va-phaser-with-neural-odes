@@ -1,0 +1,70 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{ODENet Augmentation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Problem of Initialization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+As the derivative network should learn only the rate of change of the modeled function, the ODENet framework is highly susceptible to correct initialization, i.e., correct $\pmb{y}_0$ supplied as the initial value. In the extreme case, supplying a vector of zeros could lead to all-zero output. To prevent this and allow the network to be trained, one may turn to the teacher forcing approach
+% TODO: as described in \Section{sec:teacher_forcing}
+to ensure proper guidance during training. In the context of ODENet, teacher forcing results in supplying the ground truth initial value $\pmb{y}_0$ or all-zero vector for each minibatch according to the curriculum.
+
+At test time, for most dynamical systems, we could also provide a meaningful initial value. After all, the goal is to predict future state from some initial state. However, in the context of \ac{VA} modeling, we can only supply an all-zero vector as the initial value because the framework should predict the whole of the output from the input. For non-zero true output, this results in increased test error.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Problem of Excitation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In the existing applications of the ODENet framework, the derivative network was unaware of any external excitation of the system. An excitation is an important element of an \ac{ODE} that significantly influences the dynamics of the system. In the context of \ac{VA} modeling, the excitation typically consist of the input signal to the device (amplifier, distortion effect, phaser, etc.). The importance of the input signal as an excitation is visible in the diode clipper example, as discussed in \Section{subsec:diode_clipper_intro}.
+
+How to condition the derivative network with an excitation signal? The implementation must consider the following requirements:
+\begin{itemize}
+  \item the excitation signal should be a part of the input to the network at each call of $f(t, \pmb{y})$,
+  \item the excitation cannot be provided by the numerical solver due to the generality of their implementation,
+  \item the excitation signal must be possible to evaluate for an arbitrary time given in seconds (not samples).
+\end{itemize}
+
+To facilitate incorporating the excitation signal into the framework, the following design decisions were made:
+\begin{itemize}
+  \item the excitation data corresponding to the current minibatch is supplied to the derivative network before calling the numerical solver for that minibatch,
+  \item the values of the excitation signal are linearly interpolated using physical time values,
+  \item for each minibatch, time starts at 0,
+  \item the derivative network, when called with arguments $t$ and $\pmb{y}$ calculates the value of the excitation signal for that $t$ (as specified above) and concatenates with the $\pmb{y}$ vector to form the input for a single forward pass.
+\end{itemize}
+
+In the initial experiments, linear interpolation proved itself sufficient to model oscillating systems. Therefore, higher-order interpolation methods were not used in this work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: If we actually use the "augmented state" then finish this section
+%\subsection{The Problem of Dimensionality}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Implementation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The task of the ODENet is to provide an output sequence $\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$ in response to an input sequence $\pmb{x} = \pmb{x}_0, \dots, \pmb{x}_{N-1}$. \Figure{fig:odenet_sequence_diagram} contains a sequence diagram of how processing is organized for a single input sequence.
+
+\begin{figure}
+  \centering
+  \scalebox{0.9}{\input{figures/tikz/odenet_sequence_diagram.tex}}
+  \caption{Sequence diagram containing the details of ODENet processing with excitation data. }
+  \label{fig:odenet_sequence_diagram}
+\end{figure}
+
+At training and test time, we loop over a dataset of examples. Examples can be processed in minibatches but it has been omitted in the figure for simplicity. First, according to the curriculum, the initial value is given to the ODENet instance. It could be the true target $\pmb{y}_0$, an all-zero vector, or possibly a different vector. Second, the ODENet is given the input sequence to process. This the excitation in the \ac{ODE} terminology. The ODENet instance passes the excitation to the derivative network, which in turn passes it to the interpolator. The interpolator instance and ODENet instance both use the same time vector $\pmb{t}$, which contains the time instances corresponding to the elements of the input sequence $\pmb{x}$, with $t[0]=0$. Third, the ODENet calls the numerical solver, passing it the network as the right-hand side of the \ac{ODE}, initial value $\pmb{y}_0$, and time vector $\pmb{t}$ that contains the time points at which to obtain the solution. Afterwards, the solver starts processing the data, which should be treated as a black-box operation, i.e., we cannot control the solver's operations. During processing, the solver will call the network, asking it to provide the value of the derivative at specific time $t$ where the solution value is $\pmb{y}_t$. The network will retrieve the excitation data from at that time instant and concatenate it with $\pmb{y}_t$ to obtain the input to the neural network that parametrizes the right-hand side of the \ac{ODE}. The result of the forward pass with this input is the estimate of the derivative of $\pmb{y}(t)$ at time $t$. The solver will call the derivative network according to its implementation; it can be at arbitrary time without any fixed time step. It must be controlled whether the derivative network is asked to provide output at time outside the time range for which it has the excitation data. If that happens, the solution can no longer be relied on. Finally, the solver returns the solution of the \ac{ODE} at requested points, which is subsequently returned as the output sequence produced in response to the input sequence $\pmb{x}$.
+
+After obtaining the output of the ODENet, we can calculate the loss with respect to the true output $\pmb{y}_0, \dots, \pmb{y}_{N-1}$ and do a gradient step (at training time).
+
+The input sequence can be multidimensional, i.e., one vector from the input sequence, $\pmb{x}_t$, may have multiple entries, which may correspond to the input signal (e.g., guitar signal) or a control signal (e.g., \ac{LFO} signal). The vectors in the output sequence may also have multiple elements. In this work, it is assumed that the first element of each output vector, i.e., $y_t[0]$, is the audio output (an audible signal) whereas all other entries may correspond to a learned latent state that is relevant for \ac{ODE} integration. Naturally, only the audible output can be used to compute the loss, unless some other state inside the analog circuit is known (as in \cite{Parker2019}, for example).
+
+Finally, the input sequence may be processed in chunks, i.e., each training sequence is processed in subsequences. This allows for more frequent gradient update during training. To maintain the accuracy of the gradient estimation and increase the level of parallelism during training, the minibatches may be large. Short subsegments and large batches are used instead of small batches and long subsegments, which shortens the time needed for one epoch of training.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Derivative Network Parametrization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to compute subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is possible thanks to the dependence on $t$. However, as already explained in the introduction to this section, the derivative must not hold any "memory" from previous evaluations.
+
+These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. For the derivative network solely \acp{MLP} are used. In all cases, $i = o + e$, where $i$ is the input layer size, $o$ is the output layer size, and $e$ is the dimensionality of the excitation. All layers are fully connected and apply the same nonlinearity to their output.
