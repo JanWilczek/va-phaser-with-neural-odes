@@ -30,6 +30,15 @@ A single epoch consisted of processing the minibatches of segments in chunks (su
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % TODO: List the best validation loss models
+For the assessment of how well ODENet can model the diode clipper two derivative networks were chosen: and $2 \times 100 \times 100 \times 1$ and $2 \times 9 \times 9 \times 1$, both with \ac{ReLU} nonlinearity. The latter is the smallest derivative network that had validation loss smaller than 1\%. Both were trained and tested with the forward Euler scheme. Additionally, the latter was trained and tested with the implicit Adams scheme.
+
+For comparison, the \ac{STN} $2 \times 4 \times 4 \times 4 \times 1$ architecture with $\tanh$ nonlinearity and biases only in one layer from \cite{Parker2019}, \ac{RINN} with \ac{RK}4 weights using a bilinear block with 6 units in each fully connected layer, and \ac{LSTM} with 8 hidden units and a $8 x 1$ output \ac{MLP} (mapping the hidden states to an output sample) from \cite{Wright2019} were chosen. All of these models were trained on audio data at \SI{44100}{Hz} sampling rate.
+
+Each of the model was listed with its number of parameters, computational complexity in processing (ops/sample, GFLOPS), hyperparameter values during traning, training time (in epochs and hours), and best validation loss epoch.  %TODO Add table
+
+Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal in using various sampling rates at test time was to analyze the presence of aliasing in the output. Test loss, \ac{segSNR}, \ac{fw-segSNR}, and \ac{ODG} are reported for each model. 
+
+It must be noted that all models were tested on a one long audio recording but implicit Adams scheme consistently diverged in this test setting. Therefore, its tests were conducted using segments of 22050 samples which were concatenated afterwards.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Results and Discussion}
