@@ -20,6 +20,11 @@ def main():
 
     assert fs == fs_clean, 'Clean and estimated signal must have the same sampling rate.'
 
+    # Trim signals to common length
+    shorter_length = min(clean_signal.shape[0], estimated_signal.shape[0])
+    clean_signal = clean_signal[:shorter_length]
+    estimated_signal = estimated_signal[:shorter_length]
+
     seg_snr = pysepm.SNRseg(clean_signal, estimated_signal, fs)
     fw_seg_snr = pysepm.fwSNRseg(clean_signal, estimated_signal, fs)
 
