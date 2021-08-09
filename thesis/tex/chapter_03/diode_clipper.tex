@@ -46,11 +46,16 @@ It must be noted that all models were tested on a one long audio recording but i
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % TODO: Present the test results, evaluation results and discuss them
+In \Table{tab:diode_clipper_results} the test results of the compared models are shown. The models were trained on \SI{44100}{Hz} data but tested using 4 different sampling rates: \SI{44100}{Hz}, \SI{220500}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz}. For each of the sampling rates, the test loss $\mathcal{E}(y, \hat{y})$ given by \Equation{eq:final_loss_function}, \ac{segSNR} given by \Equation{eq:seg_snr}, and \ac{ODG} described in 
+% TODO: Add section including the ODG
+are displayed with \ac{ODG} being rounded to two decimal places. The best results are given in bold (lowest loss, highest \ac{segSNR} and \ac{ODG}). The models are separately evaluated in terms of the learned model quality (test sampling rate equal to training sampling rate) and performance at sampling rates different from the training sampling rate. 
 
 % ODENet @ 22kHz test sampling rate goes into self oscillations
 
 \begin{table}[]
+    \caption{Test results of the diode clipper models.}
     \input{tex/chapter_03/diode_clipper_results_table.tex}
-    \label{tab:diode_clipper_results_esr}
+    \label{tab:diode_clipper_results}
 \end{table}
-    
+
+The model quality in terms of the loss function is very good for all compared models. In casual listening only the \ac{RINN}4 model sounds differently from the target (despite the low test loss value). Their \ac{segSNR} values are comparatively low with the implicit Adams ODENet receiving slightly better results. Its forward Euler version has the highest \ac{ODG}. Somewhat surprisingly, the smaller ODENet models outperform the larger one. This could be explained by the fact that limiting the model capacity has a regularizing effect \cite{Goodfellow-et-al-2016}.

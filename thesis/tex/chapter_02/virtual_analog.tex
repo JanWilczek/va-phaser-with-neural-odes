@@ -282,6 +282,7 @@ The \ac{segSNR} is an average signal-to-noise ratio across segments of the devic
 
 \begin{equation}
     \text{segSNR}(s, \hat{s}) = \frac{1}{M} \sum \limits_{m=0}^{M-1} 10 \log_{10} \left( \frac{\sum_{n=0}^{N-1} (s[n+mR])^2}{\sum_{n=0}^{N-1} (\hat{s}[n+mR] - s[n+mR])^2} \right),
+    \label{eq:seg_snr}
 \end{equation}
 
 where $m$ is the frame index, $R$ is the number of samples between successive frames, $N$ is the frame length, and $M$ is the number of frames.
