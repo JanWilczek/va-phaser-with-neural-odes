@@ -5,7 +5,7 @@ from CoreAudioML import training
 
 def l1_stft(output, target):
     """L1 distance between the complex STFT of output and target."""
-    n_fft = 1024
+    n_fft = min(1024, output.shape[0])
     stft_kwargs = {'return_complex': True, 'n_fft': n_fft, 'window': torch.hann_window(n_fft).to(output.device), 'center': False}
     stft_output = torch.stft(output.squeeze().transpose(0, 1), **stft_kwargs)
     stft_target = torch.stft(target.squeeze().transpose(0, 1), **stft_kwargs)
