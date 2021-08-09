@@ -35,12 +35,12 @@ class StateTrajectoryNetwork(nn.Module):
             dense_output = self.densely_connected_layers(mlp_input)
 
             # Residual connection
-            output[:, n, :] = dense_output[:, 0, :] + self.state[:, 0, :]
+            output[:, n, :] = self.residual_scaling * dense_output[:, 0, :] + self.state[:, 0, :]
 
             # State update
             self.state[:, 0, :] = output[:, n, :]
 
-        return self.output_scaling * output.permute(1, 0, 2)
+        return output.permute(1, 0, 2)
 
     def reset_hidden(self):
         self.state = None
@@ -73,5 +73,5 @@ class StateTrajectoryNetwork(nn.Module):
         self.test_time_step = value
 
     @property
-    def output_scaling(self):
+    def residual_scaling(self):
         return self.test_time_step / self.training_time_step
