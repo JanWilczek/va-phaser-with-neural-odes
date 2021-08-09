@@ -5,7 +5,7 @@ DIODECLIP_44KHZ_TARGET=diode_clipper/data/test/diodeclip-target.wav
 DIODECLIP_22KHZ_TARGET=diode_clipper/data/test/diodeclip22050Hz-target.wav
 DIODECLIP_48KHZ_TARGET=diode_clipper/data/test/diodeclip48000Hz-target.wav
 DIODECLIP_192KHZ_TARGET=diode_clipper/data/test/diodeclip192000Hz-target.wav
-
+: '
 # ODENet Hidden 100 FE
 python compute_measures.py -c $DIODECLIP_44KHZ_TARGET -e diode_clipper/runs/diodeclip/forward_euler/July13_07-49-07_axel_ODENet2Hidden100/test_output.wav
 ./peaqb-fast/src/peaqb -r $DIODECLIP_44KHZ_TARGET -t diode_clipper/runs/diodeclip/forward_euler/July13_07-49-07_axel_ODENet2Hidden100/test_output.wav
@@ -55,5 +55,16 @@ python compute_measures.py -c $DIODECLIP_48KHZ_TARGET -e diode_clipper/runs/diod
 ./peaqb-fast/src/peaqb -r $DIODECLIP_48KHZ_TARGET -t diode_clipper/runs/diodeclip/odeint_implicit_adams/August07_09-31-54_axel_Test48000/test_output.wav
 python compute_measures.py -c $DIODECLIP_192KHZ_TARGET -e diode_clipper/runs/diodeclip/odeint_implicit_adams/August07_09-32-43_axel_Test192000/test_output.wav
 ./peaqb-fast/src/peaqb -r $DIODECLIP_192KHZ_TARGET -t diode_clipper/runs/diodeclip/odeint_implicit_adams/August07_09-32-43_axel_Test192000/test_output.wav
+'
+# RINN4
+python compute_measures.py -c $DIODECLIP_44KHZ_TARGET -e diode_clipper/runs/diodeclip/resintrk4/July06_12-52-13_axelFinalLossFunctionStep1/test_output.wav
+./peaqb-fast/src/peaqb -r $DIODECLIP_44KHZ_TARGET -t diode_clipper/runs/diodeclip/resintrk4/July06_12-52-13_axelFinalLossFunctionStep1/test_output.wav
+python compute_measures.py -c $DIODECLIP_22KHZ_TARGET -e diode_clipper/runs/diodeclip/resintrk4/August07_18-46-02_axel_Test22050/test_output.wav
+./peaqb-fast/src/peaqb -r $DIODECLIP_22KHZ_TARGET -t diode_clipper/runs/diodeclip/resintrk4/August07_18-46-02_axel_Test22050/test_output.wav
+python compute_measures.py -c $DIODECLIP_48KHZ_TARGET -e diode_clipper/runs/diodeclip/resintrk4/August07_19-12-33_axel_Test48000/test_output.wav
+./peaqb-fast/src/peaqb -r $DIODECLIP_48KHZ_TARGET -t diode_clipper/runs/diodeclip/resintrk4/August07_19-12-33_axel_Test48000/test_output.wav
+python compute_measures.py -c $DIODECLIP_192KHZ_TARGET -e diode_clipper/runs/diodeclip/resintrk4/August07_20-00-25_axel_Test192000/test_output.wav
+./peaqb-fast/src/peaqb -r $DIODECLIP_192KHZ_TARGET -t diode_clipper/runs/diodeclip/resintrk4/August07_20-00-25_axel_Test192000/test_output.wav
 
-mv analized peaq.txt
+cat analized >> peaq.txt
+rm analized
