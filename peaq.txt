@@ -84,57 +84,6 @@ RelDistFramesb: 1
 DI: -0.213091
 ODG: -2.1029
 
-File: diode_clipper/runs/diodeclip/stn/July13_14-44-22_axel_Test22kHz/test_output.wav
-
-frame: 1930
-BandwidthRefb: 0
-BandwidthTestb: 0
-TotalNMRb 152.038
-WinModDiff1b: 131.595
-ADBb: 4.01596
-EHSb: 0.000771353
-AvgModDiff1b: 143.699
-AvgModDiff2b 1061.13
-RmsNoiseLoudb: 0.365211
-MFPDb: 1
-RelDistFramesb: 1
-DI: -3.96236
-ODG: -3.90161
-
-File: diode_clipper/runs/diodeclip/stn/July13_14-27-33_axel_Test48kHz/test_output.wav
-
-frame: 4203
-BandwidthRefb: 0
-BandwidthTestb: 0
-TotalNMRb 152.971
-WinModDiff1b: 256.44
-ADBb: 4.16615
-EHSb: 0.000323307
-AvgModDiff1b: 254.557
-AvgModDiff2b 965.146
-RmsNoiseLoudb: 1.41633
-MFPDb: 1
-RelDistFramesb: 1
-DI: 0.455704
-ODG: -1.40962
-
-File: diode_clipper/runs/diodeclip/stn/July13_14-45-26_axel_Test192kHz/test_output.wav
-
-frame: 16817
-BandwidthRefb: 0
-BandwidthTestb: 0
-TotalNMRb 148.468
-WinModDiff1b: 128.934
-ADBb: 4.22981
-EHSb: 0.00046945
-AvgModDiff1b: 95.5749
-AvgModDiff2b 106.381
-RmsNoiseLoudb: 1.33781
-MFPDb: 1
-RelDistFramesb: 1
-DI: -1.87361
-ODG: -3.42088
-
 File: diode_clipper/runs/diodeclip/lstm/June30_13-57-49_axel/test_output.wav
 
 frame: 3861
@@ -406,3 +355,54 @@ MFPDb: 1
 RelDistFramesb: 1
 DI: -2.15019
 ODG: -3.54188
+
+File: diode_clipper/runs/diodeclip/stn/August09_17-36-02_axel_Test22050/test_output.wav
+
+frame: 1930
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.154
+WinModDiff1b: 116.015
+ADBb: 3.98941
+EHSb: 0.000486018
+AvgModDiff1b: 118.148
+AvgModDiff2b 793.054
+RmsNoiseLoudb: 0.230482
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.92901
+ODG: -3.89901
+
+File: diode_clipper/runs/diodeclip/stn/August09_17-39-06_axel_Test48000/test_output.wav
+
+frame: 4203
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.981
+WinModDiff1b: 219.742
+ADBb: 4.19754
+EHSb: 0.000408295
+AvgModDiff1b: 208.4
+AvgModDiff2b 782.127
+RmsNoiseLoudb: 1.60003
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.23366
+ODG: -1.63577
+
+File: diode_clipper/runs/diodeclip/stn/August09_17-45-45_axel_Test192000/test_output.wav
+
+frame: 16817
+BandwidthRefb: 921
+BandwidthTestb: 849
+TotalNMRb 148.095
+WinModDiff1b: 116.939
+ADBb: 4.20748
+EHSb: 0.000685859
+AvgModDiff1b: 81.6588
+AvgModDiff2b 86.348
+RmsNoiseLoudb: 1.41971
+MFPDb: 1
+RelDistFramesb: 0.999822
+DI: 0.316902
+ODG: -1.55001
