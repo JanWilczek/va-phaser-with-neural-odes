@@ -131,9 +131,9 @@
             },
             "args": [
                 "--method",
-                "ResIntRK4",
+                "forward_euler",
                 "--batch_size",
-                "512",
+                "128",
                 "--val_chunk",
                 "22050",
                 "--test_chunk",
@@ -141,7 +141,7 @@
                 "--init_len",
                 "0",
                 "--up_fr",
-                "2048",
+                "4096",
                 "--learn_rate",
                 "0.001",
                 "--epochs",
@@ -151,7 +151,9 @@
                 "--dataset_name",
                 "diodeclip",
                 "--name",
-                "TEST_RUN"
+                "TEST_RUN",
+                "--loss_function",
+                "L1_STFT"
             ]
         },
         {
