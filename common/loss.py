@@ -7,8 +7,8 @@ def l1_stft(output, target):
     """L1 distance between the complex STFT of output and target."""
     n_fft = min(1024, output.shape[0])
     stft_kwargs = {'return_complex': True, 'n_fft': n_fft, 'window': torch.hann_window(n_fft).to(output.device), 'center': False}
-    stft_output = torch.stft(output.squeeze().transpose(0, 1), **stft_kwargs)
-    stft_target = torch.stft(target.squeeze().transpose(0, 1), **stft_kwargs)
+    stft_output = torch.stft(output.squeeze(2).transpose(0, 1), **stft_kwargs)
+    stft_target = torch.stft(target.squeeze(2).transpose(0, 1), **stft_kwargs)
     return nn.L1Loss(reduction='mean')(stft_output, stft_target)
 
 def get_loss_function(loss_function_name):

@@ -15,7 +15,7 @@ python compute_measures.py -c $DIODECLIP_48KHZ_TARGET -e diode_clipper/runs/diod
 ./peaqb-fast/src/peaqb -r $DIODECLIP_48KHZ_TARGET -t diode_clipper/runs/diodeclip/forward_euler/July13_10-53-41_axel_ODENet2Hidden100Test48kHz/test_output.wav
 python compute_measures.py -c $DIODECLIP_192KHZ_TARGET -e diode_clipper/runs/diodeclip/forward_euler/July13_11-08-11_axel_ODENet2Hidden100Test192kHz/test_output.wav
 ./peaqb-fast/src/peaqb -r $DIODECLIP_192KHZ_TARGET -t diode_clipper/runs/diodeclip/forward_euler/July13_11-08-11_axel_ODENet2Hidden100Test192kHz/test_output.wav
-'
+
 # STN
 # python compute_measures.py -c $DIODECLIP_44KHZ_TARGET -e diode_clipper/runs/diodeclip/stn/May20_07-33-56_axel/test_output.wav
 # ./peaqb-fast/src/peaqb -r $DIODECLIP_44KHZ_TARGET -t diode_clipper/runs/diodeclip/stn/May20_07-33-56_axel/test_output.wav
@@ -25,7 +25,7 @@ python compute_measures.py -c $DIODECLIP_48KHZ_TARGET -e diode_clipper/runs/diod
 ./peaqb-fast/src/peaqb -r $DIODECLIP_48KHZ_TARGET -t diode_clipper/runs/diodeclip/stn/August09_17-39-06_axel_Test48000/test_output.wav
 python compute_measures.py -c $DIODECLIP_192KHZ_TARGET -e diode_clipper/runs/diodeclip/stn/August09_17-45-45_axel_Test192000/test_output.wav
 ./peaqb-fast/src/peaqb -r $DIODECLIP_192KHZ_TARGET -t diode_clipper/runs/diodeclip/stn/August09_17-45-45_axel_Test192000/test_output.wav
-: '
+
 # LSTM
 python compute_measures.py -c $DIODECLIP_44KHZ_TARGET -e diode_clipper/runs/diodeclip/lstm/June30_13-57-49_axel/test_output.wav
 ./peaqb-fast/src/peaqb -r $DIODECLIP_44KHZ_TARGET -t diode_clipper/runs/diodeclip/lstm/June30_13-57-49_axel/test_output.wav
@@ -66,5 +66,14 @@ python compute_measures.py -c $DIODECLIP_48KHZ_TARGET -e diode_clipper/runs/diod
 python compute_measures.py -c $DIODECLIP_192KHZ_TARGET -e diode_clipper/runs/diodeclip/resintrk4/August07_20-00-25_axel_Test192000/test_output.wav
 ./peaqb-fast/src/peaqb -r $DIODECLIP_192KHZ_TARGET -t diode_clipper/runs/diodeclip/resintrk4/August07_20-00-25_axel_Test192000/test_output.wav
 '
+
+# Numerical solvers
+# BDF
+python compute_measures.py -c $DIODECLIP_44KHZ_TARGET -e diode_clipper/runs/diodeclip/ode_solver/BDF/June16_12-49-56_DESKTOP-O3T26KF/test_output.wav
+./peaqb-fast/src/peaqb -r $DIODECLIP_44KHZ_TARGET -t diode_clipper/runs/diodeclip/ode_solver/BDF/June16_12-49-56_DESKTOP-O3T26KF/test_output.wav
+# RK4
+python compute_measures.py -c $DIODECLIP_44KHZ_TARGET -e diode_clipper/runs/diodeclip/ode_solver/RK45/June17_08-34-31_DESKTOP-O3T26KF/test_output.wav
+./peaqb-fast/src/peaqb -r $DIODECLIP_44KHZ_TARGET -t diode_clipper/runs/diodeclip/ode_solver/RK45/June17_08-34-31_DESKTOP-O3T26KF/test_output.wav
+
 cat analized >> peaq.txt
 rm analized

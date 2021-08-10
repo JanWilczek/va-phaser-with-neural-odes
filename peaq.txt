@@ -406,3 +406,37 @@ MFPDb: 1
 RelDistFramesb: 0.999822
 DI: 0.316902
 ODG: -1.55001
+
+File: diode_clipper/runs/diodeclip/ode_solver/BDF/June16_12-49-56_DESKTOP-O3T26KF/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 145.77
+WinModDiff1b: 409.686
+ADBb: 4.11394
+EHSb: 8.9033e-05
+AvgModDiff1b: 223.643
+AvgModDiff2b 923.566
+RmsNoiseLoudb: 2.32804
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.504716
+ODG: -1.36102
+
+File: diode_clipper/runs/diodeclip/ode_solver/RK45/June17_08-34-31_DESKTOP-O3T26KF/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 145.768
+WinModDiff1b: 409.335
+ADBb: 4.11307
+EHSb: 8.86716e-05
+AvgModDiff1b: 222.979
+AvgModDiff2b 920.692
+RmsNoiseLoudb: 2.33881
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.504711
+ODG: -1.36102

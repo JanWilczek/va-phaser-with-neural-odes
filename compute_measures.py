@@ -2,7 +2,9 @@
 import argparse
 from pathlib import Path
 import numpy as np
+import torch
 from scipy.io import wavfile
+from CoreAudioML import training
 import pysepm
 
 
@@ -25,14 +27,19 @@ def main():
     clean_signal = clean_signal[:shorter_length]
     estimated_signal = estimated_signal[:shorter_length]
 
+    # segSNR, fw-segSNR
     seg_snr = pysepm.SNRseg(clean_signal, estimated_signal, fs)
     fw_seg_snr = pysepm.fwSNRseg(clean_signal, estimated_signal, fs)
+
+    # ESR
+    loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
+    loss_value = loss(torch.from_numpy(estimated_signal.astype(float)), torch.from_numpy(clean_signal.astype(float))).item()
 
     estimated_signal_dir = Path(args.estimated_signal_path).parent
     measures_output_file_path = estimated_signal_dir / 'measures.csv'
 
-    measures = np.asarray([[seg_snr, fw_seg_snr]])
-    np.savetxt(measures_output_file_path, measures, delimiter=',', header='segSNR; fw-segSNR')
+    measures = np.asarray([[seg_snr, fw_seg_snr, loss_value]])
+    np.savetxt(measures_output_file_path, measures, delimiter=',', header='segSNR,fw-segSNR,ESR+DC+prefilter')
 
 
 if __name__ == '__main__':
