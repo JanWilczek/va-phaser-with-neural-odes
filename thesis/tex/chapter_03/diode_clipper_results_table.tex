@@ -2,7 +2,7 @@
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}l|c|l|c|c|c|c|c|c|@{}}
         \cmidrule(l){2-9}
-        & Model & Metric & LSTM8 & \makecell{STN\\3x4\\tanh} & \makecell{ODENet\\FE\\hidden100\\ReLU} & \makecell{ODENet\\FE\\hidden9\\ReLU} & \makecell{ODENet\\IA\\hidden9\\SELU} & \makecell{RINN4\\BB6} \\ \midrule
+        & Model & Metric & LSTM8 & \makecell{STN\\3x4\\tanh} & \makecell{ODENet100\\(FE)\\ReLU} & \makecell{ODENet9\\(FE)\\ReLU} & \makecell{ODENet9\\(IA)\\SELU} & \makecell{RINN4\\BB6} \\ \midrule
         \multicolumn{1}{|c|}{\multirow{12}{*}{\rotatebox[origin=c]{270}{\hspace{2cm}test sampling rate [Hz]}}} & \multirow{3}{*}{ \makecell{44100\\(train)}} & 
                                     Loss    & \textbf{0.081\%}       & 0.91\%            & 0.1\% & 0.38\% & 0.12\% & 0.19\% \\ \cmidrule(l){3-9} 
         \multicolumn{1}{|l|}{} &  & \makecell{segSNR\\$\times 10^{-4}$}  & 2.7              & 2.7          & 2.5          & 2.5 & \textbf{3} & 2.7 \\ \cmidrule(l){3-9} 
