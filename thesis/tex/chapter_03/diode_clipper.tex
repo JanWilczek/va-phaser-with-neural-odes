@@ -93,3 +93,22 @@ For \SI{192000}{Hz} test sampling rate, the advantage of the ODENet becomes clea
 All in all, ODENet architectures outperformed other models in terms of \ac{segSNR} and \ac{ODG} for all test sampling rates higher than training sampling rate. What is more, they continued to have loss value smaller than 1\% for those sampling rates. It was possible even for the simplest numerical scheme, i.e., the forward Euler. Therefore, ODENet is suitable for training at one sampling rate and processing at a higher one.
 
 There was no clear advantage of the implicit solver over the explicit one. On the contrary, the implicit solver took over twice the time to process the same amount of data as the explicit solver did, as indicated in \Table{tab:diode_clipper_models_data}.For the diode clipper model, it does not seem beneficial to increase the derivative network's capacity beyond the necessary minimum (here: 9 hidden units). 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Convergence Speed}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+    \centering
+    \input{figures/tikz/diode_clipper_validation_curves/diode_clipper_validation_curves.tex}
+    \caption{Convergence curves of the diode clipper models.}
+    \label{fig:diode_clipper_validation_curves}
+\end{figure}
+
+Looking at how validation loss of ODENet and LSTM changes during training, as shown in \Figure{fig:diode_clipper_validation_curves}, one can observe that the former takes much more epochs to get below 1\% than the latter. This may be explained by the nature of the \ac{LSTM} architecture, where the constant-error carousel ensures that error gets propagated even for very long time lags \cite{Hochreiter1997}. Slow convergence can be seen as a disadvantage of the ODENet framework, slowing down the derivative network architecture exploration or hyperparameter search. Increasing the learning rate of the ODENet, for example using one-cycle learning rate schedule, has proven itself beneficial but must be used with care; if the learning rate is too large, ODENet diverges.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Comparison to Numerical Solvers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
