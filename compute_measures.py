@@ -24,22 +24,24 @@ def main():
 
     # Trim signals to common length
     shorter_length = min(clean_signal.shape[0], estimated_signal.shape[0])
-    clean_signal = clean_signal[:shorter_length]
-    estimated_signal = estimated_signal[:shorter_length]
+    clean_signal = clean_signal[:shorter_length].astype(float)
+    estimated_signal = estimated_signal[:shorter_length].astype(float)
 
     # segSNR, fw-segSNR
     seg_snr = pysepm.SNRseg(clean_signal, estimated_signal, fs)
     fw_seg_snr = pysepm.fwSNRseg(clean_signal, estimated_signal, fs)
 
     # ESR
-    loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
-    loss_value = loss(torch.from_numpy(estimated_signal.astype(float)), torch.from_numpy(clean_signal.astype(float))).item()
+    esr = training.ESRLoss()
+    esr_value = esr(torch.from_numpy(estimated_signal), torch.from_numpy(clean_signal)).item()
+    loss_full = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
+    loss_full_value = loss_full(torch.from_numpy(estimated_signal), torch.from_numpy(clean_signal)).item()
 
     estimated_signal_dir = Path(args.estimated_signal_path).parent
     measures_output_file_path = estimated_signal_dir / 'measures.csv'
 
-    measures = np.asarray([[seg_snr, fw_seg_snr, loss_value]])
-    np.savetxt(measures_output_file_path, measures, delimiter=',', header='segSNR,fw-segSNR,ESR+DC+prefilter')
+    measures = np.asarray([[seg_snr, fw_seg_snr, esr_value, loss_full_value]])
+    np.savetxt(measures_output_file_path, measures, delimiter=',', header='segSNR,fw-segSNR,ESR,ESR+DC+prefilter')
 
 
 if __name__ == '__main__':
