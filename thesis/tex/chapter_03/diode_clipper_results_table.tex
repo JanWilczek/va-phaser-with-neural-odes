@@ -3,17 +3,21 @@
     \begin{tabular}{@{}l|c|l|c|c|c|c|c|c|@{}}
         \cmidrule(l){2-9}
         & Model & Metric & LSTM8 & \makecell{STN\\3x4\\tanh} & \makecell{ODENet\\FE\\hidden100\\ReLU} & \makecell{ODENet\\FE\\hidden9\\ReLU} & \makecell{ODENet\\IA\\hidden9\\SELU} & \makecell{RINN4\\BB6} \\ \midrule
-        \multicolumn{1}{|c|}{\multirow{12}{*}{\rotatebox[origin=c]{270}{\hspace{2cm}test sampling rate [Hz]}}} & \multirow{3}{*}{ \makecell{44100\\(train)}} & Loss & \textbf{8.14E-04} & 9.11E-03 & 1.01E-03 & 3.78E-03 & 1.15E-03 & 1.89E-03 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & segSNR & 2.68E-04 & 2.66E-04 & 2.52E-04 & 2.47E-04 & \textbf{2.99E-04} & 2.66E-04 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG & -1.70 & -2.10 & -1.64 & \textbf{-1.54} & -1.98 & -1.57 \\ \cmidrule(l){2-9} 
-        \multicolumn{1}{|l|}{} & \multirow{3}{*}{22050} & Loss & \textbf{8.81E-04} & 5.69E-01 & 5.31E+00 & 2.86E-01 & 6.48E-01 & 4.77E-03 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & segSNR & 2.49E-04 & \textbf{4.14E-04} & -1.62E-04 & 2.36E-04 & -2.46E-03 & 2.84E-04 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG & -3.90 & -3.90 & -3.90 & -3.90 & -3.90 & -3.90 \\ \cmidrule(l){2-9} 
-        \multicolumn{1}{|l|}{} & \multirow{3}{*}{48000} & Loss & \textbf{6.51E-04} & 6.98E-03 & 9.23E-04 & 3.23E-03 & 8.46E-04 & 1.58E-03 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & segSNR & 2.52E-04 & 2.66E-04 & 2.72E-04 & 2.60E-04 & \textbf{3.13E-04} & 2.86E-04 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG & -1.42 & \textbf{-1.41} & -1.47 & \textbf{-1.41} & -1.67 & -1.43 \\ \cmidrule(l){2-9} 
-        \multicolumn{1}{|l|}{} & \multirow{3}{*}{192000} & Loss & 5.79E-03 & 2.98E-01 & \textbf{6.17E-04} & 1.98E-03 & 7.46E-04 & 5.46E-03 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & segSNR & -3.90E-05 & 6.68E-05 & 2.84E-04 & 2.71E-04 & \textbf{3.19E-04} & 2.90E-04 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG & -3.56 & -3.42 & -3.58 & \textbf{-1.46} & -1.54 & -3.54 \\ \bottomrule
+        \multicolumn{1}{|c|}{\multirow{12}{*}{\rotatebox[origin=c]{270}{\hspace{2cm}test sampling rate [Hz]}}} & \multirow{3}{*}{ \makecell{44100\\(train)}} & 
+                                    Loss    & \textbf{8.14E-04}     & 9.11E-03          & 1.01E-03 & 3.78E-03 & 1.15E-03 & 1.89E-03 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & segSNR  & 2.68E-04              & 2.66E-04          & 2.52E-04          & 2.47E-04 & \textbf{2.99E-04} & 2.66E-04 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & ODG     & -1.70                 & -2.10             & -1.64 & \textbf{-1.54}    & -1.98 & -1.57 \\ \cmidrule(l){2-9} 
+        \multicolumn{1}{|l|}{} & \multirow{3}{*}{22050} & 
+                                    Loss    & \textbf{8.81E-04}     & 2.29E+00          & 5.31E+00 & 2.86E-01 & 6.48E-01 & 4.77E-03 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & segSNR  & 2.49E-04              & 2.03E-04          & -1.62E-04 & 2.36E-04 & -2.46E-03 & \textbf{2.84E-04} \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & ODG     & -3.90                 & -3.90             & -3.90 & -3.90 & -3.90 & -3.90 \\ \cmidrule(l){2-9} 
+        \multicolumn{1}{|l|}{} & \multirow{3}{*}{48000} & 
+                                    Loss    & \textbf{6.51E-04}     & 3.74E-03          & 9.23E-04 & 3.23E-03 & 8.46E-04 & 1.58E-03 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & segSNR  & 2.52E-04              & 2.71E-04          & 2.72E-04 & 2.60E-04 & \textbf{3.13E-04} & 2.86E-04 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & ODG     & -1.42                 & -1.64             & -1.47 & \textbf{-1.41} & -1.67 & -1.43 \\ \cmidrule(l){2-9} 
+        \multicolumn{1}{|l|}{} & \multirow{3}{*}{192000} & 
+                                    Loss    & 5.79E-03              & 3.49E-03          & \textbf{6.17E-04} & 1.98E-03 & 7.46E-04 & 5.46E-03 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & segSNR  & -3.90E-05             & 2.63E-04          & 2.84E-04 & 2.71E-04 & \textbf{3.19E-04} & 2.90E-04 \\ \cmidrule(l){3-9} 
+        \multicolumn{1}{|l|}{} &  & ODG     & -3.56                 & -1.55             & -3.58 & \textbf{-1.46} & -1.54 & -3.54 \\ \bottomrule
     \end{tabular}%
     }

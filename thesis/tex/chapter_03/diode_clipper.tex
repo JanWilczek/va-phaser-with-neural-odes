@@ -35,6 +35,9 @@ For the assessment of how well ODENet can model the diode clipper two derivative
 For comparison, the \ac{STN} $2 \times 4 \times 4 \times 4 \times 1$ architecture with $\tanh$ nonlinearity and biases only in one layer from \cite{Parker2019}, \ac{RINN} with \ac{RK}4 weights using a bilinear block with 6 units in each fully connected layer, and \ac{LSTM} with 8 hidden units and a $8 x 1$ output \ac{MLP} (mapping the hidden states to an output sample) from \cite{Wright2019} were chosen. All of these models were trained on audio data at \SI{44100}{Hz} sampling rate.
 
 Each of the model was listed with its number of parameters, computational complexity in processing (ops/sample, GFLOPS), hyperparameter values during traning, training time (in epochs and hours), and best validation loss epoch.  %TODO Add table
+\begin{table}[]
+    \input{tex/chapter_03/diode_clipper_models_data.tex}
+\end{table}
 
 Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal in using various sampling rates at test time was to analyze the presence of aliasing in the output. Test loss, \ac{segSNR}, \ac{fw-segSNR}, and \ac{ODG} are reported for each model. 
 
