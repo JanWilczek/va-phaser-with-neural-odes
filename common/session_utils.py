@@ -87,6 +87,7 @@ def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050,
         the created DataSet object
     """
     d = dataset.DataSet(data_dir=str(dataset_path))
+    d.name = dataset_name
 
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
@@ -151,7 +152,7 @@ def test(session):
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
 
     test_output_path = (session.run_directory / 'test_output.wav').resolve()
-    torchaudio.save(test_output_path, test_output[None, :], session.sampling_rate('test'))
+    session.save_audio(test_output_path, test_output[None, :], session.sampling_rate('test'))
 
 
 def get_teacher_forcing_gate(teacher_forcing_description):

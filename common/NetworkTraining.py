@@ -1,5 +1,7 @@
 import math
 from pathlib import Path
+import numpy as np
+from scipy.io import wavfile
 import torch
 import torchaudio
 from torch.utils.tensorboard import SummaryWriter
@@ -23,6 +25,7 @@ class NetworkTraining:
         self.writer = None
         self.__run_directory = None
         self.scheduler = None
+        self.__audio_metadata = None
 
     def run(self):
         """Run full network training."""
@@ -94,7 +97,7 @@ class NetworkTraining:
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')
 
-        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
+        self.save_audio(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
         
         if validation_loss < self.best_validation_loss:
             self.save_checkpoint(best_validation=True)
@@ -165,8 +168,8 @@ class NetworkTraining:
             else:
                 input_data = input_data.transpose(0, 1) # torchaudio.save needs the saved tensor to be of shape (channels, samples)
 
-            torchaudio.save(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
-            torchaudio.save(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
+            self.save_audio(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
+            self.save_audio(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
 
     @property
     def run_directory(self):
@@ -224,5 +227,21 @@ class NetworkTraining:
 
     def sampling_rate(self, subset_name='train'):
         return self.dataset.subsets[subset_name].fs
+
+    @property
+    def audio_metadata(self):
+        if not self.__audio_metadata:
+            test_file_path = Path(self.dataset.data_dir) / 'test' / (self.dataset.name + '-target.wav')
+            test_file_metadata = torchaudio.info(test_file_path)
+            metadata = {
+                "encoding": test_file_metadata.encoding,
+                "bits_per_sample": test_file_metadata.bits_per_sample
+            }
+            self.__audio_metadata = metadata
+        return self.__audio_metadata
+
+    def save_audio(self, path, tensor, sampling_rate):
+        data = tensor.squeeze().cpu().detach().numpy()
+        wavfile.write(path, sampling_rate, data)
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'
