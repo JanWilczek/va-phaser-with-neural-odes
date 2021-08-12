@@ -1,27 +1,4 @@
 % Encoding: UTF-8
-% ---------------------------------------------------------
-% ----------------------------- 2011 ----------------------
-% ---------------------------------------------------------
-
-@inproceedings{HerreT11_AudioObjects_AES,
-  author      = {J{\"u}rgen Herre and Leon Terentiv},
-  title       = {Parametric Coding of Audio Objects: Technology, Performance and Opportunities},
-  booktitle   = {Proceedings of the Audio Engineering Society Conference (AES)},
-  address     = {Ilmenau, Germany},
-  year        = {2011},
-}
-
-% ---------------------------------------------------------
-% ----------------------------- 2009 ----------------------
-% ---------------------------------------------------------
-
-@inproceedings {EdlerD09_TimeWarpedDCT,
-  author      = {Bernd Edler and Sascha Disch and Stefan Bayer and Ralf Geiger and Guillaume Fuchs},
-  title       = {A time-warped MDCT approach to speech transform coding},
-  booktitle   = {Proceedings of the Audio Engineering Society Conference (AES)},
-  year        = {2009},
-  month       = may
-}
 
 @inproceedings{MuellerEK09_ChromaFeaturesRobust_ICASSP,
 	author      = {Meinard M{\"u}ller and Sebastian Ewert and Sebastian Kreuzer},
@@ -44,15 +21,6 @@
 	year      = {2007},
 	isbn      = {3540740473},
 	publisher = {Springer Verlag},
-}
-
-@phdthesis{Habets07_SpeechDereverberation,
-    title     = {Single- and multi-microphone speechdereverberation using spectral enhancement},
-    author    = {Emanu\"ël A. P. Habets},
-    year      = {2007},
-    isbn      = {978-90-386-1544-8},
-    publisher = {Eindhoven University Press},
-    url = {http://alexandria.tue.nl/extra2/200710970.pdf}
 }
 
 
@@ -104,11 +72,11 @@
 
 @Article{Hochreiter1997,
   author  = {Hochreiter, Sepp and Schmidhuber, Jürgen},
-  journal = {Neural computation},
+  journal = {Neural Computation},
   title   = {Long {S}hort-{T}erm {M}emory},
   year    = {1997},
-  month   = {12},
-  pages   = {1735-80},
+  month   = dec,
+  pages   = {1735--1780},
   volume  = {9},
   doi     = {10.1162/neco.1997.9.8.1735},
 }
@@ -140,7 +108,10 @@
 
 @Article{He2015,
   author      = {Kaiming He and Xiangyu Zhang and Shaoqing Ren and Jian Sun},
+  journal     = {2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   title       = {Deep {R}esidual {L}earning for {I}mage {R}ecognition},
+  year        = {2016},
+  pages       = {770--778},
   abstract    = {Deeper neural networks are more difficult to train. We present a residual learning framework to ease the training of networks that are substantially deeper than those used previously. We explicitly reformulate the layers as learning residual functions with reference to the layer inputs, instead of learning unreferenced functions. We provide comprehensive empirical evidence showing that these residual networks are easier to optimize, and can gain accuracy from considerably increased depth. On the ImageNet dataset we evaluate residual nets with a depth of up to 152 layers---8x deeper than VGG nets but still having lower complexity. An ensemble of these residual nets achieves 3.57% error on the ImageNet test set. This result won the 1st place on the ILSVRC 2015 classification task. We also present analysis on CIFAR-10 with 100 and 1000 layers. The depth of representations is of central importance for many visual recognition tasks. Solely due to our extremely deep representations, we obtain a 28% relative improvement on the COCO object detection dataset. Deep residual nets are foundations of our submissions to ILSVRC & COCO 2015 competitions, where we also won the 1st places on the tasks of ImageNet detection, ImageNet localization, COCO detection, and COCO segmentation.},
   date        = {2015-12-10},
   eprint      = {1512.03385v1},
@@ -150,9 +121,11 @@
   keywords    = {cs.CV},
 }
 
-@Article{Chen2018,
+@InProceedings{Chen2018,
   author      = {Ricky T. Q. Chen and Yulia Rubanova and Jesse Bettencourt and David Duvenaud},
+  booktitle   = {Proceedings of the 31st Conference on Neural Information Processing Systems (NeurIPS 2018), Montréal, Canada},
   title       = {Neural {O}rdinary {D}ifferential {E}quations},
+  year        = {2018},
   abstract    = {We introduce a new family of deep neural network models. Instead of specifying a discrete sequence of hidden layers, we parameterize the derivative of the hidden state using a neural network. The output of the network is computed using a black-box differential equation solver. These continuous-depth models have constant memory cost, adapt their evaluation strategy to each input, and can explicitly trade numerical precision for speed. We demonstrate these properties in continuous-depth residual networks and continuous-time latent variable models. We also construct continuous normalizing flows, a generative model that can train by maximum likelihood, without partitioning or ordering the data dimensions. For training, we show how to scalably backpropagate through any ODE solver, without access to its internal operations. This allows end-to-end training of ODEs within larger models.},
   date        = {2018-06-19},
   eprint      = {1806.07366v5},
@@ -210,11 +183,11 @@
 }
 
 @InProceedings{Eichas2014,
-  author = {Eichas, Felix and Fink, Marco and Holters, Martin and Zölzer, Udo},
-  title  = {Physical {M}odeling of the {MXR} {P}hase 90 {G}uitar {E}ffect {P}edal},
-  year   = {2014},
-  month  = {09},
-  doi    = {10.13140/2.1.3018.9763},
+  author    = {Eichas, Felix and Fink, Marco and Holters, Martin and Zölzer, Udo},
+  booktitle = {Proceedings of the 17th Int. Conference on Digital Audio Effects (DAFx-14), Erlangen, Germany, September 1-5},
+  title     = {Physical {M}odeling of the {MXR} {P}hase 90 {G}uitar {E}ffect {P}edal},
+  year      = {2014},
+  doi       = {10.13140/2.1.3018.9763},
 }
 
 @Book{Malvino2016,
@@ -228,9 +201,10 @@
 
 @Book{Horowitz2015,
   author    = {Horowitz, Paul and Hill, Winfield and Holt, J. C.},
-  publisher = {Cambridge University Pr.},
+  publisher = {Cambridge University Press},
   title     = {The {A}rt of {E}lectronics},
   year      = {2015},
+  edition   = {3rd},
   isbn      = {0521809266},
   date      = {2015-04-02},
   ean       = {9780521809269},
@@ -239,9 +213,9 @@
 
 @Misc{LTspice,
   author       = {{Analog Devices}},
-  howpublished = {"\url{https://www.analog.com/en/design-center/design-tools-and-calculators/ltspice-simulator.html#}"},
+  howpublished = {\url{https://www.analog.com/en/design-center/design-tools-and-calculators/ltspice-simulator.html}},
+  note         = {Retrieved June 29, 2021},
   title        = {{LT}spice {S}imulator},
-  comment      = {Retrieved: 29.06.2021},
   name         = {LTspice Simulator},
 }
 % ---------------------------------------------------------
@@ -249,10 +223,10 @@
 % ---------------------------------------------------------
 
 @InProceedings{Kehling2014,
-  author = {Kehling, Christian and Abeßer, Jakob and Dittmar, Christian and Schuller, Gerald},
-  title  = {Automatic {T}ablature {T}ranscription of {E}lectric {G}uitar {R}ecordings by {E}stimation of {S}core- and {I}nstrument-related {P}arameters},
-  year   = {2014},
-  month  = {01},
+  author    = {Kehling, Christian and Abeßer, Jakob and Dittmar, Christian and Schuller, Gerald},
+  booktitle = {Proceedings of the 17th International Conference on Digital Audio Effects (DAFx-14), Erlangen, Germany, September 1-5},
+  title     = {Automatic {T}ablature {T}ranscription of {E}lectric {G}uitar {R}ecordings by {E}stimation of {S}core- and {I}nstrument-related {P}arameters},
+  year      = {2014},
 }
 
 % ---------------------------------------------------------
@@ -260,10 +234,10 @@
 % ---------------------------------------------------------
 
 @InProceedings{Abesser2013,
-  author = {Abeßer, Jakob and Kramer, Patrick and Dittmar, Christian and Schuller, Gerald},
-  title  = {Parametric {A}udio {C}oding of {B}ass {G}uitar {R}ecordings using a {T}uned {P}hysical {M}odeling {A}lgorithm},
-  year   = {2013},
-  month  = jan,
+  author    = {Abeßer, Jakob and Kramer, Patrick and Dittmar, Christian and Schuller, Gerald},
+  booktitle = {Proceedings of the 16th International Conference on Digital Audio Effects (DAFx), Maynooth, Ireland, September 2-5},
+  title     = {Parametric {A}udio {C}oding of {B}ass {G}uitar {R}ecordings using a {T}uned {P}hysical {M}odeling {A}lgorithm},
+  year      = {2013},
 }
 
 @Article{Wright2019a,
@@ -290,17 +264,22 @@
 }
 
 @Misc{CoreAudioML,
-  author       = {Wright Alec},
+  author       = {Alec Wright},
   howpublished = {\url{https://github.com/Alec-Wright/CoreAudioML}},
+  note         = {Retrieved July 19, 2021},
   title        = {{CoreAudioML}},
-  year         = {2021},
   journal      = {GitHub repository},
   publisher    = {GitHub},
 }
 
-@Article{Bengio2015,
+@InProceedings{Bengio2015,
   author      = {Samy Bengio and Oriol Vinyals and Navdeep Jaitly and Noam Shazeer},
+  booktitle   = {Proceedings of the 28th International Conference on Neural Information Processing Systems (NIPS'15), Montréal, Canada},
   title       = {Scheduled {S}ampling for {S}equence {P}rediction with {R}ecurrent {N}eural {N}etworks},
+  year        = {2015},
+  month       = dec,
+  pages       = {1171--1179},
+  volume      = {1},
   abstract    = {Recurrent Neural Networks can be trained to produce sequences of tokens given some input, as exemplified by recent results in machine translation and image captioning. The current approach to training them consists of maximizing the likelihood of each token in the sequence given the current (recurrent) state and the previous token. At inference, the unknown previous token is then replaced by a token generated by the model itself. This discrepancy between training and inference can yield errors that can accumulate quickly along the generated sequence. We propose a curriculum learning strategy to gently change the training process from a fully guided scheme using the true previous token, towards a less guided scheme which mostly uses the generated token instead. Experiments on several sequence prediction tasks show that this approach yields significant improvements. Moreover, it was used successfully in our winning entry to the MSCOCO image captioning challenge, 2015.},
   date        = {2015-06-09},
   eprint      = {1506.03099v3},
@@ -331,9 +310,12 @@
   isbn      = {0138147574},
 }
 
-@Article{Fablet2017,
+@InProceedings{Fablet2017,
   author      = {Ronan Fablet and Said Ouala and Cedric Herzet},
+  booktitle   = {Proceedings of the 26th European Signal Processing Conference (EUSIPCO), September 3-7},
   title       = {Bilinear {R}esidual {N}eural {N}etwork for the {I}dentification and {F}orecasting of {D}ynamical {S}ystems},
+  year        = {2018},
+  pages       = {1477--1481},
   abstract    = {Due to the increasing availability of large-scale observation and simulation datasets, data-driven representations arise as efficient and relevant computation representations of dynamical systems for a wide range of applications, where model-driven models based on ordinary differential equation remain the state-of-the-art approaches. In this work, we investigate neural networks (NN) as physically-sound data-driven representations of such systems. Reinterpreting Runge-Kutta methods as graphical models, we consider a residual NN architecture and introduce bilinear layers to embed non-linearities which are intrinsic features of dynamical systems. From numerical experiments for classic dynamical systems, we demonstrate the relevance of the proposed NN-based architecture both in terms of forecasting performance and model identification.},
   date        = {2017-12-19},
   eprint      = {1712.07003v1},
@@ -358,24 +340,24 @@
   publisher = {John Wiley {\&} Sons, Inc.},
   title     = {Numerical {S}olution of {O}rdinary {D}ifferential {E}quations},
   year      = {2009},
-  month     = {jan},
   doi       = {10.1002/9781118164495},
 }
 
 @Article{Hu2008,
   author  = {Hu, Yi and Loizou, Philipos},
-  journal = {Audio, Speech, and Language Processing, IEEE Transactions on},
+  journal = {IEEE Transactions on Audio, Speech, and Language Processing},
   title   = {Evaluation of {O}bjective {Q}uality {M}easures for {S}peech {E}nhancement},
   year    = {2008},
-  month   = {02},
-  pages   = {229 - 238},
+  month   = jan,
+  number  = {1},
+  pages   = {229--238},
   volume  = {16},
   doi     = {10.1109/TASL.2007.911054},
 }
 
 @InProceedings{Hansen98,
   author    = {John H. L. Hansen and Bryan L. Pellom},
-  booktitle = {In Proceedings Of The International Conference On Speech And Language Processing},
+  booktitle = {Proceedings of the 5th International Conference on Speech and Language Processing (ICSLP 98), Sydney, Australia, November 30-December 4},
   title     = {An {E}ffective {Q}uality {E}valuation {P}rotocol {F}or {S}peech {E}nhancement {A}lgorithms},
   year      = {1998},
   pages     = {2819--2822},
