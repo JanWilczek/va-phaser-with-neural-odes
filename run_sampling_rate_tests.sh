@@ -3,13 +3,13 @@ set -x
 
 CUDA_VISIBLE_DEVICES=0 
 
-for SAMPLING_RATE in 44100 22050 48000 192000 
+for SAMPLING_RATE in 22050 48000 192000 
 do
     python diode_clipper/test.py --method LSTM --batch_size 40 --init_len 1000 --epochs 200 --learn_rate 0.001 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --dataset_name diodeclip --hidden_size 8 --checkpoint June30_13-57-49_axel --test_sampling_rate $SAMPLING_RATE --name Test$SAMPLING_RATE
     
     python diode_clipper/test.py --method STN --batch_size 256 --epochs 140 --up_fr 22050 --val_chunk 22050 --test_chunk 0 --learn_rate 0.001 --teacher_forcing bernoulli --dataset_name diodeclip --checkpoint May20_07-33-56_axel  --test_sampling_rate $SAMPLING_RATE --name Test$SAMPLING_RATE
 
-    python diode_clipper/test.py --method forward_euler --epochs 300 --batch_size 256 --learn_rate 0.001 --one_cycle_lr 0.02 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --teacher_forcing always --hidden_size 9 --dataset_name diodeclip --checkpoint July13_07-49-07_axel_ODENet2Hidden100 --test_sampling_rate $SAMPLING_RATE --name Hidden100Test$SAMPLING_RATE
+    python diode_clipper/test.py --method forward_euler --epochs 300 --batch_size 256 --learn_rate 0.001 --one_cycle_lr 0.02 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --teacher_forcing always --hidden_size 100 --dataset_name diodeclip --checkpoint July13_07-49-07_axel_ODENet2Hidden100 --test_sampling_rate $SAMPLING_RATE --name Hidden100Test$SAMPLING_RATE
 
     python diode_clipper/test.py --method forward_euler --epochs 300 --batch_size 256 --learn_rate 0.001 --one_cycle_lr 0.02 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --teacher_forcing always --hidden_size 9 --dataset_name diodeclip --checkpoint July16_13-14-04_axel_ODENet2Hidden9 --test_sampling_rate $SAMPLING_RATE --name Hidden9Test$SAMPLING_RATE
 
