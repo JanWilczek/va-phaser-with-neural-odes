@@ -1,0 +1,6 @@
+diode_clipper/runs/diodeclip/lstm/August12_09-52-48_axel_Test48000/test_output.wav
+diode_clipper/runs/diodeclip/stn/August12_09-55-19_axel_Test48000/test_output.wav
+diode_clipper/runs/diodeclip/forward_euler/August12_10-03-59_axel_Hidden100Test48000/test_output.wav
+diode_clipper/runs/diodeclip/forward_euler/August12_10-21-56_axel_Hidden9Test48000/test_output.wav
+diode_clipper/runs/diodeclip/odeint_implicit_adams/August12_10-37-29_axel_Test48000/test_output.wav
+diode_clipper/runs/diodeclip/resintrk4/August12_10-38-35_axel_Test48000/test_output.wav
