@@ -29,7 +29,6 @@ class NetworkTraining:
 
     def run(self):
         """Run full network training."""
-        self.writer.add_text('Architecture', str(self.network))
         self.transfer_to_device()
         self.best_validation_loss = float('inf')
 

@@ -5,13 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: STN 22050Hz Measures",
+            "type": "python",
+            "request": "launch",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "program": "compute_measures.py",
+            "console": "integratedTerminal",
+            "args": ["-c", "diode_clipper/data/test/diodeclip22050Hz-target.wav", "-e", "diode_clipper/runs/diodeclip/stn/August11_14-01-49_axel_Test22050/test_output.wav"]
+        },
+        {
             "name": "Python: Visualize ODE",
             "type": "python",
             "request": "launch",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "program": "diode_clipper/visualize_ode.py",
             "console": "integratedTerminal",
-            "args": ["--run_path", "diode_clipper/runs/diodeclip/forward_euler/July16_13-14-04_axel_ODENet2Hidden9"]
+            "args": [
+                "--run_path",
+                "diode_clipper/runs/diodeclip/forward_euler/July16_13-14-04_axel_ODENet2Hidden9"
+            ]
         },
         {
             "name": "Python: Harmonic Oscillator",
@@ -154,6 +166,44 @@
                 "TEST_RUN",
                 "--loss_function",
                 "L1_STFT"
+            ]
+        },
+        {
+            "name": "Python: Diode Clipper STN 44kHz Test",
+            "type": "python",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/diode_clipper/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "args": [
+                "--method",
+                "STN",
+                "--batch_size",
+                "256",
+                "--val_chunk",
+                "22050",
+                "--test_chunk",
+                "0",
+                "--init_len",
+                "0",
+                "--up_fr",
+                "22050",
+                "--learn_rate",
+                "0.001",
+                "--epochs",
+                "140",
+                "--dataset_name",
+                "diodeclip",
+                "--name",
+                "TEST_RUN",
+                "--teacher_forcing",
+                "bernoulli",
+                "--checkpoint", 
+                "May20_07-33-56_axel",
             ]
         },
         {

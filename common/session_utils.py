@@ -49,6 +49,8 @@ def initialize_session(model_name, args, get_architecture):
 
     if args.save_sets:
         session.save_subsets()
+    
+    session.writer.add_text('Architecture', str(session.network))
 
     return session
 
