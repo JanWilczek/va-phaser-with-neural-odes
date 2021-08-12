@@ -25,4 +25,7 @@ diode_clipper/runs/diodeclip/resintrk4/August12_10-38-35_axel_Test48000/test_out
 # 192000
 diode_clipper/runs/diodeclip/lstm/August12_11-10-56_axel_Test192000/test_output.wav
 diode_clipper/runs/diodeclip/stn/August12_11-21-43_axel_Test192000/test_output.wav
-
+diode_clipper/runs/diodeclip/forward_euler/August12_11-59-07_axel_Hidden100Test192000/test_output.wav
+diode_clipper/runs/diodeclip/forward_euler/August12_13-04-06_axel_Hidden9Test192000/test_output.wav
+diode_clipper/runs/diodeclip/odeint_implicit_adams/August12_14-03-30_axel_Test192000/test_output.wav
+diode_clipper/runs/diodeclip/resintrk4/August12_14-05-01_axel_Test192000/test_output.wav
