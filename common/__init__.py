@@ -4,3 +4,4 @@ from .session_utils import close_session, get_teacher_forcing_gate, attach_sched
 from .resample import resample_file, resample_test_files
 from .method_utils import get_method
 from .NetworkTraining import NetworkTraining
+from .audio_conversion import convert_audio_file_float32_to_int16, convert_audio_data_float32_to_int16

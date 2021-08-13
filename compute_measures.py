@@ -10,7 +10,14 @@ import torch
 import torchaudio
 from CoreAudioML import training, dataset
 import pysepm
+from common import convert_audio_file_float32_to_int16
 
+
+def _append_int16(filepath):
+    filepath = Path(filepath)
+    dir = filepath.parent
+    filename = filepath.name[:-4] + '_int16.wav'
+    return dir / filename
 
 def argument_parser():
     ap = argparse.ArgumentParser()
@@ -18,12 +25,19 @@ def argument_parser():
     ap.add_argument('--estimated_signal_path', '-e', required=True)
     return ap
 
-def get_signals(args):
-    fs, estimated_signal  = wavfile.read(args.estimated_signal_path)
-    fs_clean, clean_signal  = wavfile.read(args.clean_signal_path)
+def get_convert_signal(filepath : str):
+    fs, signal = wavfile.read(filepath)
 
-    if clean_signal.dtype == np.int16:
-        clean_signal = dataset.audio_converter(clean_signal)
+    if signal.dtype == np.int16:
+        signal = dataset.audio_converter(signal)
+    else:
+        convert_audio_file_float32_to_int16(filepath, _append_int16(filepath))
+
+    return fs, signal
+
+def get_signals(args):
+    fs, estimated_signal  = get_convert_signal(args.estimated_signal_path)
+    fs_clean, clean_signal  = get_convert_signal(args.clean_signal_path)
 
     assert fs == fs_clean, 'Clean and estimated signal must have the same sampling rate.'
 
@@ -44,12 +58,14 @@ def get_losses(clean_signal, estimated_signal):
     return esr_value, loss_full_value
 
 
-def get_peaq_measures(args, clean_signal, fs):
-    estimated_signal_dir = Path(args.estimated_signal_path).parent
-    clean_signal_output_path = estimated_signal_dir / 'clean_signal.wav'
-    wavfile.write(clean_signal_output_path, fs, clean_signal)
+def get_peaq_measures(args):
+    estimated_signal_int16_path = _append_int16(args.estimated_signal_path)
+    clean_signal_int16_path = _append_int16(args.clean_signal_path)
 
-    bash_command = f"./peaqb-fast/src/peaqb -r {str(clean_signal_output_path.resolve())} -t {args.estimated_signal_path}".split()
+    clean_signal_path = clean_signal_int16_path if clean_signal_int16_path.exists() else Path(args.clean_signal_path)
+    estimated_signal_path = estimated_signal_int16_path if estimated_signal_int16_path.exists() else Path(args.estimated_signal_path)
+
+    bash_command = f"./peaqb-fast/src/peaqb -r {str(clean_signal_path.resolve())} -t {str(estimated_signal_path.resolve())}".split()
     process = subprocess.Popen(bash_command, stdout=subprocess.PIPE)
     output, error = process.communicate()
 
@@ -74,7 +90,8 @@ def get_peaq_measures(args, clean_signal, fs):
                 odg = float(odg_match.group(1))
     
     # Clean up
-    clean_signal_output_path.unlink()
+    clean_signal_int16_path.unlink(missing_ok=True)
+    estimated_signal_int16_path.unlink(missing_ok=True)
     Path(PEAQ_OUTPUT_FILENAME).unlink()
 
     return di, odg
@@ -86,14 +103,14 @@ def main():
     fs, clean_signal, estimated_signal = get_signals(args)
     
     # segSNR, fw-segSNR
-    seg_snr = pysepm.SNRseg(clean_signal, estimated_signal, fs)
-    fw_seg_snr = pysepm.fwSNRseg(clean_signal, estimated_signal, fs)
+    seg_snr = pysepm.SNRseg(clean_signal.clip(-1, 1), estimated_signal.clip(-1, 1), fs)
+    fw_seg_snr = pysepm.fwSNRseg(clean_signal.clip(-1, 1), estimated_signal.clip(-1, 1), fs)
 
     # ESR
     esr_value, full_loss_value = get_losses(clean_signal, estimated_signal)
     
     # DI, ODG
-    di, odg = get_peaq_measures(args, clean_signal, fs)
+    di, odg = get_peaq_measures(args)
 
     estimated_signal_dir = Path(args.estimated_signal_path).parent
     measures_output_file_path = estimated_signal_dir / 'measures.csv'
