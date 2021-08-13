@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from common import setup_pyplot_for_latex, save_tikz
 from diode_ode_numerical import DiodeParameters
 from visualize_ode import plot_ode
 
@@ -8,6 +9,8 @@ def diode_equation_rhs(v_out, v_in, d):
     return (v_in - v_out) * d.c1 - d.c2 * np.sinh(v_out / d.v_t)
 
 def main():
+    setup_pyplot_for_latex()
+    
     step = 1e-3
     amplitude = 1
     value_range = np.arange(-amplitude, amplitude, step)
@@ -21,6 +24,7 @@ def main():
 
     plot_ode(derivative_magnitude)
     plt.savefig('analytical_derivative.png', bbox_inches='tight', dpi=300)
+    save_tikz('analytical_derivative')
 
 if __name__ == '__main__':
     main()

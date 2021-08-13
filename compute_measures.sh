@@ -11,3 +11,8 @@ do
         python compute_measures.py -c ${DIODECLIP_TARGETS[i]} -e $file
     done
 done
+
+# ODE solvers
+python compute_measures.py -c ${DIODECLIP_TARGETS[0]} -e diode_clipper/runs/diodeclip/ode_solver/BDF/June16_12-49-56_DESKTOP-O3T26KF/test_output.wav
+python compute_measures.py -c ${DIODECLIP_TARGETS[0]} -e diode_clipper/runs/diodeclip/ode_solver/RK45/June17_08-34-31_DESKTOP-O3T26KF/test_output.wav
+python compute_measures.py -c ${DIODECLIP_TARGETS[0]} -e diode_clipper/runs/diodeclip/ode_solver/forward_euler/June15_13-50-48_DESKTOP-O3T26KF/test_output.wav

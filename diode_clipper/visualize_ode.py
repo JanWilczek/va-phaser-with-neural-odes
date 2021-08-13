@@ -3,7 +3,7 @@ import argparse
 import json
 import matplotlib.pyplot as plt
 import torch
-from common import NetworkTraining, argument_parser
+from common import NetworkTraining, argument_parser, setup_pyplot_for_latex, save_tikz
 from architectures import get_diode_clipper_architecture
 
 
@@ -22,9 +22,11 @@ def plot_ode(derivative_magnitude):
     plt.ylabel('Output')
 
 def main():
+    setup_pyplot_for_latex()
+    
     # Load model
     ap = argparse.ArgumentParser()
-    ap.add_argument('--run_path', help='Path to the directory with the run to analyze model from.')
+    ap.add_argument('run_path', help='Path to the directory with the run to analyze model from.')
     session = NetworkTraining()
     session.run_directory = ap.parse_args().run_path
     with open(session.run_directory / 'args.json', 'r') as f:
@@ -63,6 +65,7 @@ def main():
 
     plot_ode(derivative_magnitude.detach().numpy())
     plt.savefig(session.run_directory / 'derivative.png', bbox_inches='tight', dpi=300)
+    save_tikz(session.run_directory / 'ode_derivative')
 
     # WARNING: This function is dangerous, may delete your valuable content.
     # clean_up(session.run_directory)
