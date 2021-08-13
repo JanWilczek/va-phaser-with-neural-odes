@@ -3,21 +3,21 @@
     \begin{tabular}{@{}l|c|l|c|c|c|c|c|c|@{}}
         \cmidrule(l){2-9}
         & Model & Metric & LSTM8 & \makecell{STN\\3x4\\tanh} & \makecell{ODENet100\\(FE)\\ReLU} & \makecell{ODENet9\\(FE)\\ReLU} & \makecell{ODENet9\\(IA)\\SELU} & \makecell{RINN4\\BB6} \\ \midrule
-        \multicolumn{1}{|c|}{\multirow{12}{*}{\rotatebox[origin=c]{270}{\hspace{2cm}test sampling rate [Hz]}}} & \multirow{3}{*}{ \makecell{44100\\(train)}} & 
-                                    Loss    & \textbf{0.081\%}       & 0.91\%            & 0.1\% & 0.38\% & 0.12\% & 0.19\% \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & \makecell{segSNR\\$\times 10^{-4}$}  & 2.7              & 2.7          & 2.5          & 2.5 & \textbf{3} & 2.7 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG     & -1.7                 & -2.1             & -1.64 & \textbf{-1.54}    & -2 & -1.57 \\ \cmidrule(l){2-9} 
+        \multicolumn{1}{|c|}{\multirow{12}{*}{\rotatebox[origin=c]{270}{\hspace{1cm}test sampling rate [Hz]}}} & \multirow{3}{*}{ \makecell{44100\\(train)}} & 
+                                    Loss    & \textbf{0.041\%} & 0.45\% & 0.090\% & 0.37\% & 0.11\% & 0.19\% \\
+        \multicolumn{1}{|l|}{} &  & segSNR  & \textbf{30.5} & 18.5 & 25.3 & 23.4 & 24.6 & 25.0 \\
+        \multicolumn{1}{|l|}{} &  & ODG     & \textbf{-1.9} & \textbf{-3.3} & -2.8 & -2.7 & -3.8 & -2.8 \\ \cmidrule(l){2-9}
         \multicolumn{1}{|l|}{} & \multirow{3}{*}{22050} & 
-                                    Loss    & \textbf{0.088\%}       & 230\%          & 530\% & 29\% & 65\% & 0.48\% \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & \makecell{segSNR\\$\times 10^{-4}$}  & 2.5              & 2          & -1.6 & 2.4 & -25 & \textbf{2.84} \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG     & -3.9                 & -3.9             & -3.9 & -3.9 & -3.9 & -3.9 \\ \cmidrule(l){2-9} 
+                                    Loss    & 0.71\% & 230\% & 530\% & 28\% & 63\% & \textbf{0.54\%} \\
+        \multicolumn{1}{|l|}{} &  & segSNR & \textbf{24.0} & 5.1 & -5.7 & 10.9 & 2.5 & 23.9 \\
+        \multicolumn{1}{|l|}{} &  & ODG     & \textbf{-1.0} & -3.9 & -3.3 & -3.9 & -3.8 & -1.7 \\  \cmidrule(l){2-9}
         \multicolumn{1}{|l|}{} & \multirow{3}{*}{48000} & 
-                                    Loss    & \textbf{0.065\%}       & 0.37\%            & 0.092\% & 0.32\% & 0.085\% & 0.16\% \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & \makecell{segSNR\\$\times 10^{-4}$}  & 2.5              & 2.7          & 2.7 & 2.6 & \textbf{3.1} & 2.9 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG     & -1.42                 & -1.64             & -1.47 & \textbf{-1.41} & -1.67 & -1.43 \\ \cmidrule(l){2-9} 
+                                    Loss    & \textbf{0.042\%} & 0.37\% & 0.080\% & 0.34\% & 0.094\% & 0.18\% \\
+        \multicolumn{1}{|l|}{} &  & segSNR  & \textbf{30.0} & 18.9 & 25.9 & 23.7 & 24.8 & 25.0 \\
+        \multicolumn{1}{|l|}{} &  & ODG     & \textbf{-1.8} & -3.2 & \textbf{-2.8} & -2.3 & -3.8 & -2.7 \\ \cmidrule(l){2-9}
         \multicolumn{1}{|l|}{} & \multirow{3}{*}{192000} & 
-                                    Loss    & 0.58\%                & 0.35\%            & \textbf{0.062\%} & 0.2\% & 0.075\% & 0.55\% \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & \makecell{segSNR\\$\times 10^{-4}$}  & -0.4             & 2.6          & 2.8 & 2.7 & \textbf{3.2} & 2.9 \\ \cmidrule(l){3-9} 
-        \multicolumn{1}{|l|}{} &  & ODG     & -3.56                 & -1.55             & -3.58 & \textbf{-1.46} & -1.54 & -3.54 \\ \bottomrule
+                                    Loss    & 0.55\% & 0.36\% & \textbf{0.070\%} & 0.22\% & 0.086\% & 0.56\% \\
+        \multicolumn{1}{|l|}{} &  & segSNR  & 21.6 & 19.0 & \textbf{28.4} & 25.9 & 24.7 & 20.6 \\
+        \multicolumn{1}{|l|}{} &  & ODG     & -3.6 & -3.2 & \textbf{-2.2} & -2.4 & -3.8 & \textbf{-3.6} \\ \bottomrule
     \end{tabular}%
     }
