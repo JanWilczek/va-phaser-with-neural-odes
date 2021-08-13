@@ -1,0 +1,44 @@
+% This file was created by tikzplotlib v0.9.9.
+\begin{tikzpicture}
+
+\begin{axis}[
+colorbar,
+colorbar style={ytick={50000,100000,150000},yticklabels={
+  \(\displaystyle {50000}\),
+  \(\displaystyle {100000}\),
+  \(\displaystyle {150000}\)
+},ylabel={}},
+colormap/viridis,
+point meta max=154563.40625,
+point meta min=0.0351317226886749,
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xlabel={Input},
+xmin=-1, xmax=1,
+xtick style={color=black},
+xtick={-1,-0.5,0,0.5,1},
+xticklabels={
+  \(\displaystyle {\ensuremath{-}1.0}\),
+  \(\displaystyle {\ensuremath{-}0.5}\),
+  \(\displaystyle {0.0}\),
+  \(\displaystyle {0.5}\),
+  \(\displaystyle {1.0}\)
+},
+y grid style={white!69.0196078431373!black},
+ylabel={Output},
+ymin=-1, ymax=1,
+ytick style={color=black},
+ytick={-1,-0.5,0,0.5,1},
+yticklabels={
+  \(\displaystyle {\ensuremath{-}1.0}\),
+  \(\displaystyle {\ensuremath{-}0.5}\),
+  \(\displaystyle {0.0}\),
+  \(\displaystyle {0.5}\),
+  \(\displaystyle {1.0}\)
+}
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=-1, xmax=1, ymin=-1, ymax=1] {figures/tikz/diode_clipper_derivative_visualization/FE100-ode_derivative-000.png};
+\end{axis}
+
+\end{tikzpicture}

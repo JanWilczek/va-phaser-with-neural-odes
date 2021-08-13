@@ -1,0 +1,47 @@
+% This file was created by tikzplotlib v0.9.9.
+\begin{tikzpicture}
+
+\begin{axis}[
+colorbar,
+colorbar style={ytick={-50,-25,-7.105427357601e-15,25,50,75},yticklabels={
+  \(\displaystyle {\ensuremath{-}50}\),
+  \(\displaystyle {\ensuremath{-}25}\),
+  \(\displaystyle {0}\),
+  \(\displaystyle {25}\),
+  \(\displaystyle {50}\),
+  \(\displaystyle {75}\)
+},ylabel={}},
+colormap/viridis,
+point meta max=89.8890028498266,
+point meta min=-59.9966700068274,
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xlabel={$\text{Input}/20$},
+xmin=-1, xmax=1,
+xtick style={color=black},
+xtick={-1,-0.5,0,0.5,1},
+xticklabels={
+  \(\displaystyle {\ensuremath{-}1.0}\),
+  \(\displaystyle {\ensuremath{-}0.5}\),
+  \(\displaystyle {0.0}\),
+  \(\displaystyle {0.5}\),
+  \(\displaystyle {1.0}\)
+},
+y grid style={white!69.0196078431373!black},
+ylabel={$10 \log_{10}(\text{Output})$},
+ymin=-1, ymax=1,
+ytick style={color=black},
+ytick={-1,-0.5,0,0.5,1},
+yticklabels={
+  \(\displaystyle {\ensuremath{-}1.0}\),
+  \(\displaystyle {\ensuremath{-}0.5}\),
+  \(\displaystyle {0.0}\),
+  \(\displaystyle {0.5}\),
+  \(\displaystyle {1.0}\)
+}
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=-1, xmax=1, ymin=-1, ymax=1] {figures/tikz/diode_clipper_derivative_visualization/analytical_derivative.tikz-000.png};
+\end{axis}
+
+\end{tikzpicture}

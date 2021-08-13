@@ -128,4 +128,25 @@ It needs to be stressed again, that data used to conduct training and test of th
 
 In Figure ... the derivative function learned by the ODENet9(FE) and ODENet9(IA), and given by \Equation{eq:diode_clipper_equation} are visualized. The $x$-axis spans the input signal range, the $y$-axis spans the output signal range, and with color the magnitude of the derivative function in this two-dimensional space is indicated. While there is not much difference between the derivative function of the both derivative networks, they are significantly different from the analytical form. This difference probably comes from time discretization of the training data. Additionally, obtained results are on a par with the visualizations shown in \cite{Parker2019}.
 
+\newcommand{\subfigureWidth}{0.4\textwidth}
+\newcommand{\subfigureScale}{0.8}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.9\textwidth}
+        \centering
+        \scalebox{\subfigureScale}{\input{figures/tikz/diode_clipper_derivative_visualization/analytical_derivative.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.9\textwidth}
+        \centering
+        \scalebox{\subfigureScale}{\input{figures/tikz/diode_clipper_derivative_visualization/FE100-ode_derivative.tex}}
+    \end{subfigure}
+    \begin{subfigure}{\subfigureWidth}
+        \scalebox{0.75}{\input{figures/tikz/diode_clipper_derivative_visualization/FE9-ode_derivative.tex}}
+    \end{subfigure}
+    \begin{subfigure}{\subfigureWidth}
+        \scalebox{0.76}{\input{figures/tikz/diode_clipper_derivative_visualization/IA-ode_derivative.tex}}
+    \end{subfigure}
+\end{figure}
+
 % TODO: Compare running times?
