@@ -98,6 +98,7 @@ Combining the RC lowpass filter (\Figure{fig:rc_lowpass}) and the diode limiter 
 The first-order diode clipper can be described by a nonlinear \ac{ODE} \cite{Yeh2007}
 \begin{equation}
   \frac{\mathrm{d} V_\text{out}}{\mathrm{d}t} = \frac{V_\text{in} - V_\text{out}}{RC} - 2 \frac{I_\text{s}}{C} \sinh \left(\frac{V_\text{out}}{V_\text{t}}\right),
+  \label{eq:diode_clipper_equation}
 \end{equation}
 where $V_\text{in}$ is the input voltage, $V_\text{out}$ is the output voltage, $t$ denotes time, $R$ is the serial resistance, $C$ is the parallel capacity, $I_\text{s}$ is the reverse saturation current, and $V_\text{t}$ is the thermal voltage. The last two are parameters of the diodes and can be extracted from measurement \cite{Yeh2007}.
 
