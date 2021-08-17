@@ -7,5 +7,5 @@ CUDA_VISIBLE_DEVICES=0 python phaser/main.py --method forward_euler --batch_size
 
 CUDA_VISIBLE_DEVICES=0 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.001 --one_cycle_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --hidden_size 30 --nonlinearity SELU --validate_every 10 --state_size 1 --name L1_STFT_DerivativeMLP2 --loss_function L1_STFT
 
-CUDA_VISIBLE_DEVICES=0 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.001 --one_cycle_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --hidden_size 30 --nonlinearity SELU --validate_every 10 --state_size 18 --name L1_STFT_DerivativeMLP2 --loss_function L1_STFT
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.0005 --cyclic_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --hidden_size 30 --nonlinearity SELU --validate_every 10 --state_size 36 --name L1_STFT_DerivativeMLP2 --loss_function L1_STFT --weight_decay 0.0000001
  

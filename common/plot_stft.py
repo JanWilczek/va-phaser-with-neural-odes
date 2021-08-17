@@ -18,6 +18,7 @@ def fft_time(nb_frames, hop_length, sample_rate):
     return T_coef(indices, hop_length, sample_rate)
 
 def plot_stft(signal, output_filepath, sampling_rate):
+    setup_pyplot_for_latex()
     n_fft = 4096
     hop_length = n_fft // 2
     stft = librosa.stft(signal, n_fft=n_fft, hop_length=hop_length)
@@ -31,8 +32,8 @@ def plot_stft(signal, output_filepath, sampling_rate):
     plt.imshow(log_magnitude_stft, origin='lower', aspect='auto', extent=bounding_box)
     plt.xlabel('Time [s]')
     plt.ylabel('Frequency [kHz]')
+    plt.colorbar()
     plt.savefig(f'{output_filepath}.png', bbox_inches='tight', dpi=300, transparent=True)
-    setup_pyplot_for_latex()
     save_tikz(output_filepath)
 
 def main():
@@ -40,7 +41,8 @@ def main():
     ap.add_argument('filepath', help='.wav file to compute STFT from.')
     args = ap.parse_args()
     filepath = Path(args.filepath)
-    data, fs = sf.read(filepath)
+    data, fs = sf.read(filepath, always_2d=True)
+    data = data[:, 0] # Take just the first channel of audio
     output_filename = filepath.name[:-4] + '_stft'
     output_path = filepath.parent / output_filename
     plot_stft(data, output_path, fs)
