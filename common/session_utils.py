@@ -267,7 +267,7 @@ def argument_parser():
     ap.add_argument('--nonlinearity', default='ReLU', help='Name of the torch.nn nonlinearity to use in the ODENet derivative network if that method is used (default: %(default)s).')
     ap.add_argument('--validate_every', default=1, type=int, help='Number of epochs to calculate validation loss after (default: %(default)s).')
     ap.add_argument('--state_size', default=1, type=int, help='Number of elements of the state vector of the dynamical system. The first element is always taken as the audio output of the system (default: %(default)s).')
-    ap.add_argument('--loss_function', choices=['ESR_DC_prefilter', 'L1_STFT'], default='ESR_DC_prefilter', help='Loss function to use during training (default: %(default)s). Possible choices:' \
+    ap.add_argument('--loss_function', choices=['ESR_DC_prefilter', 'L1_STFT', 'L2_STFT'], default='ESR_DC_prefilter', help='Loss function to use during training (default: %(default)s). Possible choices:' \
         '\n{:<20}\t{:<20}'.format('ESR_DC_prefilter', '0.5 * ESR(prefiltered_output, prefiltered_target) + 0.5 * DCloss(prefiltered_output, prefiltered_target)') + \
         '\n{:<20}\t{:<20}'.format('L1_STFT', 'L1(STFT_output, STFT_target).'))
     return ap
