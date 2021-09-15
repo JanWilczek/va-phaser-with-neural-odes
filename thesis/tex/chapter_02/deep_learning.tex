@@ -271,13 +271,14 @@ There are a few popular schedules \cite{Smith2018}. In \emph{cyclical learning r
 
 \begin{figure}
   \centering
-  \begin{subfigure}{0.48\textwidth}
-    \includegraphics[scale=.9]{figures/png/cyclic_lr.png}
-  \end{subfigure}
-  \begin{subfigure}{0.48\textwidth}
-    \includegraphics[scale=.9]{figures/png/one_cycle_lr.png}
-  \end{subfigure}
-  \caption{Learning rate schedules. The x-axis shows the epoch number, the y-axis shows the learning rate value at the given epoch. (Left) Cyclical learning rate schedule. (Right) One-cycle learning rate schedule.}
+  % \begin{subfigure}{0.48\textwidth}
+    % \includegraphics[scale=.9]{figures/png/cyclic_lr.png}
+  % \end{subfigure}
+  % \begin{subfigure}{0.48\textwidth}
+    % \includegraphics[scale=.9]{figures/png/one_cycle_lr.png}
+  % \end{subfigure}
+    \input{figures/tikz/learning_rate_schedules/learning_rate_schedules.tex}
+  \caption{Example learning rate schedules. The x-axis shows the epoch number, the y-axis shows the learning rate value in the given epoch. (Left) Cyclical learning rate schedule. (Right) One-cycle learning rate schedule.}
   \label{fig:learning_rate_schedules}
 \end{figure}
 

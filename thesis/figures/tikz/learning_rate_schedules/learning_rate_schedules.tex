@@ -1,0 +1,25 @@
+\resizebox{0.49\textwidth}{!}{\begin{tikzpicture}
+    \begin{axis}[
+        no markers,
+        every axis plot/.append style={ultra thick},
+        xmin = 0,
+        xmax = 900,
+        grid,
+        xlabel = Epoch,
+        ylabel = Learning Rate,
+    ]
+        \addplot[smooth,mark=none,color=blue] table [x=Step, y=Value, col sep=comma] {figures/tikz/learning_rate_schedules/cyclic_lr.csv};
+    \end{axis}
+\end{tikzpicture}}
+\resizebox{0.44\textwidth}{!}{\begin{tikzpicture}
+    \begin{axis}[
+        no markers,
+        every axis plot/.append style={ultra thick},
+        xmin = 0,
+        xmax = 650,
+        grid,
+        xlabel = Epoch,
+    ]
+    \addplot[smooth,mark=none,color=red] table [x=Step, y=Value, col sep=comma] {figures/tikz/learning_rate_schedules/one_cycle_lr.csv};
+    \end{axis}
+\end{tikzpicture}}
