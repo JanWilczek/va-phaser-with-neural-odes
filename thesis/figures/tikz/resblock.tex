@@ -1,10 +1,10 @@
-\begin{tikzpicture}
+\resizebox{!}{0.2\textwidth}{\begin{tikzpicture}
     \node[dspnodeopen,dsp/label=above]              (x) {$\pmb{x}$};
     \node[dspnodefull, right=of x]              (c0) {};
     \node[coordinate,above=of c0] (c1) {};
-    \node[dspsquare,right=of c1] (network) {$h(\pmb{x})$};
+    \node[dspsquare,right=of c1,minimum width=1cm] (network) {$h(\pmb{x})$};
     \node[coordinate,right=of network] (c3) {};
-    \node[dspadder,below=of c3,yshift=1mm] (adder) {};
+    \node[dspadder,below=of c3,yshift=1.5mm] (adder) {};
     \node[dspnodeopen,right=of adder,dsp/label=above] (fx) {$f(\pmb{x})$};
 
     \draw[dspline] (x) -- (c0);
@@ -14,4 +14,4 @@
     \draw[dspconn] (c3) -- (adder);
     \draw[dspconn] (c0) -- (adder);
     \draw[dspconn] (adder) -- (fx);
-\end{tikzpicture}
+\end{tikzpicture}}
