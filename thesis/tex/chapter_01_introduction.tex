@@ -10,7 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 The aim of this work is to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. In comparison to dynamical systems examined in \cite{Karlsson2019}, networks modeling audio effects need to account for the input signal, which is not only time-varying but also time-discretized with a specific sampling rate. 
 
-\cite{Parker2019} use an \ac{MLP} to learn the residual of a state-space system. The learned mapping steers the model through the state space of the device under study. The model is named \ac{STN}. Just as the original \ac{ResNet} paper \cite{He2015}, the residual not the derivative is learned, which is equivalent to the Euler method of solving \acp{ODE}. \cite{Parker2019} successfully applies \ac{STN} to model analog clipper circuits and an analog filter.
+\cite{Parker2019} use a \ac{MLP} to learn the residual of a state-space system. The learned mapping steers the model through the state space of the device under study. The model is named \ac{STN}. Just as the original \ac{ResNet} paper \cite{He2015}, the residual not the derivative is learned, which is equivalent to the Euler method of solving \acp{ODE}. \cite{Parker2019} successfully applies \ac{STN} to model analog clipper circuits and an analog filter.
 
 For modeling a phaser pedal, following \cite{Wright2020}, this work estimates the \ac{LFO} signal and uses it for conditioning the network. Therefore, it falls under the category of grey-box models. However, to achieve this goal, it uses a significantly different network architecture than \cite{Wright2020}.
 
