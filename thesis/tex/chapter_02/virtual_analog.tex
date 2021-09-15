@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Virtual Analog Modeling}
-\label{section:virtual_analog_modeling}
+\chapter{Virtual Analog Modeling}
+\label{chapter:virtual_analog_modeling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \Ac{VA} effects are digital emulations of audio systems that were originally built using analog electronic or electromechanical components \cite{Zoelzer2011}. They arose out of the demand for the reproduction of characteristic tonal distortions of these devices but with the digital stability and the ease of integration with existing software. Devices modelled range from filters, to time-varying effects, amplifiers, mechanical reverb units, and tape or vinyl distortions.
 
@@ -303,6 +303,6 @@ The frequency bands are spaced according to the 25 critical bands of the ear spa
 % TODO: More details on the Gaussian weighting etc.?
 % TODO: Cite a psychoacoustics textbook
 
-For computing \ac{segSNR} and \ac{fw-segSNR}, we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved: 05.08.2021.}.
+For computing \ac{segSNR} and \ac{fw-segSNR}, we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved 05.08.2021.}.
 
 Both, \ac{segSNR} and \ac{fw-segSNR} are different from \ac{ESR} in that they measure the relative similarity between the target and model signals (the higher the obtained value the more accurate the model) and that they work in a frame-wise fashion. The latter allows large local errors to influence the overall measure more than non-segmental measures, which has high correlation with subjective quality when it comes to speech signals \cite{Hansen98}.
