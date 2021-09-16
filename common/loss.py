@@ -24,10 +24,10 @@ def log_spectral_distance(output, target):
     stft_kwargs = {'return_complex': True, 'n_fft': n_fft, 'window': torch.hann_window(n_fft).to(output.device), 'center': False}
     stft_output = torch.stft(output.squeeze(2).transpose(0, 1), **stft_kwargs)
     stft_target = torch.stft(target.squeeze(2).transpose(0, 1), **stft_kwargs)
-    power_output = stft_output.abs() ** 2
-    power_target = stft_target.abs() ** 2
+    power_output = torch.clamp_min(stft_output.abs() ** 2, 1e-7)
+    power_target = torch.clamp_min(stft_target.abs() ** 2, 1e-7)
     log_spectral_distance_frames = torch.sqrt(torch.mean(torch.square(torch.log(power_target) - torch.log(power_output)), -2))
-    return torch.mean(log_spectral_distance_frames) # Average across time and batch dimensions
+    return torch.mean(torch.mean(log_spectral_distance_frames, -1)) # Average across time and batch dimensions
 
 def get_loss_function(loss_function_name):
     if loss_function_name == 'ESR_DC_prefilter':
