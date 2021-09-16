@@ -99,7 +99,12 @@ class ODENet(nn.Module):
 
         # If there is a ground-truth state provided, use it.
         if self.true_state is not None:
-            self.state[:, OUTPUT_FEATURE_ID] = self.true_state.squeeze()
+            # If the true state is 1-dimensional, it is just the audio output; preserve the rest of the state for this iteration
+            if self.true_state.shape[1] == 1:
+                self.state[:, OUTPUT_FEATURE_ID] = self.true_state.squeeze()
+            else:
+                # If the true state is multidimensional, assign it to the first entries of self.state
+                self.state[:, :self.true_state.shape[1]] = self.true_state            
 
         self.create_time_vector(sequence_length)
 
