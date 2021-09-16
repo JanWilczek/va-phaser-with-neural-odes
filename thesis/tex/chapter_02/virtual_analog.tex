@@ -10,7 +10,7 @@ One can distinguish three general approaches to \ac{VA} modeling \cite{Kiiski201
 The aim of this work was to investigate the applicability of the ODENet architecture to \ac{VA} modeling of audio effects. The main goal was to model a phaser pedal. However, in order to get intuition behind this type of architecture, a simpler, time-invariant system was modeled, namely, a first-order diode clipper. The following section describes this system and current research into its modeling. The subsequent section deals with the phaser in a similar manner.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Diode Clipper Circuit}
+\section{Diode Clipper Circuit}
 \label{subsec:diode_clipper_intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
@@ -25,7 +25,7 @@ The first-order diode clipper is a circuit frequently used to achieve signal dis
 Voltages and currents in this section are dependent on time, i.\ e., $V = V(t), I= I(t)$. For readability, this dependence is not stated explicitly in the equations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{RC Lowpass Filter}
+\subsection{RC Lowpass Filter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}
@@ -67,7 +67,7 @@ Because the same current flows through the resistor and the capacitor we can equ
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Diode Limiter}
+\subsection{Diode Limiter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
   \centering
@@ -91,7 +91,7 @@ If the diodes were ideal, i.\ e., they would behave as an open for voltages acro
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{First-Order Diode Clipper}
+\subsection{First-Order Diode Clipper}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Combining the RC lowpass filter (\Figure{fig:rc_lowpass}) and the diode limiter (\Figure{fig:diode_limiter}) yields the first-order diode clipper (\Figure{fig:diode_clipper_circuit}). It is called "first-order" because only a single capacitor is used \cite{Parker2019}. If the input voltage is within the limiter's operational range, the circuit acts as a lowpass filter. If the voltage exceeds this range, it is clipped at the output and distortion is introduced.
 
@@ -123,7 +123,7 @@ The parameter values of discrete elements used in the experiments were taken fro
 $V_\text{in}$ is typically on the order of volts.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Relation to Other Work}
+\subsection{Relation to Other Work}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The first-order diode clipper is a system particularly interesting in the context of the ODENet, because it is governed by a known \ac{ODE} \cite{Yeh2007,Yeh2008}. Additionally, it was already modeled using a \ac{ResNet} type of architecture in \cite{Parker2019}. Thus, learning to imitate the diode clipper allowed for validation of the ODENet and comparison to 
@@ -135,7 +135,7 @@ The first-order diode clipper is a system particularly interesting in the contex
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Phaser}
+\section{Phaser}
 \label{chap:phaser}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and vary periodically over time, moving up and down the frequency range. The time-varying notches create a "swooshing" sound that is often identified as "robotic".
@@ -145,7 +145,7 @@ Phaser should not be confused with another notch-sweeping effect, namely, flange
 This section explains the basics of phasing and a typical implementation of a phaser using allpass filters. Firstly, a high-level view is presented followed by an explanation of an allpass filter and its impact on the phaser's behavior. Finally, known digital phaser models are presented.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Overview}
+\subsection{Overview}
 \label{sec:phaser_overview}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -163,7 +163,7 @@ In \Figure{fig:phaser}, a basic diagram of a phaser is depicted. This schematic 
 To understand phaser's effect on the signal, one should examine the allpass filters first. That is the topic of the next section.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{First-Order Allpass Filter}
+\subsection{First-Order Allpass Filter}
 \label{sec:first_order_allpass_filter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
@@ -219,7 +219,7 @@ In \Figure{fig:phase_response_allpass_filter} the phase responses of a digital a
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Analog and Digital Phasers}
+\subsection{Analog and Digital Phasers}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Cascading \ac{LTI} systems results in the summation of their phase responses \cite{Oppenheim1997}. Thus, a cascade of $N$ allpass filters introduces a frequency dependent delay that varies from 0 at DC to $N\pi$ at $\frac{f_c}{2}$ \cite{PASPWEB2010}. Summing the cascaded filters with the direct path (as in \Figure{fig:phaser}) leads to the appearance of notches in the output spectrum of a phaser at frequencies for which the phase shift is an odd multiplicity of $\pi$, i.e., $\pi, 3\pi, 5\pi$, etc. Since each first-order allpass filter has a maximum phase shift of $\pi$, $N$ allpass filters result in $\frac{N}{2}$ notches (assuming that $N$ is even).
@@ -247,7 +247,7 @@ The core idea of a phaser is to modulate the break frequencies of the allpass fi
 % TODO: Add the LFO signal?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Phaser Modeling}
+\subsection{Phaser Modeling}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The phaser effect pedal was introduced in the ...s and gained popularity with musicians like ... Especially popular were Univibe and MXR Phase 90 models, which currently can reach high price on the second-hand market. Therefore, a need arises to create a faithful \ac{VA} models of famous phaser pedals.
@@ -262,14 +262,14 @@ This work extends the work in \cite{Wright2020} in that it examines a different 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Evaluation}
+\section{Evaluation}
 \label{subsec:va_evaluation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 An important part of \ac{VA} modeling is validation of how well the model imitates the original device. The quality of the \ac{VA} algorithm can be assessed objectively (using a similarity or distance measure between the outputs of the model and the device for a given input signal) or subjectively (using a listening test involving human participants).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Objective Measures}
+\subsection*{Objective Measures}
 \label{subsubsec:va_objective_measures}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
