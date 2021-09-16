@@ -5,16 +5,17 @@
 \label{sec:phaser_training_data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The training data consisted solely of guitar recordings taken from the Fraunhofer IDMT database \cite{Kehling2014}. Some of the recordings were additionally distorted using a distortion  software plug-in. The purpose of applying additional distortion is that a distorted signal is rich in harmonics and, thus, makes the effect of phaser application more audible. The underlying assumption was that the network would tend to learn better from these more pronounced parts. Additionally, a more pronounced should make the evaluation task easier during listening tests. 
+The training data consisted solely of guitar recordings taken from the Fraunhofer IDMT database \cite{Kehling2014}. Some of the recordings were additionally distorted using a software distortion plug-in. The purpose of applying additional distortion is that a distorted signal is rich in harmonics and, thus, makes the effect of phaser application more audible. The underlying assumption was that the network would tend to learn better from these more pronounced parts. Additionally, they should make the evaluation task easier during listening tests. 
 
 The acoustic, electric, and distorted guitars were evenly split among the training, validation, and test sets. The training set was 5 minutes 44 seconds long, the validation set was 1 minute 6 seconds long and the test set was 1 minute 49 seconds long. Audio data was single-channel at \SI{44100}{Hz} sampling rate.
 
-% TODO: Add part on the LFO in the dataset.
+The dataset was synthesized using a digital model of a phaser from \cite{Kiiski2016} with feedback turned off. The purpose of using synthesized data instead of recorded was to provide a ground truth LFO signal in the dataset. This was the approach taken for the initial validation in \cite{Wright2020}. If a recording was used, we would need to estimate the LFO, what could obscure the analysis. The LFO signal used for the synthesis was a rectified sine at \SI{17}{Hz}. Again, since the purpose of the training was to validate if the ODENet architecture could be applied to phaser modeling, only one type and rate of the LFO signal were used. If the answer was positive, more LFO waveforms and frequencies would be used (probably involving some not seen during training at test time). 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Training}
 \label{sec:phaser_training}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The training procedure was equal to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Compared Models}

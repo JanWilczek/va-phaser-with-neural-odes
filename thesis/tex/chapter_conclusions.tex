@@ -1,0 +1,25 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Summary and Conclusions}
+\label{chapter:conclusions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Presentation conclusions:
+% ODENet architecture can learn the ODE governing an analog audio effect.
+% ODENet cannot produce aliasing unless it is present in the training data; no need for oversampling.
+% The learned derivative can be used at sampling rates higher than the training sampling rate.
+% ODENet can provide results comparable to traditional recurrent neural networks (like LSTM) yet using a smaller number of parameters.
+% Solver choice is not that important; derivative network treatment is.
+
+The aim of this work was to investigate whether the ODENet framework--teaching a neural network the \ac{ODE} that governs a system and then supplying it to a numerical solver of choice--is can be used for \ac{VA} modeling. If the answer was positive, possible advantages and disadvantages in comparison to other modeling methods were to be considered.
+
+
+
+% TODO: Address all open questions
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Future Work}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% - ODENet with white-box models
+% - ODENet with STN's measurements
+% - ODENet in a latent space
