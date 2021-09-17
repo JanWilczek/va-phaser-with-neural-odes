@@ -2,8 +2,18 @@
 \section{ODENet Augmentation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+This section describes the proposed extensions to the ODENet framework. The goal of the extension is to facilitate audio signal processing. This section addresses the following questions:
+\begin{enumerate}
+  \item How to initialize the first sample in a sequence? (\Section{subsec:initialization})
+  \item How to provide the input audio signal? (\Section{subsec:excitation})
+  \item How to aid the network when processing complex models? (\Section{subsec:dimensionality})
+  \item How to implement the ODENet in the context of audio signal processing? (\Section{subsec:implementation})
+  \item How to parametrize the derivative network? (\Section{subsec:derivative_parametrization})
+\end{enumerate}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The Problem of Initialization}
+\label{subsec:initialization}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As the derivative network should learn only the rate of change of the modeled function, the ODENet framework is highly susceptible to correct initialization, i.e., correct $\pmb{y}_0$ supplied as the initial value. In the extreme case, supplying a vector of zeros could lead to all-zero output. To prevent this and allow the network to be trained, one may turn to the teacher forcing approach
@@ -14,6 +24,7 @@ At test time, for most dynamical systems, we could also provide a meaningful ini
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The Problem of Excitation}
+\label{subsec:excitation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In the existing applications of the ODENet framework, the derivative network was unaware of any external excitation of the system. An excitation is an important element of an \ac{ODE} that significantly influences the dynamics of the system. In the context of \ac{VA} modeling, the excitation typically consist of the input signal to the device (amplifier, distortion effect, phaser, etc.). The importance of the input signal as an excitation is visible in the diode clipper example, as discussed in \Section{subsec:diode_clipper_intro}.
@@ -36,12 +47,25 @@ To facilitate incorporating the excitation signal into the framework, the follow
 In the initial experiments, linear interpolation proved itself sufficient to model oscillating systems. Therefore, higher-order interpolation methods were not used in this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: If we actually use the "augmented state" then finish this section
-%\subsection{The Problem of Dimensionality}
+\subsection{The Problem of Dimensionality}
+\label{subsec:dimensionality}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Real-world dynamical systems can be multi-dimensional \cite{Scheinerman1996}. The dimensionality of a dynamical system is expressed by the number of entries in the state vector that describes the system. In analog circuits, a single state is associated with a single capacitor. Thus, a diode clipper has just 1 state. This state is also the circuit's output \cite{Parker2019}. On the other hand, a phaser circuit has multiple capacitors. For example, the MXR Phase 100 referenced in \cite{Kiiski2016} has 18 capacitors\footnote{\url{http://www.generalguitargadgets.com/pdf/ggg_p100_sc.pdf}}.
+
+High dimensionality of complex circuits suggest that it would be beneficial to use more than a single state in the state vector $\pmb{y}$. In the context of ODENet, one could introduce an augmented state vector, i.e., a state vector with more than 1 entry. Since in this work it is assumed that the model should learn from audio data and the LFO signal, the state size becomes a hyperparameter that needs to be manually set based on validation error. The idea is that the neural network would learn the system of \acp{ODE} governing the system in an unsupervised manner. It can be summarized as follows:
+\begin{equation}
+  \pmb{y} = \begin{bmatrix}
+    y[0] \\
+    y[1] \\
+    \vdots \\
+    y[M]
+  \end{bmatrix},
+\end{equation}
+where $y[0]$ is the audio output compared to the target data, and $y[1], \dots, y[M]$ are unknown states with $M$ fixed by a specialist that the network should populate on its own.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Implementation}
+\label{subsec:odenet_implementation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The task of the ODENet is to provide an output sequence $\hat{\pmb{y}}_0, \dots, \hat{\pmb{y}}_{N-1}$ in response to an input sequence $\pmb{x} = \pmb{x}_0, \dots, \pmb{x}_{N-1}$. \Figure{fig:odenet_sequence_diagram} contains a sequence diagram of how processing is organized for a single input sequence.
@@ -63,6 +87,7 @@ Finally, the input sequence may be processed in chunks, i.e., each training sequ
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Derivative Network Parametrization}
+\label{subsec:derivative_parametrization}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to compute subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is possible thanks to the dependence on $t$. However, as already explained in the introduction to this section, the derivative must not hold any "memory" from previous evaluations.
