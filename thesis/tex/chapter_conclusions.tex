@@ -3,13 +3,6 @@
 \label{chapter:conclusions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Presentation conclusions:
-% ODENet architecture can learn the ODE governing an analog audio effect.
-% ODENet cannot produce aliasing unless it is present in the training data; no need for oversampling.
-% The learned derivative can be used at sampling rates higher than the training sampling rate.
-% ODENet can provide results comparable to traditional recurrent neural networks (like LSTM) yet using a smaller number of parameters.
-% Solver choice is not that important; derivative network treatment is.
-
 The aim of this work was to investigate whether the ODENet framework--teaching a neural network the \ac{ODE} that governs a system and then supplying it to a numerical solver of choice--is can be used for \ac{VA} modeling. If the answer was positive, possible advantages and disadvantages in comparison to other modeling methods were to be considered.
 
 Ultimately, the answer to this question turned out to be only partially positive. It has been proven on the example of the diode clipper that the ODENet architecture can learn the \ac{ODE} governing a dynamical system. A significant advantage of the learned derivative of the system over an analytical one is the lack of aliasing unless it is present in the training data. Consequently, there is no need for time- and memory-expensive oversampling.
@@ -20,13 +13,26 @@ It has also been proven that in the context of \ac{VA} modeling, ODENet can prov
 
 However, there is no proof that using a more accurate solver can replace a model with a larger capacity. In fact, all tested solvers differed solely in terms of processing time. Much more can be gained in terms of accuracy by investing time into proper derivative network treatment, i.e., regularization via learning rate schedules, weight decay, etc.
 
-It remains yet to be answered, whether the ODENet is suited for modeling time-variant systems like the phaser. Although augmenting the state vector with latent (unobserved) states and using a time-frequency-domain loss function enabled obtaining better loss (with the latent yielding improvement even in the baseline architecture), the performance of the derivative network-numerical solver pair is still far behind the baseline \ac{LSTM}.
-% TODO: Address all open questions
+It remains yet to be answered, whether the ODENet is suited for modeling time-variant systems like the phaser. Although augmenting the state vector with latent (unobserved) states and using a time-frequency-domain loss function enabled obtaining better loss (with the latent yielding improvement even in the baseline architecture), the performance of the derivative network-numerical solver pair is still far behind the baseline \ac{LSTM}. The inferior modeling accuracy persists despite the use of significant number of parameters in the derivative \ac{MLP} (10 times more than the baseline).
+
+In summary, the ODENet is a promising framework for consideration in the context of \ac{VA} modeling but its usefulness in this area is still an open question.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Future Work}
+\label{sec:future_work}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% - ODENet with white-box models
-% - ODENet with STN's measurements
-% - ODENet in a latent space
+This work verified the applicability of the ODENet framework for simple \ac{VA} models (like the diode clipper) but not for complicated ones (like the phaser). Over the course of work, various ideas to improve the ODENet for the latter came up. The successful ones, i.e., time-frequency-domain loss function and state augmentation were discussed in this thesis. However, there remain many more paths that can be followed to facilitate this goal.
+
+Since the ODENet was successful in modeling systems with a known closed-form derivative (the diode clipper, \cite{Chen2018,Karlsson2019}), there is a good chance that it could be successful in replacing known white-box models of audio effects. The possibility to compare the learned derivative with an analytical one for complicated systems would be a strong hint as to whether the ODENet can be applied to more complicated systems. Additionally, systems with known derivative provide the luxury of dataset synthesis.
+
+As suggested in \cite{Bengio2012}, the first step in debugging a machine learning system is to reduce the training set so that the model easily overfits. For the phaser, this could be done with pink noise data thanks to its amplitude spectrum that makes phaser's impact instantly audible and visible on a spectrogram (as in \Figure{fig:pink_noise_phasered}). If ODENet cannot fit that data and there is no bug in the implementation, then there is little chance that it could be successfully used for phaser modeling.
+
+% - ODENet with state data (measured or digital)
+% - More regularization tricks for the MLP
+% - Different feature space
+% - Emergent spaces
+% - State vector = window of last samples?
+% - Deeper understanding of the phaser
+% - After success: the same analysis as for the diode clipper in terms of network size reduction, solver usage and aliasing
+% - Also: performance measurement
