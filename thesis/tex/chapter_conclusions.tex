@@ -12,8 +12,15 @@
 
 The aim of this work was to investigate whether the ODENet framework--teaching a neural network the \ac{ODE} that governs a system and then supplying it to a numerical solver of choice--is can be used for \ac{VA} modeling. If the answer was positive, possible advantages and disadvantages in comparison to other modeling methods were to be considered.
 
-Ultimately, the answer to this question turned out to be only partially positive. It has been proven on the example of the diode clipper that the ODENet architecture can learn the \ac{ODE} governing an analog 
+Ultimately, the answer to this question turned out to be only partially positive. It has been proven on the example of the diode clipper that the ODENet architecture can learn the \ac{ODE} governing a dynamical system. A significant advantage of the learned derivative of the system over an analytical one is the lack of aliasing unless it is present in the training data. Consequently, there is no need for time- and memory-expensive oversampling.
 
+Furthermore, the learned derivative can with success be used at sampling rates higher than the training sampling rate. However, ODENet outperforms other models in that regard only for significantly higher sampling rates, i.e., four times larger than the training sampling rate.
+
+It has also been proven that in the context of \ac{VA} modeling, ODENet can provide results comparable to the established recurrent architectures like the \ac{LSTM} albeit with a smaller number of parameters.
+
+However, there is no proof that using a more accurate solver can replace a model with a larger capacity. In fact, all tested solvers differed solely in terms of processing time. Much more can be gained in terms of accuracy by investing time into proper derivative network treatment, i.e., regularization via learning rate schedules, weight decay, etc.
+
+It remains yet to be answered, whether the ODENet is suited for modeling time-variant systems like the phaser. Although augmenting the state vector with latent (unobserved) states and using a time-frequency-domain loss function enabled obtaining better loss (with the latent yielding improvement even in the baseline architecture), the performance of the derivative network-numerical solver pair is still far behind the baseline \ac{LSTM}.
 % TODO: Address all open questions
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -17,7 +17,7 @@ The dataset was synthesized using a digital model of a phaser from \cite{Kiiski2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 The training procedure was equal to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch.
 
-The loss function used was the mean frame-wise log spectral distance as described by 
+The loss function used for the training and the validation was the mean frame-wise log spectral distance as described by 
 %TODO: \Equation{}.
 It was chosen because of superior validation performance at high frequencies when used to train the baseline (\ac{LSTM}) in comparison to $L_1$ and $L_2$ distances in the \ac{STFT} domain as well as the \ac{ESR}.
 
@@ -42,7 +42,7 @@ In the case of the phaser models, only the ODENet framework was compared to the 
 \label{sec:phaser_results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% TODO: Present the test results, evaluation results and discuss them
+The goal of phaser modeling was not only to compare the ODENet to the approach taken in \cite{Wright2020} but also to verify the assumption on the state augmentation. The assumption was that if derivative network can use the unobserved entries in the state vector to store information helpful in obtaining more accurate results.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Impact of the State Augmentation}
@@ -60,7 +60,8 @@ The effect of augmenting the state vector from 1 to 36 can be seen in \Figure{fi
 \subsubsection{Comparison to the Baseline}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% TODO: Add test results 
+Test results of phaser modeling are contained in \Table{tab:phaser_results}. The 'Loss' is the \ac{ESR}-based loss from \Equation{eq:final_loss_function}. \ac{segSNR} was defined in \Equation{eq:seg_snr}.
+
 \begin{table}[]
     \caption{Test results of the phaser models.}
     \centering
