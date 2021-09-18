@@ -208,7 +208,7 @@ A first-order highpass filter can be used as a pre-emphasis filter as shown in \
   H(z) = 1 - 0.85 z^{-1}.
 \end{equation}
 
-This form of pre-emphasis is straightforward to implement, achieves perceptually superior performance to non-preemphasized loss functions, and is just slightly inferior to much more complicated pre-emphasis filters \cite{Wright2019a}.
+This form of pre-emphasis is straightforward to implement, achieves perceptually superior performance to non-preemphasized loss functions, and is just slightly inferior to more complicated pre-emphasis filters \cite{Wright2019a}.
 
 After \cite{Wright2019a,Wright2020,Wright2019}, this works uses the following combined loss function for neural network training
 
@@ -217,6 +217,25 @@ After \cite{Wright2019a,Wright2020,Wright2019}, this works uses the following co
   \label{eq:final_loss_function}
 \end{equation}
 where "p" in the subscript marks signals that were pre-emphasized.
+
+One can also compute the loss in a time-frequency domain. To this end, the \ac{STFT} needs to be calculated first using the following formula \cite{Pytorch} % TODO: Cite Mueller
+
+\begin{equation}
+  X[\omega, m] = \sum \limits_{k=0}^{W-1} w[k] x[mh + k] \exp \left( -j\frac{2\pi \omega k}{W} \right),
+\end{equation}
+where $w$ is a time-domain window of length $W$, $x$ is the time-domain audio signal, $\omega \in \{0, \dots, N_\text{F}-1\}$ is the frequency bin, $m$ is the time frame index, and $h$ is the hop size (space in samples between successive time frames). In this work, $N_\text{F} = \lfloor W / 2 \rfloor + 1$. We use the Hann window % TODO: Cite Mueller
+\begin{equation}
+  w[k] = \frac{1}{2} \left[ 1 - \cos \left( \frac{2\pi k}{W} \right) \right], \quad k \in \{0, \dots, W-1\}.
+\end{equation}
+
+Having computed the \ac{STFT} representation, one can calculate the distance in the time-frequency domain between the obtained and desired signals and then average across all time frames and minibatch examples to obtain a single number. That number can be used for gradient calculation.
+
+Among the considered distances were the $L_1$ and $L_2$ norms. The distance we found most useful was the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as %TODO Cite log spectral distance paper
+\begin{equation}
+  LSD_\text{RMS}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} | \ln |X_1[\omega]|^2 - \ln |X_2[\omega]|^2 |^2}.
+\end{equation}
+
+After obtaining $LSD_\text{RMS}$ for each time frame, we can compute the average over time, followed by the average over the minibatch.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Backpropagation}
