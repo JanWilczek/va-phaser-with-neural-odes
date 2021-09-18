@@ -45,9 +45,9 @@ In the case of the phaser models, only the ODENet framework was compared to the 
 The goal of phaser modeling was not only to compare the ODENet to the approach taken in \cite{Wright2020} but also to verify the assumption on the state augmentation. The assumption was that if derivative network can use the unobserved entries in the state vector to store information helpful in obtaining more accurate results.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Impact of the State Augmentation}
+\subsubsection{The Impact of State Augmentation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The effect of augmenting the state vector from 1 to 36 can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 35 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it is beneficial to augment the state, even if no training signal is provided for them.
+The effect of augmenting the state vector from 1 to 18 can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it is beneficial to augment the state, even if no training signal is provided for them.
 
 \begin{figure}
     \centering

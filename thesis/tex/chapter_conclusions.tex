@@ -26,13 +26,13 @@ This work verified the applicability of the ODENet framework for simple \ac{VA} 
 
 Since the ODENet was successful in modeling systems with a known closed-form derivative (the diode clipper, \cite{Chen2018,Karlsson2019}), there is a good chance that it could be successful in replacing known white-box models of audio effects. The possibility to compare the learned derivative with an analytical one for complicated systems would be a strong hint as to whether the ODENet can be applied to more complicated systems. Additionally, systems with known derivative provide the luxury of dataset synthesis.
 
-As suggested in \cite{Bengio2012}, the first step in debugging a machine learning system is to reduce the training set so that the model easily overfits. For the phaser, this could be done with pink noise data thanks to its amplitude spectrum that makes phaser's impact instantly audible and visible on a spectrogram (as in \Figure{fig:pink_noise_phasered}). If ODENet cannot fit that data and there is no bug in the implementation, then there is little chance that it could be successfully used for phaser modeling.
+As suggested in \cite{Bengio2012}, the first step in debugging a machine learning system is to reduce the training set so that the model easily overfits. For the phaser, this could be done with pink noise data thanks to its amplitude spectrum that makes phaser's impact instantly audible and visible on a spectrogram (as in \Figure{fig:pink_noise_phasered}). If ODENet cannot fit that data and there is no bug in the implementation, then there is little chance that it could be successfully used for phaser modeling. If it can, then more \ac{MLP} configurations with different regularization and learning rate schedules could be explored to find the one that is capable of learning the derivative of the phaser system.
 
-% - ODENet with state data (measured or digital)
-% - More regularization tricks for the MLP
-% - Different feature space
-% - Emergent spaces
-% - State vector = window of last samples?
-% - Deeper understanding of the phaser
-% - After success: the same analysis as for the diode clipper in terms of network size reduction, solver usage and aliasing
-% - Also: performance measurement
+If the state vector describing a dynamical system has more than one entry and these entries are measurable, we could provide even more guidance to the derivative network during training. Measurable states are the voltage across the capacitors in the case of analog models, as described in \cite{Parker2019}, or the content of buffers in case of digital models. Again, if the network is not able to learn the derivative on such enriched dataset (which comes down to learning additions and multiplications in case of the digital phaser), there is no possibility it could learn from pure audio data.
+
+In this work, the learned \ac{ODE} was always in the time domain. There are, however, many more possible feature spaces, some of them transform-based, others provided by specialized \acp{ANN}. %TODO: Cite Amiriparian
+The space in which the system-governing \ac{ODE} exists could also possibly be learned from data. This latent space, often referred to as a manifold \cite{Goodfellow-et-al-2016}, is also called an emergent space. % TODO: Cite Kemeth
+
+Eventually, a deep learning model somehow reflects a real-world system. To effectively build such a model a proper understanding of the underlying phenomena is necessary. Should all other approaches fail, one could consider closer inspection of phaser elements and changing the approach to a one more suitable for that particular system.
+
+Should the attempts of learning a network the derivative of a phaser succeed, a similar analysis to what has been done for the diode clipper should follow, i.e., network size reduction, solver comparison, aliasing examination, etc. Moreover, different audio effects could be considered for modeling. A performance analysis or measurements could determine the potential benefits for industrial applications of the ODENet in \ac{VA} modeling.
