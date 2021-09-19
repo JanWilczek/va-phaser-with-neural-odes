@@ -8,14 +8,14 @@ An \acf{ODE} is an equation of the form
   \frac{\mathrm{d} y}{\mathrm{d} t} = f(t, y),
   \label{eq:general_ode}
 \end{equation}
-where $y$ is the \emph{unknown function}, $t$ is the \emph{independent variable}, and $f(t, y)$ is a function of both, $t$ and $y$. Implicitly, $y$ is dependent on $t$, i.\ e., $y = y(t)$. In the scope of this work, $t$ denotes time. The term \emph{ordinary} means that $y$ is a function of a single variable and, thus, an "ordinary" derivative is used, i.\ e., $\frac{\mathrm{d} y}{\mathrm{d} t}$ \cite{Gockenbach2011}.
+where $y$ is the \emph{unknown function}, $t$ is the \emph{independent variable}, and $f(t, y)$ is a function of both, $t$ and $y$. Implicitly, $y$ is dependent on $t$, i.\ e., $y = y(t)$. In the scope of this work, $t$ denotes time. The term \emph{ordinary} means that $y$ is a function of a single variable and, thus, an "ordinary" derivative is used, i.e., $\frac{\mathrm{d} y}{\mathrm{d} t}$ \cite{Gockenbach2011}.
 
 To \emph{solve} an \ac{ODE} means to find a function $y$ that satisfies \Equation{eq:general_ode}. Such $y$ is called a \emph{solution}.
 
-\acp{ODE} are used to model dynamical systems \cite{Karlsson2019}. An example of a dynamical system that can be described by an \ac{ODE} is an electrical circuit containing capacitive elements, such as a diode clipper circuit \cite{Yeh2007} discussed in \Chapter{chap:diode_clipper}.
-Since an equation of the form \Equation{eq:general_ode} describes a rate of change $\frac{\mathrm{d} y}{\mathrm{d} t}$, its solution will not be a single function, but rather a family of functions or a parametrized function. To obtain a unique solution, we need to specify an \emph{\ac{IC}}, i. e., the value of $y$ at some fixed point (typically at $t=0$). An \ac{ODE} together with an initial condition makes up an \emph{\ac{IVP}}.
+\acp{ODE} are used to model dynamical systems \cite{Scheinerman1996,Karlsson2019}. A class of dynamical systems that can be described by an \ac{ODE} are electrical circuits containing capacitive elements. An example of such a system is the diode clipper circuit \cite{Yeh2007} discussed in \Chapter{chap:diode_clipper}.
+Since an equation of the form \eqref{eq:general_ode} describes a rate of change $\frac{\mathrm{d} y}{\mathrm{d} t}$, its solution will not be a single function but rather a family of functions or a parametrized function. To obtain a unique solution, we need to specify an \emph{\ac{IC}}, i.e., the value of $y$ at some fixed point (typically at $t=0$). An \ac{ODE} together with an \acl{IC} makes up an \emph{\ac{IVP}}.
 
-Some classes of \acp{IVP} can be solved analytically. However, for the most interesting applications, e.\ g., in the domain of analog audio effects, the corresponding \acp{IVP} are solved using numerical methods: specialized algorithms using discrete points to approximate the true solution \cite{Gockenbach2011}. 
+Some classes of \acp{IVP} can be solved analytically. However, for the most interesting applications, e.g., in the domain of analog audio effects, the corresponding \acp{IVP} are solved using numerical methods: algorithms using discrete points to approximate the true solution \cite{Gockenbach2011}. 
 
 A group of numerical methods is called \emph{time-stepping methods}. Given a grid of time instants $t_0 < t_1 < \dots < t_n$ and a value of $y$ at $t_0$, $y(t_0)$, these methods use the following identity
 \begin{equation}
@@ -42,7 +42,7 @@ where $\Delta t = t_{i+1} - t_i$.
 
 It is important to note, that unless $y(t_i)$ is the initial value, it must be computed from previous time points. This results in error accumulation across time steps. The total error is on the order of the time step size $\Delta t$, which leads to the conclusion that in order to get a more accurate approximation with the forward Euler method, one needs to decrease the time step used \cite{Gockenbach2011}. In turn, decreasing the time step increases the number of computations needed to obtain the values of $y$ at the specified points.
 
-The benefits of Euler's method are a straightforward implementation and the least amount of computations in comparison to other schemes.
+The benefits of the Euler method are a straightforward implementation and the least amount of computations in comparison to other schemes.
 
 Since we compute the solution according to the time steps ordering (\emph{forward} in time), this method is called an \emph{explicit} method.
 
@@ -63,10 +63,10 @@ The \ac{RK} methods are based on evaluating the function and the derivative in b
 \end{align}
 where
 \begin{equation}
-    \sum \limits_{j=1}^{m} = 1.
+    \sum \limits_{j=1}^{m} \alpha_j = 1.
 \end{equation}
 
-$k_j$ are estimates of the derivative $f$ at $m$ nodes in the interval $[t_i, t_{i+1}]$, $\alpha_j$ are weights with which to sum the partial residuals $\Delta t k_j$. The $\beta$ coefficients have the same role for intermediate computations of $f$. $\gamma$ coefficients control at which node use which derivative approximations. For example, one could set $\gamma_j = \sum \limits_{l=1}^{j-1} \beta_{jl}$.
+$k_j$ are estimates of the derivative $f$ at $m$ nodes in the interval $[t_i, t_{i+1}]$, $\alpha_j$ are weights with which to sum the partial residuals $\Delta t k_j$. $\beta$ coefficients have the same role for intermediate computations of $f$. $\gamma$ coefficients control which derivative approximations to use at specific nodes. For example, one could set $\gamma_j = \sum \limits_{l=1}^{j-1} \beta_{jl}$.
 
 By fixing the values of the coefficients $\alpha_j, \beta$, and $\gamma_j$, one obtains different numerical schemes. Their \emph{order} is the number of nodes used in between the steps. The most popular schemes are forward Euler (order 1), midpoint (order 2), \ac{RK}4 (order 4), and \ac{DOPRI} (using 4th and 5th order estimates). The values of the coefficients for the \ac{RK} methods are stored in \emph{Butcher tableaus} \cite{Atkinson2009}. The structure of a tableau corresponding to \EquationRange{eq:rk_first}{eq:rk_last}is shown in \Table{tab:rk_tableau}. A tableau for \ac{RK}4 is given in \Table{tab:rk4_tableau}.
 
@@ -87,6 +87,8 @@ By fixing the values of the coefficients $\alpha_j, \beta$, and $\gamma_j$, one 
 \begin{table}
   \centering
   \caption{\ac{RK}4 scheme tableau.}
+  \bgroup
+  \def\arraystretch{1.5}%  1 is the default, change whatever you need
   \begin{tabular}{c | c c c c}
     0 & & & &\\
     $\frac{1}{2}$ & $\frac{1}{2}$ & & &\\
@@ -94,10 +96,11 @@ By fixing the values of the coefficients $\alpha_j, \beta$, and $\gamma_j$, one 
     1 & 0 & 0 & 1 &\\ \hline
       & $\frac{1}{6}$ & $\frac{1}{3}$ & $\frac{1}{3}$ & $\frac{1}{6}$ \\    
   \end{tabular}
+  \egroup
   \label{tab:rk4_tableau}
 \end{table}
 
-The performance of numerical solvers can be further improved by using an \emph{adaptive stepsize} (changing the size of the step according to the error estimate) or using \emph{multiple steps} (using more than one of the already computed values of $y$). Different modifications lead to different accuracy-performance trade-offs.
+The accuracy of numerical solvers can be further improved by using an \emph{adaptive stepsize} (changing the size of the step according to the error estimate) or using \emph{multiple steps} (using more than one of the already computed values of $y$). Different modifications lead to different accuracy-performance trade-offs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Stiffness}
