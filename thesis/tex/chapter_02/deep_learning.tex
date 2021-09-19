@@ -32,13 +32,13 @@ Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (
 The dimensions of a 4-layer \ac{MLP} are given in a format $i \times h_1 \times h_2 \times o$, where $i$ is the size of the input layer, $h_1$ and $h_2$ are the numbers of units in the first and second hidden layers respectively, and $o$ is the size of the output layer. Along with the dimensions, one specifies the nonlinearity applied element-wise to the layers' output.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Architectures}
+\subsection{Architectures}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As deep learning is a widely and actively pursued field of science, there exist many different neural network architectures beyond the \ac{MLP}. They are often designed for the task at hand using expert knowledge or heuristics \cite{Goodfellow-et-al-2016}. In this section, two highly successful architectures are presented, both of them relevant for this thesis.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Long Short-Term Memory}
+\subsubsection{Long Short-Term Memory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \Ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.\ e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
@@ -96,12 +96,10 @@ In order of computations, at time step $t$, we calculate the values of the gatin
 
 \ac{LSTM} cells can be stacked in layers. The input to the $l$-th layer is the output of the $(l-1)$-th layer, $\pmb{x}_t^{(l)} = \pmb{h}_y^{(l-1)}$, with $\pmb{x}_t^{(0)} = \pmb{x}_t$ being the network input at time $t$.
 
-% TODO: Add a note that Alec used an MLP on the LSTM's output
-
-In audio processing, \ac{LSTM} has been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}.
+In audio processing, \ac{LSTM}-based architectures have been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}. In the mentioned approaches, the outputs of the memory cells are supplied to a fully connected layer.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Residual Networks}
+\subsubsection{Residual Networks}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{figure}
@@ -113,7 +111,7 @@ In audio processing, \ac{LSTM} has been successfully applied to guitar amplifier
 Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. Its characteristic feature is the so-called \emph{\ac{ResBlock}} containing a \emph{skip connection}. The skip connection provides a direct path from the input to the output which allows for summing the input with the network's output. It effectively makes the network learn not the mapping $f^*(\pmb{x})$ but the residual $h^*(\pmb{x}) = f^*(\pmb{x}) - \pmb{x}$. On the one hand, it alleviates the problem of the \emph{vanishing gradient} \cite{Goodfellow-et-al-2016} and eventually allows for training very deep architectures with hundreds of layers \cite{He2015}. Depth is one of the most significant factors in neural network design, thus, being able to train deeper and deeper architectures allows for improving performance on the desired tasks. On the other hand, the skip connection can simplify the training process; instead of learning a complete function, the network must only learn its residual. For example, if the true mapping is the identity function, it is easier to learn the residual (which is $0$ everywhere) rather than the identity itself, which would involve approximating a hyperplane with nonlinear units \cite{He2015}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{State Trajectory Network}
+\subsubsection{State Trajectory Network}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The whole state is supplied together with current input sample as the input used to compute the next state, therefore, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
@@ -134,10 +132,9 @@ The architecture of \ac{STN} is shown in \Figure{fig:stn}. The layers $l_1, \dot
 where $f_{s\text{, train}}, f_{s\text{, processing}}$ are the sampling rates used at train time and at processing time respectively. According to the authors, if the sampling rate at processing time is higher than the one used at training, high-frequency behavior of the original system may be lacking. Using sampling rates at processing time lower than the one used at training (without any additional antialiasing facility) can result in aliasing behavior. The aliasing aspect is important to this work and \ac{STN} naturally fits as a model to compare the tested methodology to.
 
 As most the recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing}.
-% TODO: Check the number of this section.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Residual Integration Network, Bilinear Block}
+\subsubsection{Residual Integration Network, Bilinear Block}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The introduction of the \ac{ResNet} raised interest in its interpretation as an Euler step of solving differential equations \cite{Chen2018}.
@@ -168,13 +165,13 @@ for the parametrization of each stage consists of three fully-connected layers. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Training of Neural Networks}
+\subsection{Training of Neural Networks}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Training of \acp{ANN} is done using an optimization algorithm from the \emph{gradient descent} family of algorithms \cite{Goodfellow-et-al-2016}. In general, gradient descent methodology requires specifying a \emph{loss} or a \emph{target function} between the network's output and the desired output. The optimization then proceeds by sampling a \emph{minibatch} of examples from the \emph{training set} in each iteration, processing them with the network, and calculating the loss. The loss function is a measure of dissimilarity (or distance) between the network's output and the \emph{target}. For example, the training set may consist of images (inputs) with associated labels (targets). The network should learn the mapping from an image to its label. After calculating the loss, the gradient of the loss with respect to the network's parameters (mainly weights and biases) is computed via \emph{backpropagation} through the network using the chain rule of derivatives. After calculating the gradient of the loss with respect to each individual parameter, a step in the direction of the negated gradient is performed (steepest descent). The size of the step is determined by the \emph{learning rate}. Some algorithms use a different step size for each parameter, for example, Adam \cite{Kingma2017}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Loss Functions}
+\subsubsection{Loss Functions}
 \label{sec:loss_functions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -233,12 +230,13 @@ Having computed the \ac{STFT} representation, one can calculate the distance in 
 Among the considered distances were the $L_1$ and $L_2$ norms. The distance we found most useful was the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as \cite{Gray1976}
 \begin{equation}
   LSD_\text{RMS}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} | \ln |X_1[\omega]|^2 - \ln |X_2[\omega]|^2 |^2}.
+  \label{eq:log_spectral_distance}
 \end{equation}
 
 After obtaining $LSD_\text{RMS}$ for each time frame, we can compute the average over time, followed by the average over the minibatch.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Backpropagation}
+\subsubsection{Backpropagation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Backpropagation is an algorithm of calculating the gradient of the loss function with respect to the model parameters. The gradient is used in the optimization algorithm to update the network parameters at each step. Thus, backpropagation enables successful \ac{ANN} training.
@@ -277,7 +275,7 @@ We can now calculate the derivative of the loss with respect to the weights and 
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Hyperparameters}
+\subsubsection{Hyperparameters}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The settings that control the learning process of machine learning models are called \emph{hyperparameters} \cite{Goodfellow-et-al-2016}. They differ from the model parameters in that they are not optimized during training. For example, the number and size of layers in an \ac{MLP} are hyperparameters but the weights and biases of particular units are not.
@@ -296,7 +294,7 @@ There are a few popular schedules \cite{Smith2018}. In \emph{cyclical learning r
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
+\subsubsection{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
 \label{subsec:teacher_forcing}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -312,13 +310,13 @@ A sequence-to-sequence \ac{RNN} during processing is using its previous output $
 The guidance provided by teacher forcing is especially important in the initial phase of the training, where the network's output has still relatively high validation error. Ultimately, during test, the network should operate using only self-produced outputs (without ground truth knowledge). Therefore, the better the performance of the network during training the less guidance should be provided resulting in no guidance at test time. Decreasing the amount of ground truth output supplied throughout training is called \emph{curriculum learning}. The decrease can be fixed or random. In the latter case, for each minibatch, we "flip the coin" to determine whether teacher forcing should be used. "Flipping the coin" may be implemented as sampling from a Bernoulli distribution with parameter $\epsilon$ determining the probability of using teacher forcing. For example, at test time, we have $\epsilon=0$. This approach bears the name of \emph{scheduled sampling} \cite{Bengio2015}. Again, the $\epsilon$ parameter may be decreased with each minibatch. In this work, we only consider a linear decay of $\epsilon$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Software for Deep Learning}
+\subsection{Software for Deep Learning}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 A deep learning practitioner needs to implement the designed architectures, loss functions, dataset handling, training and test procedures, etc. For this purpose, we used the PyTorch library \cite{Pytorch}. Additional functionality was provided using \cite{CoreAudioML}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Neural Ordinary Differential Equations}
+\section{Neural Ordinary Differential Equations}
 \label{sec:neural_odes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -330,8 +328,8 @@ A deep learning practitioner needs to implement the designed architectures, loss
     \label{fig:odenet_architecture}
 \end{figure}
 
-It has been observed that learning the residual instead of the function can be viewed as an Euler step of solving a differential equation. As described in \Section{subsection:forward_euler}, in the Euler method of solving \acp{ODE}, function's value at time step $t_{i+1}$ is approximated by adding the value of the derivative at time step $t_{i}$ multiplied by the time step size $t_{i+1} - t_i$ to the function's value at $t_i$. \cite{Chen2018} stated this observation explicitly
-% TODO Did he? Check Haber and Ruhotho
+As described in \Section{subsection:forward_euler}, in the Euler method of solving \acp{ODE}, function's value at time step $t_{i+1}$ is approximated by adding the value of the derivative at time step $t_{i}$ multiplied by the time step size $t_{i+1} - t_i$ to the function's value at $t_i$.
+It has been observed that learning the residual instead of the function by an \ac{ANN} can be viewed as an Euler step of solving a differential equation. \cite{Chen2018} restated this observation
 and proposed to change the discrete scheme to a continuous one. In such a scheme, the network learns not the residual but the derivative of the desired function. This \emph{derivative network} is supplied to a numerical solver of choice. The loss is calculated using the solver's (not the network's) output. The backpropagation through the solver's operations can be done in constant time using the adjoint sensitivity method \cite{Chen2018}. Such generically defined architecture was named ODENet and is presented in \Figure{fig:odenet_architecture}. $t$ denotes a vector with time instances, $\pmb{y}_0$ is the initial value, such that $\pmb{y}(t[0]) = \pmb{y}_0$ (unknown function $\pmb{y}$ is assumed to be a vector-valued function for generality), and $f(t, \pmb{y})$ is the right-hand side of the \ac{ODE} we want to solve, as in \Equation{eq:general_ode}.
 
 Long before the renaissance of deep learning, function $f(t, \pmb{y})$ supplied to the solver was a software procedure that could be evaluated for arbitrary time $t$ and function value $\pmb{y}$ (as long as it was in the domain of the function $f$). However, in the ODENet framework, $f$ \emph{is the neural network that learned to approximate the derivative function}. Ideally, the numerical solver should not be able to distinguish whether it receives a deterministic function or a neural network. However, in reality, the implementation may require an intervention into the code of the solver, for example, for \ac{GPU} optimization purposes.

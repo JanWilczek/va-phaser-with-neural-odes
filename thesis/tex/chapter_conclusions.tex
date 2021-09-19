@@ -15,6 +15,8 @@ However, there is no proof that using a more accurate solver can replace a model
 
 It remains yet to be answered, whether the ODENet is suited for modeling time-variant systems like the phaser. Although augmenting the state vector with latent (unobserved) states and using a time-frequency-domain loss function enabled obtaining better loss (with the latent yielding improvement even in the baseline architecture), the performance of the derivative network-numerical solver pair is still far behind the baseline \ac{LSTM}. The inferior modeling accuracy persists despite the use of significant number of parameters in the derivative \ac{MLP} (10 times more than the baseline).
 
+Taking a different perspective, one can state that the ODENet managed to learn a derivative from data, whose closed-form solution is known (as for the diode clipper). Currently, there exists no proof that the ODENet could learn the derivative of a dynamical system for which no closed-form solution is known.
+
 In summary, the ODENet is a promising framework for consideration in the context of \ac{VA} modeling but its usefulness in this area is still an open question.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

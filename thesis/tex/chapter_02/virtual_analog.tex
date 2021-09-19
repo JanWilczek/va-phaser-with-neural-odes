@@ -246,7 +246,6 @@ The core idea of a phaser is to modulate the break frequencies of the allpass fi
     \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. The color scale is in decibels. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
     \label{fig:pink_noise_phasered}
 \end{figure}
-% TODO: Add the LFO signal?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Phaser Modeling}
@@ -276,7 +275,6 @@ An important part of \ac{VA} modeling is validation of how well the model imitat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this work, a few objective measures between the target signal (device output) and the model were used. One of them was the \ac{ESR} described in \Section{sec:loss_functions}.
-% TODO Check the number of this section's reference
 \ac{ESR} is a distance measure that is minimized during neural network training, validation, and testing. We may, however, employ a different objective measure at test time than at training time. The reason for this are that not all measures are suited to neural network training and that different objective measures let us assess different aspects of the model.
 
 For the assessment of the models in this work, especially their aliasing behavior, two objective measures from the domain of speech enhancement were used.

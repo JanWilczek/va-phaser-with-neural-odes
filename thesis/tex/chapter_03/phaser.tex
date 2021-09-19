@@ -18,7 +18,7 @@ The dataset was synthesized using a digital model of a phaser from \cite{Kiiski2
 The training procedure was equal to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch.
 
 The loss function used for the training and the validation was the mean frame-wise log spectral distance as described by 
-%TODO: \Equation{}.
+\Equation{eq:log_spectral_distance}.
 It was chosen because of superior validation performance at high frequencies when used to train the baseline (\ac{LSTM}) in comparison to $L_1$ and $L_2$ distances in the \ac{STFT} domain as well as the \ac{ESR}.
 
 All models were trained and tested on data at \SI{44100}{Hz} sampling rate.

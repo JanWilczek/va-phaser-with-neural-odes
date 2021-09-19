@@ -17,7 +17,7 @@ This section describes the proposed extensions to the ODENet framework. The goal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As the derivative network should learn only the rate of change of the modeled function, the ODENet framework is highly susceptible to correct initialization, i.e., correct $\pmb{y}_0$ supplied as the initial value. In the extreme case, supplying a vector of zeros could lead to all-zero output. To prevent this and allow the network to be trained, one may turn to the teacher forcing approach
-% TODO: as described in \Section{sec:teacher_forcing}
+as described in \Section{subsec:teacher_forcing}
 to ensure proper guidance during training. In the context of ODENet, teacher forcing results in supplying the ground truth initial value $\pmb{y}_0$ or all-zero vector for each minibatch according to the curriculum.
 
 At test time, for most dynamical systems, we could also provide a meaningful initial value. After all, the goal is to predict future state from some initial state. However, in the context of \ac{VA} modeling, we can only supply an all-zero vector as the initial value because the framework should predict the whole of the output from the input. For non-zero true output, this results in increased test error.
