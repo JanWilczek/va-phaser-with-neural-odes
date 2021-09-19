@@ -151,6 +151,7 @@ This section explains the basics of phasing and a typical implementation of a ph
 
 \begin{figure}
     \centering
+    \vspace{2mm}
     \input{figures/tikz/phaser.tex}
     \caption{A phaser implementation.}
     \label{fig:phaser}
@@ -168,6 +169,7 @@ To understand phaser's effect on the signal, one should examine the allpass filt
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
     \centering
+    \vspace{2mm}
     \input{figures/tikz/first_order_allpass_filter.tex}
     \caption{First-order digital allpass filter.}
     \label{fig:first_order_allpass_filter}
@@ -226,10 +228,10 @@ Cascading \ac{LTI} systems results in the summation of their phase responses \ci
 
 The core idea of a phaser is to modulate the break frequencies of the allpass filters so that the notches sweep up and down the frequency range creating an audibly interesting effect. In analog phasers, which are implemented using analog electronic circuitry, the values of physical components are be modulated. In digital phasers, the implementers can decide whether to modulate the break frequencies directly or to modulate just the allpass coefficients \cite{Kiiski2016}. The difference between these two design decisions are shown in \Figure{fig:pink_noise_phasered}. Modulating the allpass coefficients in a fixed range yields similar notch variation curves for each break frequency (middle spectrogram). Modulating the break frequencies themselves using a traditional frequency modulation scheme yields larger frequency variations for high frequencies than for low frequencies.
 
-\newcommand{\scaleboxsize}{0.7}
+\newcommand{\scaleboxsize}{0.65}
 \newcommand{\subfigurewidththree}{0.3\textwidth}
 \begin{figure}
-    \begin{subfigure}{0.35\textwidth}
+    \begin{subfigure}{0.33\textwidth}
         \centering
         \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s_stft.tex}}
     \end{subfigure}
@@ -237,11 +239,11 @@ The core idea of a phaser is to modulate the break frequencies of the allpass fi
         \centering
         \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s-target_stft.tex}}
     \end{subfigure}
-    \begin{subfigure}{0.28\textwidth}
+    \begin{subfigure}{0.34\textwidth}
         \centering
-        \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s_phasered_stft.tex}}
+        \scalebox{0.66}{\input{figures/tikz/pink_noise_10s_phasered_stft.tex}}
     \end{subfigure}
-    \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
+    \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. The color scale is in decibels. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
     \label{fig:pink_noise_phasered}
 \end{figure}
 % TODO: Add the LFO signal?
@@ -288,21 +290,41 @@ The \ac{segSNR} is an average signal-to-noise ratio across segments of the devic
 
 where $m$ is the frame index, $R$ is the number of samples between successive frames, $N$ is the frame length, and $M$ is the number of frames.
 
-The \ac{fw-segSNR} is a perceptually motivated objective measure that uses a weighted average and a time-frequency representation \cite{Hu2008}
+\cite{ITU1387}.
 
-\begin{equation}
-    \text{fw-segSNR}(s, \hat{s}) = \frac{10}{M} \sum \limits_{m=0}^{M-1} \frac{ \sum_{j=1}^{K} W(j,m) \log_{10} \left( \frac{|S(j,m)|^2}{(|S(j,m)|-|\hat{S}(j,m)|)^2} \right)}{\sum_{j=1}^{K} W(j,m)},
-\end{equation}
-where $W(j,m)$ is the weight assigned to the $j$-th frequency band, $K$ is the number of bands, $m$ is the frame index, $M$ is the number of frames, $|S(j,m)|$ is the magnitude of a Gaussian window-weighted target signal spectrum in the $j$-th frequency band and at the $m$-th frame, and $|\hat{S}(j,m)|$ is the same value computed for the signal from the model. Additionally,
+% The \ac{fw-segSNR} is a perceptually motivated objective measure that uses a weighted average and a time-frequency representation \cite{Hu2008}
 
-\begin{equation}
-    W(j,m) = |S(j,m)|^{0.2}.
-\end{equation}
+% \begin{equation}
+%     \text{fw-segSNR}(s, \hat{s}) = \frac{10}{M} \sum \limits_{m=0}^{M-1} \frac{ \sum_{j=1}^{K} W(j,m) \log_{10} \left( \frac{|S(j,m)|^2}{(|S(j,m)|-|\hat{S}(j,m)|)^2} \right)}{\sum_{j=1}^{K} W(j,m)},
+% \end{equation}
+% where $W(j,m)$ is the weight assigned to the $j$-th frequency band, $K$ is the number of bands, $m$ is the frame index, $M$ is the number of frames, $|S(j,m)|$ is the magnitude of a Gaussian window-weighted target signal spectrum in the $j$-th frequency band and at the $m$-th frame, and $|\hat{S}(j,m)|$ is the same value computed for the signal from the model. Additionally,
 
-The frequency bands are spaced according to the 25 critical bands of the ear spanning the range \SIrange{50}{3597.63}{Hz}. Therefore, only frequencies up to \SI{4000}{Hz} are taken into consideration although the frequencies above are still relevant for musical perception.
-% TODO: More details on the Gaussian weighting etc.?
-% TODO: Cite a psychoacoustics textbook
+% \begin{equation}
+%     W(j,m) = |S(j,m)|^{0.2}.
+% \end{equation}
 
-For computing \ac{segSNR} and \ac{fw-segSNR}, we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved 05.08.2021.}.
+% The frequency bands are spaced according to the 25 critical bands of the ear spanning the range \SIrange{50}{3597.63}{Hz}. Therefore, only frequencies up to \SI{4000}{Hz} are taken into consideration although the frequencies above are still relevant for musical perception.
 
-Both, \ac{segSNR} and \ac{fw-segSNR} are different from \ac{ESR} in that they measure the relative similarity between the target and model signals (the higher the obtained value the more accurate the model) and that they work in a frame-wise fashion. The latter allows large local errors to influence the overall measure more than non-segmental measures, which has high correlation with subjective quality when it comes to speech signals \cite{Hansen98}.
+For computing \ac{segSNR} we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved 05.08.2021.}.
+
+\Ac{segSNR} is different from \ac{ESR} in that they measure the relative similarity between the target and model signals (the higher the obtained value the more accurate the model) and that they work in a frame-wise fashion. The latter allows large local errors to influence the overall measure more than non-segmental measures, which has high correlation with subjective quality when it comes to speech signals \cite{Hansen98}.
+
+The other objective measure used was the \ac{ODG} from the \ac{ITU} recommendation \cite{ITU1387}. 
+Results obtained from \ac{ODG} are often referred to as \acs{PEAQ} which stands for "\acl{PEAQ}". However, the acronym is often translated into "Perceptual Evaluation of Audio Quality", a name not present in the recommendation. The goal of \ac{ODG} (\acs{PEAQ}) is to approximate the results of a subjective evaluation via listening tests. In the listening tests, the subjects evaluate the impairment of the presented signals with respect to a known reference signal. The given score is termed \ac{SDG}. Both, \ac{ODG} and \ac{SDG} are continuous-valued numbers from -4 to 0, where 0 means that the degradation from the reference is imperceptible and -4 means that the impairment is very annoying. These grades are ultimately converted to the ITU-R five-grade impairment scale \cite{ITU1387}. All of them are presented in \Table{tab:itu_impairment_scale}.
+
+\begin{table}
+  \centering
+  \caption{The ITU-R five-grade impairment scale.}
+  \begin{tabular}{c | c}
+    \toprule
+    \textbf{Grade} & \textbf{Degradation description} \\ \midrule
+    5.0 & Imperceptible \\
+    4.0 & Perceptible but not annoying \\
+    3.0 & Slightly annoying \\
+    2.0 & Annoying \\
+    1.0 & Very annoying\\
+  \end{tabular}
+  \label{tab:itu_impairment_scale}
+\end{table}
+
+As the procedure for calculating \ac{ODG} is quite complex, we used a ready-made implementation by Giuseppe Gottardi\footnote{\url{https://github.com/akinori-ito/peaqb-fast}, retrieved 07.08.2021.}.

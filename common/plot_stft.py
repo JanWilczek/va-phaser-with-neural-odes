@@ -31,6 +31,7 @@ def plot_stft(signal, output_filepath, sampling_rate):
     plt.imshow(log_magnitude_stft, origin='lower', aspect='auto', extent=bounding_box)
     plt.xlabel('Time [s]')
     plt.ylabel('Frequency [kHz]')
+    plt.colorbar()
     plt.savefig(f'{output_filepath}.png', bbox_inches='tight', dpi=300, transparent=True)
     setup_pyplot_for_latex()
     save_tikz(output_filepath)
