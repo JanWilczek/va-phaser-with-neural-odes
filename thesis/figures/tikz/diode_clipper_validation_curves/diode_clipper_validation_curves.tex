@@ -8,8 +8,8 @@
         xlabel = Epoch,
         ylabel = Validation Loss,
     ]
-        \addplot[smooth,mark=none,color=blue, dashed] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-forward_euler_July16_13-14-04_axel_ODENet2Hidden9-tag-Loss_validation.csv};
-        \addplot[smooth,mark=none,color=red] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-lstm_June30_13-57-49_axel-tag-Loss_validation.csv};
+        \addplot[smooth,mark=none,color=red, dashed] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-forward_euler_July16_13-14-04_axel_ODENet2Hidden9-tag-Loss_validation.csv};
+        \addplot[smooth,mark=none,color=blue] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-lstm_June30_13-57-49_axel-tag-Loss_validation.csv};
         \legend{ODENet9(FE), LSTM8};
     \end{axis}
 \end{tikzpicture}

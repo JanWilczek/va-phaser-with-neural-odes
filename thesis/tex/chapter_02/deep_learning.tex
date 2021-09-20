@@ -6,11 +6,11 @@
 
 Broadly speaking, machine learning is a field of engineering using data to improve on a task at hand \cite{Goodfellow-et-al-2016}. A subfield of machine learning called deep learning uses multi-layer \acp{ANN} for the improvement process. 
 
-An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_{in}(t)$ to an output signal $s_{out}(t)$, i.\ e., $s_{out}(t) = f^*(s_{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_{out}(t) = f(s_{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims at finding a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
+An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_{in}(t)$ to an output signal $s_{out}(t)$, i.e., $s_{out}(t) = f^*(s_{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_{out}(t) = f(s_{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims to find a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
 
 % TODO: Add figure with a MLP
 
-A feedforward network consists of \emph{layers} which define the subsequent stages of computations. The first layer is called the \emph{input layer} and the last layer is called the \emph{output layer}. The layers in between are called the \emph{hidden layers}, because we do not observe their output directly. Each layer consists of a set of \emph{units}: affine transformations of unit's inputs followed by a nonlinearity. Each unit in a layer receives outputs of all units in the previous layer at its input and outputs a single scalar. The number of layers determines the \emph{depth} of the model. Feedforward networks with at least 1 hidden layer are called \emph{deep}. The number of units in a layer determines its \emph{width}.
+A feedforward network consists of \emph{layers} which define the subsequent stages of computations. The first layer is called the \emph{input layer} and the last layer is called the \emph{output layer}. The layers in between are called \emph{hidden layers}, because we do not observe their output directly. Each layer consists of a set of \emph{units}: affine transformations of provided inputs followed by a nonlinearity. In a fully connected layer, each unit receives outputs of all units in the previous layer at its input and outputs a single scalar. The number of layers determines the \emph{depth} of the model. Feedforward networks with at least 1 hidden layer are called \emph{deep}. The number of units in a layer determines its \emph{width}.
 
 More formally, the $l$-th layer of an \ac{MLP} outputs a vector $\pmb{y}^{(l)}$ according to the following formula
 
@@ -28,22 +28,22 @@ Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (
   \sigma (x) &= \frac{1}{1 + \exp (-x)}.\label{eq:logistic_sigmoid}
 \end{align}
 
-\acp{MLP} are \emph{universal function approximators}, i.\ e., they can approximate an arbitrary function (fulfilling very mild criteria) with an arbitrarily small error given enough width or depth \cite{Goodfellow-et-al-2016}.
-The dimensions of a 4-layer \ac{MLP} are given in a format $i \times h_1 \times h_2 \times o$, where $i$ is the size of the input layer, $h_1$ and $h_2$ are the numbers of units in the first and second hidden layers respectively, and $o$ is the size of the output layer. Along with the dimensions, one specifies the nonlinearity applied element-wise to the layers' output.
+\acp{MLP} are \emph{universal function approximators}, i.e., they can approximate an arbitrary function (fulfilling very mild criteria) with an arbitrarily small error given enough width or depth \cite{Goodfellow-et-al-2016}.
+The dimensions of a 3-layer \ac{MLP} are given in a format $i \times h_1 \times h_2 \times o$, where $i$ is the size of the input layer, $h_1$ and $h_2$ are the numbers of units in the first and second hidden layers respectively, and $o$ is the size of the output layer. Along with the dimensions, one specifies the nonlinearity applied element-wise to the layers' output.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Architectures}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-As deep learning is a widely and actively pursued field of science, there exist many different neural network architectures beyond the \ac{MLP}. They are often designed for the task at hand using expert knowledge or heuristics \cite{Goodfellow-et-al-2016}. In this section, two highly successful architectures are presented, both of them relevant for this thesis.
+As deep learning is a widely and actively pursued field of science, there exist many different neural network architectures beyond the \ac{MLP}. They are often designed for the task at hand using expert knowledge or heuristics \cite{Goodfellow-et-al-2016}. In this section, we present some established architectures relevant for this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Long Short-Term Memory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\Ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.\ e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
+\Ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as a part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
 
-A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to allow or disallow its \emph{memory cells} to be updated during processing. This helps to learn long-term dependencies which are crucial for the network to maintain a notion of a context.
+A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to allow or disallow its \emph{memory cells} to be updated during processing. This helps to learn long-term dependencies which are crucial for the network to maintain the notion of a context.
 
 A memory cell $i$ has an associated state vector at time step $t$ denoted $\pmb{c}_t$. The output of a memory cell is the \emph{hidden state} $\pmb{h}_t$, which is an element-wise (Hadamard) product of the output gate $\pmb{o}_t$ and the cell state processed by hyperbolic tangent
 
@@ -52,7 +52,7 @@ A memory cell $i$ has an associated state vector at time step $t$ denoted $\pmb{
   \label{eq:lstm_hidden_state}
 \end{equation}
 
-Output gate's purpose is to determine whether the cell will produce output at time step $t$. Output gate is a function of the current input and the previous hidden state
+Output gate's purpose is to determine whether the cell will produce an output at time step $t$. Output gate is a function of the current input and the previous hidden state
 
 \begin{equation}
   \pmb{o}_t = \sigma (\pmb{W}_{io} \pmb{x}_t + \pmb{b}_{io} + \pmb{W}_{ho} \pmb{h}_{t-1} + \pmb{b}_{ho}),
@@ -68,7 +68,7 @@ Input gate vector $\pmb{i}_t$ and forget gate vector $\pmb{f}_t$ are defined ana
   \pmb{f}_t &= \sigma (\pmb{W}_{if} \pmb{x}_t + \pmb{b}_{if} + \pmb{W}_{hf} \pmb{h}_{t-1} + \pmb{b}_{hf}). \label{eq:lstm_forget_gate}
 \end{align}
 
-The input gate determines the amount of information introduced to the cell state from the current input. The forget gate controls the amount of information preserved from the previous cell state. Finally, at each time step, the cell state is updated as follows
+Input gate determines the amount of information introduced to the cell state from the current input. The forget gate controls the amount of information preserved from the previous cell state. This results in the following update equation
 
 \begin{equation}
   \pmb{c}_t = \pmb{f}_t \odot \pmb{c}_{t-1} + \pmb{i}_t \odot \pmb{g}_t,
@@ -84,7 +84,7 @@ where $\pmb{g}_t$ represents the proposed update to the cell state
 
 which has its own weight matrices $\pmb{W}_{ig}, \pmb{W}_{hg}$, and bias vectors $\pmb{b}_{ig}, \pmb{b}_{hg}$.
 
-In order of computations, at time step $t$, we calculate the values of the gating vectors $\pmb{i}_t, \pmb{f}_t, \pmb{o}_t$ (\Equationst{eq:lstm_input_gate}{eq:lstm_forget_gate}{eq:lstm_output_gate} respectively), the proposed cell state update (\Equation{eq:lstm_proposed_update}), update the cell state (\Equation{eq:lstm_cell_update}), and the hidden state, which is also the output (\Equation{eq:lstm_hidden_state}) \cite{Pytorch}. The computational dependencies are depicted in \Figure{fig:lstm_memory_cell}.
+In order of computations, at time step $t$, we calculate the values of the gating vectors $\pmb{i}_t, \pmb{f}_t, \pmb{o}_t$ (\Equationst{eq:lstm_input_gate}{eq:lstm_forget_gate}{eq:lstm_output_gate} respectively), the proposed cell state update (\Equation{eq:lstm_proposed_update}), update the cell state (\Equation{eq:lstm_cell_update}) and the hidden state (\Equation{eq:lstm_hidden_state}) \cite{Pytorch}. The hidden state is also the output of the cell. The computational dependencies are depicted in \Figure{fig:lstm_memory_cell}.
 
 \begin{figure}
   \centering
@@ -94,9 +94,9 @@ In order of computations, at time step $t$, we calculate the values of the gatin
   \label{fig:lstm_memory_cell}
 \end{figure}
 
-\ac{LSTM} cells can be stacked in layers. The input to the $l$-th layer is the output of the $(l-1)$-th layer, $\pmb{x}_t^{(l)} = \pmb{h}_y^{(l-1)}$, with $\pmb{x}_t^{(0)} = \pmb{x}_t$ being the network input at time $t$.
+\ac{LSTM} cells can be stacked in layers. The input to the $l$-th layer is the output of the $(l-1)$-th layer, $\pmb{x}_t^{(l)} = \pmb{h}_t^{(l-1)}$, with $\pmb{x}_t^{(0)} = \pmb{x}_t$ being the network input at time $t$.
 
-In audio processing, \ac{LSTM}-based architectures have been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}. In the mentioned approaches, the outputs of the memory cells are supplied to a fully connected layer.
+In audio processing, \ac{LSTM}-based architectures have been successfully applied to guitar amplifier modeling \cite{Wright2019,Wrightetal2020} and time-varying effects modeling \cite{Wright2020}. In the referenced work, the outputs of the memory cells are supplied to a fully connected layer.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Residual Networks}
@@ -106,16 +106,16 @@ In audio processing, \ac{LSTM}-based architectures have been successfully applie
   \centering
   \input{figures/tikz/resblock.tex}
   \caption{A residual block (ResBlock). $\pmb{x}$ represents the block's input, $h(\pmb{x})$ represents a neural network learning the residual, and $f(\pmb{x})$ represents the block's output.}
+  \label{fig:resblock}
 \end{figure}
 
-Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. Its characteristic feature is the so-called \emph{\ac{ResBlock}} containing a \emph{skip connection}. The skip connection provides a direct path from the input to the output which allows for summing the input with the network's output. It effectively makes the network learn not the mapping $f^*(\pmb{x})$ but the residual $h^*(\pmb{x}) = f^*(\pmb{x}) - \pmb{x}$. On the one hand, it alleviates the problem of the \emph{vanishing gradient} \cite{Goodfellow-et-al-2016} and eventually allows for training very deep architectures with hundreds of layers \cite{He2015}. Depth is one of the most significant factors in neural network design, thus, being able to train deeper and deeper architectures allows for improving performance on the desired tasks. On the other hand, the skip connection can simplify the training process; instead of learning a complete function, the network must only learn its residual. For example, if the true mapping is the identity function, it is easier to learn the residual (which is $0$ everywhere) rather than the identity itself, which would involve approximating a hyperplane with nonlinear units \cite{He2015}.
+Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. Its characteristic feature is the so-called \emph{\ac{ResBlock}} containing a \emph{skip connection} (\Figure{fig:resblock}). The skip connection provides a direct path from the input to the output which allows summing the block's input with the network's output. It effectively makes the network learn not the mapping $f^*(\pmb{x})$ but the residual $h^*(\pmb{x}) = f^*(\pmb{x}) - \pmb{x}$. On the one hand, it alleviates the problem of the \emph{vanishing gradient} \cite{Goodfellow-et-al-2016} and eventually allows for training very deep architectures with hundreds of layers \cite{He2015}. Depth is one of the most significant factors in neural network design; being able to train deeper and deeper architectures allows for improving performance on the desired tasks. On the other hand, the skip connection can simplify the training process; instead of learning a complete function, the network must only learn its residual. For example, if the true mapping is the identity function, it is easier to learn the residual (which is $0$ everywhere) rather than the identity itself, which would involve approximating a hyperplane with nonlinear units \cite{He2015}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{State Trajectory Network}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The whole state is supplied together with current input sample as the input used to compute the next state, therefore, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
-
+A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. Current state is supplied together with current input sample as the input used to compute the next state, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
 
 \begin{figure}
   \centering
@@ -127,11 +127,11 @@ A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeli
 The architecture of \ac{STN} is shown in \Figure{fig:stn}. The layers $l_1, \dots, l_L$ are fully-connected and, thus, form an \ac{MLP}. A novelty in \ac{STN} in comparison to \ac{ResNet} is the presence of the residual scaling factor $h_\tau$. In \cite{Parker2019}, it is defined as
 
 \begin{equation}
-  h_\tau = \frac{f_{s\text{, train}}}{f_{s\text{, processing}}},
+  h_\tau = \frac{f_{s\text{,train}}}{f_{s\text{,processing}}},
 \end{equation}
-where $f_{s\text{, train}}, f_{s\text{, processing}}$ are the sampling rates used at train time and at processing time respectively. According to the authors, if the sampling rate at processing time is higher than the one used at training, high-frequency behavior of the original system may be lacking. Using sampling rates at processing time lower than the one used at training (without any additional antialiasing facility) can result in aliasing behavior. The aliasing aspect is important to this work and \ac{STN} naturally fits as a model to compare the tested methodology to.
+where $f_{s\text{,train}}, f_{s\text{,processing}}$ are the sampling rates used at train time and at processing time respectively. According to the authors, if the sampling rate at processing time is higher than the one used at training, high-frequency behavior of the original system may be lacking. Using sampling rates at processing time lower than the one used at training (without any additional anti-aliasing facility) can result in aliasing behavior. The aliasing aspect is important to this work and \ac{STN} naturally fits as a model to compare the tested ODENet methodology to.
 
-As most the recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing}.
+As most of the recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing} \cite{Parker2019}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Residual Integration Network, Bilinear Block}
@@ -143,7 +143,7 @@ This led to several architectures whose parametrization is similar to the popula
 One of such architectures is the \acf{RINN} \cite{Ouala2019}.
 In this approach, the residual is computed using $S$ stages of computations, each calculating one part of the residual. The neural network used for each stage is shared among the stages. The outputs of the stages are summed with weights which may either correspond to a numerical scheme or may be learned jointly with the neural network parameters.
 
-\Ac{RINN} using the \ac{RK} scheme of order 4 is depicted in \Figure{fig:rinn4}. The coefficients $\alpha_{\_}$ and $\beta_{\_}$ may be fixed according to \Table{tab:rk4_tableau} or learned from data jointly with the parameters of network F.
+\Ac{RINN} using the \ac{RK} scheme of order 4 is depicted in \Figure{fig:rinn4}. The coefficients $\alpha_\text{\underline{\hspace{2mm}}}$ and $\beta_\text{\underline{\hspace{2mm}}}$ may be fixed according to \Table{tab:rk4_tableau} or learned from data jointly with the parameters of network F.
 
 \begin{figure}
   \centering
@@ -168,7 +168,7 @@ for the parametrization of each stage consists of three fully-connected layers. 
 \subsection{Training of Neural Networks}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Training of \acp{ANN} is done using an optimization algorithm from the \emph{gradient descent} family of algorithms \cite{Goodfellow-et-al-2016}. In general, gradient descent methodology requires specifying a \emph{loss} or a \emph{target function} between the network's output and the desired output. The optimization then proceeds by sampling a \emph{minibatch} of examples from the \emph{training set} in each iteration, processing them with the network, and calculating the loss. The loss function is a measure of dissimilarity (or distance) between the network's output and the \emph{target}. For example, the training set may consist of images (inputs) with associated labels (targets). The network should learn the mapping from an image to its label. After calculating the loss, the gradient of the loss with respect to the network's parameters (mainly weights and biases) is computed via \emph{backpropagation} through the network using the chain rule of derivatives. After calculating the gradient of the loss with respect to each individual parameter, a step in the direction of the negated gradient is performed (steepest descent). The size of the step is determined by the \emph{learning rate}. Some algorithms use a different step size for each parameter, for example, Adam \cite{Kingma2017}.
+The training of \acp{ANN} is done using an optimization algorithm from the \emph{gradient descent} family of algorithms \cite{Goodfellow-et-al-2016}. In general, gradient descent methodology requires specifying a \emph{loss} or a \emph{target function} between the network's output and the desired output (\Section{sec:loss_functions}). The optimization then proceeds by sampling a \emph{minibatch} of examples from the \emph{training set} in each iteration, processing them with the network (the \emph{forward pass}), and calculating the loss. The loss function is a measure of dissimilarity (or distance) between the network's output and the \emph{target}. For example, the training set may consist of images (inputs) with associated labels (targets). The network should learn the mapping from each image to its label. The loss is calculated between the labels returned by the network and the correct labels. After calculating the loss, the gradient of the loss with respect to the network's parameters (mainly weights and biases) is computed via \emph{backpropagation} through the network using the chain rule of derivatives (\Section{sec:backpropagation}). After calculating the gradient of the loss with respect to each individual parameter, a step in the direction of the negated gradient is performed (steepest descent). The size of the step is determined by the \emph{learning rate}. Some algorithms use a different step size for each parameter, for example, Adam \cite{Kingma2017}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Loss Functions}
@@ -180,7 +180,7 @@ In order to train, test, and compare machine learning models, we need a performa
 \begin{equation}
   \mathcal{E}_\text{MSE}(y, \hat{y}) = \frac{1}{N} \sum \limits_{n=0}^{N-1} (y[n] - \hat{y}[n])^2,
 \end{equation}
-where $y$ is the target signal, $\hat{y}$ is the network's output and $N$ is the length of these two signals.
+where $y$ is the target signal, $\hat{y}$ is the network's output, and $N$ is the length of these two signals.
 
 In the context of audio processing, the \ac{MSE} loss has the drawback that it prioritizes errors of signals with large dynamics and neglects the inaccuracies of quiet parts \cite{Parker2019}. These quiet parts are often perceptually relevant. Therefore, a relative error measure is thought to be more suitable in audio applications.
 
@@ -197,12 +197,13 @@ In order to suppress the DC offset in the network's output a DC loss term may be
   \mathcal{E}_\text{DC}(y, \hat{y}) = \frac{\left(\frac{1}{N} \sum_{n=0}^{N-1} (y[n] - \hat{y}[n])\right)^2}{\frac{1}{N} \sum_{n=0}^{N-1} (y[n])^2}.
 \end{equation}
 
-Additionally, it is important to take the perceptual aspect into account by penalizing errors that result in less perceptually convincing results. This can be achieved using a \emph{pre-emphasis filter}, i.e., a filter that boosts the perceptually relevant frequencies and suppresses the irrelevant ones.
+Additionally, it is important to take the perceptual aspect into account by penalizing errors that result in less perceptually convincing results. This can be achieved using a \emph{pre-emphasis filter}, i.e., a filter that boosts the perceptually relevant frequencies and suppresses the less relevant ones.
 
 A first-order highpass filter can be used as a pre-emphasis filter as shown in \cite{Wright2019,Wrightetal2020,Wright2020}. Such a filter has a transfer function of the form
 
 \begin{equation}
   H(z) = 1 - 0.85 z^{-1}.
+  \label{eq:preemphasis_filter}
 \end{equation}
 
 This form of pre-emphasis is straightforward to implement, achieves perceptually superior performance to non-preemphasized loss functions, and is just slightly inferior to more complicated pre-emphasis filters \cite{Wright2019a}.
@@ -213,9 +214,9 @@ After \cite{Wright2019a,Wright2020,Wright2019}, this works uses the following co
   \mathcal{E}(y, \hat{y}) = \mathcal{E}_\text{ESR}(y_\text{p}, \hat{y}_\text{p}) + \mathcal{E}_\text{DC}(y, \hat{y}),
   \label{eq:final_loss_function}
 \end{equation}
-where "p" in the subscript marks signals that were pre-emphasized.
+where "p" in the subscript marks signals that were pre-emphasized with the filter from \Equation{eq:preemphasis_filter}.
 
-One can also compute the loss in a time-frequency domain. To this end, the \ac{STFT} needs to be calculated first using the following formula \cite{Pytorch}
+One can also compute the loss in the time-frequency domain. To this end, the \ac{STFT} needs to be calculated first using the following formula \cite{Pytorch}
 
 \begin{equation}
   X[\omega, m] = \sum \limits_{k=0}^{W-1} w[k] x[mh + k] \exp \left( -j\frac{2\pi \omega k}{W} \right),
@@ -227,9 +228,9 @@ where $w$ is a time-domain window of length $W$, $x$ is the time-domain audio si
 
 Having computed the \ac{STFT} representation, one can calculate the distance in the time-frequency domain between the obtained and desired signals and then average across all time frames and minibatch examples to obtain a single number. That number can be used for gradient calculation.
 
-Among the considered distances were the $L_1$ and $L_2$ norms. The distance we found most useful was the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as \cite{Gray1976}
+Among the considered distances were the $L_1$ and $L_2$ norms. However, the distance we found most useful was the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as \cite{Gray1976}
 \begin{equation}
-  LSD_\text{RMS}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} | \ln |X_1[\omega]|^2 - \ln |X_2[\omega]|^2 |^2}.
+  LSD_\text{RMS}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} \Bigl\lvert \ln \bigl\lvert X_1[\omega]\bigr\rvert^2 - \ln \bigl\lvert X_2[\omega]\bigr\rvert^2 \Bigr\rvert^2}.
   \label{eq:log_spectral_distance}
 \end{equation}
 
@@ -237,9 +238,10 @@ After obtaining $LSD_\text{RMS}$ for each time frame, we can compute the average
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Backpropagation}
+\label{sec:backpropagation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Backpropagation is an algorithm of calculating the gradient of the loss function with respect to the model parameters. The gradient is used in the optimization algorithm to update the network parameters at each step. Thus, backpropagation enables successful \ac{ANN} training.
+Backpropagation is an algorithm calculating the gradient of a loss function with respect to the model parameters. The gradient is used in the optimization algorithm to update the network parameters at each step. Thus, backpropagation enables successful \ac{ANN} training.
 
 The basis of the backpropagation algorithm is the chain rule of calculus. Using its vector-valued formulation, one can derive the scalar as well as the tensor formulations \cite{Goodfellow-et-al-2016}.
 
@@ -252,27 +254,28 @@ Assuming that $\pmb{x} \in \mathbb{R}^m, \pmb{y} \in \mathbb{R}^n$, and given fu
 
 In other words, to compute the influence of change in $x_i$ on $z$, we need to compute the rate of change of $z$ with respect to each element $y_i$ of $\pmb{y}$ multiplied by the rate of change of this element with respect to $x_i$. Speaking in terms of computational graphs, one needs to examine the influence of each path of computations from $x_i$ to $z$.
 
-The backpropagation algorithm applied to an \ac{MLP} comes down to applying \Equation{eq:chain_rule_of_calculus} layer-wise from the output layer to the input layer (hence the name \emph{back}propagation) after a \emph{forward pass}, i.\ e., output computation from an input minibatch.
+The backpropagation algorithm applied to an \ac{MLP} comes down to applying \Equation{eq:chain_rule_of_calculus} layer-wise from the output layer to the input layer (hence the name \emph{back}propagation).
 
-Suppose we performed a forward pass through an \ac{MLP} during training, obtained the network output $\pmb{y}^{(L)}$ and calculated the loss with respect to the target $\pmb{y}$, $\mathcal{E} = \mathcal{E}(\pmb{y},\pmb{y}^{(L)})$. To perform the gradient step, we need to know the derivative of the loss with respect to each of the network parameters (weights and biases). In mathematical terms, we need to compute $\frac{\partial \mathcal{E}}{\partial W_{ik}^{(l)}}$ and $\frac{\partial \mathcal{E}}{\partial b_{i}^{(l)}}$ for $l=1,\dots,L$.
+% Suppose we performed a forward pass through an \ac{MLP} during training, obtained the network output $\pmb{y}^{(L)}$, and calculated the loss with respect to the target $\pmb{y}$, $\mathcal{E} = \mathcal{E}(\pmb{y},\pmb{y}^{(L)})$. To perform the gradient step, we need to know the derivative of the loss with respect to each of the network parameters (weights and biases). In mathematical terms, we need to compute $\frac{\partial \mathcal{E}}{\partial W_{ik}^{(l)}}$ and $\frac{\partial \mathcal{E}}{\partial b_{i}^{(l)}}$ for $l=1,\dots,L$ and the respective $i$ and $k$ indices.
 
-For $l = L$ we obtain
+% For $l = L$ we obtain
 
-\begin{equation}
-  \frac{\partial \mathcal{E}}{\partial \pmb{y}^{(L)}} = \pmb{\delta}^{(L)}.
-\end{equation}
+% \begin{equation}
+%   \frac{\partial \mathcal{E}}{\partial \pmb{y}^{(L)}} = \pmb{\delta}^{(L)}.
+% \end{equation}
 
-We can than compute the derivative of the loss with respect to the weighted input $\pmb{z}^{(L)} = \pmb{W}^{(L)} \pmb{y}^{(L-1)} + \pmb{b}^{(L)}$ by applying \Equation{eq:chain_rule_of_calculus} to \Equation{eq:mlp_forward_pass}
+% We can then compute the derivative of the loss with respect to the weighted input $\pmb{z}^{(L)} = \pmb{W}^{(L)} \pmb{y}^{(L-1)} + \pmb{b}^{(L)}$ by applying \Equation{eq:chain_rule_of_calculus} to \Equation{eq:mlp_forward_pass}
 
-\begin{equation}
-  \frac{\partial \mathcal{E}}{\partial z_i^{(L)}} = \sum \limits_j \frac{\partial \mathcal{E}}{\partial y_j^{(L)}} \frac{\partial g(z_i^{(L)})}{\partial z_i^{(L)}} = \sum \limits_j \delta_j^{(L)} g'(z_i^{(L)}).
-\end{equation}
+% \begin{equation}
+%   \frac{\partial \mathcal{E}}{\partial z_i^{(L)}} = \sum \limits_j \frac{\partial \mathcal{E}}{\partial y_j^{(L)}} \frac{\partial g(z_i^{(L)})}{\partial z_i^{(L)}} = \sum \limits_j \delta_j^{(L)} g'(z_i^{(L)}).
+% \end{equation}
 
-We can now calculate the derivative of the loss with respect to the weights and the bias in the last layer
+% We can now calculate the derivative of the loss with respect to the weights and the bias in the last layer
 
-\begin{align}
-  \frac{\partial \mathcal{E}}{\partial W_{ik}^{(L)}} = \sum \limits_j \frac{\partial \mathcal{E}}{\partial z_j^{(L)}} 
-\end{align}
+% \begin{align}
+%   \frac{\partial \mathcal{E}}{\partial W_{ik}^{(L)}} = \sum \limits_j \frac{\partial \mathcal{E}}{\partial z_j^{(L)}}.
+% \end{align}
+%TODO: What happens for l = L-1,...,1?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Hyperparameters}
@@ -280,11 +283,11 @@ We can now calculate the derivative of the loss with respect to the weights and 
 
 The settings that control the learning process of machine learning models are called \emph{hyperparameters} \cite{Goodfellow-et-al-2016}. They differ from the model parameters in that they are not optimized during training. For example, the number and size of layers in an \ac{MLP} are hyperparameters but the weights and biases of particular units are not.
 
-One of the most influential hyperparameters that can make or break the training are the optimization algorithm and the learning rate. The optimization algorithm determines the possible functional solution space the learning algorithm can explore during training and the learning rate controls how fast that space is explored. From the implementation side, the optimization algorithm often comes down to a weighting scheme of the gradient entries, e.g., it can control the learning rate of particular parameters separately with a global learning rate controlling the overall scale of the steps. One of the most widely used optimization algorithms is Adam \cite{Kingma2017}.
+One of the most influential hyperparameters that can make or break the training are the optimization algorithm and the learning rate \cite{Goodfellow-et-al-2016,Bengio2012}. The optimization algorithm determines the possible functions in the solution space that the network can explore during training. The learning rate controls how fast that space is explored. From the implementation side, the optimization algorithm often comes down to a weighting scheme of the gradient entries, e.g., it can control the learning rate of particular parameters separately with a global learning rate controlling the overall scale of the steps. One of the most widely used optimization algorithms is Adam \cite{Kingma2017}.
 
-While the optimization algorithm is typically chosen initially and stays fixed among experiments, the learning rate is often fine-tuned to the problem at hand. It is deemed to have a significant impact on model performance \cite{Goodfellow-et-al-2016}. It can be searched for manually via trial and error, automatically using grid search or random search \cite{Goodfellow-et-al-2016}, or changed dynamically during training. The last strategy is referred to as the \emph{learning rate schedule}.
+While the optimization algorithm is typically chosen initially and stays fixed among experiments, the learning rate is often fine-tuned to the problem at hand. It is deemed to have a significant impact on model performance \cite{Goodfellow-et-al-2016,Bengio2012}. It can be searched for manually via trial and error, automatically using grid search or random search \cite{Goodfellow-et-al-2016}, or changed dynamically during training. The last strategy is referred to as the \emph{learning rate schedule}.
 
-There are a few popular schedules \cite{Smith2018}. In \emph{cyclical learning rate}, the learning rate varies linearly or exponentially in a specified range. In \emph{one-cycle} schedule, learning rate increases exponentially to a maximum value and then decreases exponentially below the initial value. The changes of the learning rate in these two schedules are depicted in \Figure{fig:learning_rate_schedules}. Another approach is to reduce the learning rate if an observed metric has stopped decreasing \cite{Pytorch}. All of the described approaches assume that a high learning rate is beneficial in the initial learning stage, acting as a regularizer against overfitting \cite{Smith2018}, but should be decreased when the loss function approaches a local minimum \cite{Goodfellow-et-al-2016}. 
+There are a few popular schedules \cite{Smith2018}. In the \emph{cyclical learning rate}, the learning rate varies linearly or exponentially back and forth within a specified range. In the \emph{one-cycle} schedule, the learning rate increases exponentially to a maximum value and then decreases exponentially below the initial value. The changes of the learning rate in these two schedules are depicted in \Figure{fig:learning_rate_schedules}. Another approach is to reduce the learning rate if an observed metric has stopped decreasing \cite{Pytorch}. All of the described approaches assume that a high learning rate is beneficial in the initial learning stage, acting as a regularizer against overfitting \cite{Smith2018}, but should be decreased when the loss function approaches a local minimum \cite{Goodfellow-et-al-2016}. 
 
 \begin{figure}
   \centering
@@ -337,6 +340,6 @@ Long before the renaissance of deep learning, function $f(t, \pmb{y})$ supplied 
 The fact that $f$ may be both a function or a neural network has strong implications. First, the derivative network must be memoryless. That is caused by the fact that we may want to use an implicit solver instead of an explicit one and, thus, integrate backwards in time. If the network maintained any information from the previous calls, the changed order of evaluation could severely obscure its output and would render its use impossible for implicit solvers. Similarly, changing the step size during integration would result in incorrect network output eliminating the use of adaptive-stepsize solvers. Thus, all "state" information should be supplied explicitly as an argument in the vector $\pmb{y}$.
 
 Second, data for ODENet training and validation can be synthesized using closed-form \acp{IVP} and numerical solvers. This helps in verifying the correctness of implementation and the possible shortcomings of the ODENet framework approach.
-\cite{Karlsson2019} successfully applied ODENet to model dynamical systems, i.\ e., systems governed by \acp{ODE}. It may be regarded as a proof of concept that ODENet is, in general, applicable to dynamical systems such as analog audio effects.
+\cite{Karlsson2019} successfully applied ODENet to model dynamical systems, i.e., systems governed by \acp{ODE}. It may be regarded as a proof of concept that ODENet is, in general, applicable to dynamical systems such as analog audio effects.
 
 Finally, the benefit of using a neural network instead of a closed-form formulation could help overcome the challenge of cases, where the closed-form derivative is limited by some assumptions (linearized, for example) or it is not known at all. If the data is governed by an \ac{ODE}, whether known or not, the ODENet should be able to learn it. This opens many exciting possibilities, on condition that the framework can actually learn the underlying dynamics.
