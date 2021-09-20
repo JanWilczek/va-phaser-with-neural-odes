@@ -4,14 +4,14 @@
 \label{chap:diode_clipper}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+This section presents the results of diode clipper modeling. First, the training data used for training and evaluation is discussed. Second, the training procedure is outlined. Third, the models themselves are listed with their hyperparameters. Finally, the obtained results are compared.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Training Data}
 \label{sec:diode_clipper_training_data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The dataset to be used for the diode clipper modeling consisted of 7 minutes and 59 seconds of guitar and bass recordings from \cite{Abesser2013} and \cite{Kehling2014} respectively. The amount of guitar recordings was roughly the same as the amount of bass recordings and their ordering was arbitrary. All recordings were single-channel and used \SI{44100}{Hz} sampling rate. 1 minute and 29 seconds (approximately 20\%) of these were used as the test set. Care was taken so that the test file begins with silence. The remaining data was split into the validation set (1 minute and 18 seconds) and the train set (5 minutes and 12 seconds) according to the 80:20 rule. The input were raw recordings and the target distorted signal was synthesized from a SPICE model of the circuit with the schematic from \Figure{fig:diode_clipper_circuit} and parameter values from \Table{tab:diode_clipper_element_parameters}. For the simulation, LTspice XVII by Analog Devices was used \cite{LTspice}. The synthesized target data sounds realistically and was previously used with success in \cite{Wright2019}.
+The dataset used for diode clipper modeling consisted of 7 minutes and 59 seconds of guitar and bass recordings from \cite{Abesser2013} and \cite{Kehling2014} respectively. The amount of guitar recordings was roughly the same as the amount of bass recordings and their ordering was arbitrary. All recordings were single-channel and used \SI{44100}{Hz} sampling rate. 1 minute and 29 seconds (approximately 20\%) of these were used as the test set. Care was taken so that the test file begins with silence. The remaining data was split into the validation set (1 minute and 18 seconds) and the train set (5 minutes and 12 seconds) according to the 80:20 rule. The input to the model was the raw recording. The target distorted signal was synthesized from a SPICE model of the circuit with the schematic from \Figure{fig:diode_clipper_circuit} and parameter values from \Table{tab:diode_clipper_element_parameters}. For the simulation, LTspice XVII by Analog Devices was used \cite{LTspice}. The synthesized target data sounds realistically and was previously used with success in \cite{Wright2019}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Training}
@@ -20,9 +20,9 @@ The dataset to be used for the diode clipper modeling consisted of 7 minutes and
 
 The training procedure was as follows. Firstly, the dataset was loaded, then the network architecture was initialized, and the training parameters were set (optimization algorithm, hyperparameters, learning rate schedule, loss function). Then the proper training was run for a fixed number of epochs. After each epoch, the validation loss was computed. Finally, after finishing the last epoch, the test set was processed and the model's output along with the final loss value were recorded.
 
-The training set was split into half-second segments. These segments were randomly shuffled at the beginning of each epoch and split into minibatches of a predetermined size.
+The training set was split into half-second segments. These segments were randomly shuffled at the beginning of each epoch and grouped into minibatches of a predetermined size.
 
-A single epoch consisted of processing the minibatches of segments in chunks (subsegments) of a given length. After each subsegment, the gradient of the loss with respect to the network parameters was calculated using the \ac{BPTT}. Then, the gradient step was performed using the Adam optimizer \cite{Kingma2017}, the computational graph was discarded and the next subsegment processed. After each minibatch, the learning rate scheduler performed its step (if such a scheduler was set). When an epoch ended, model parameters were stored by overwriting the previously saved ones. Additionally, the training session kept track of the model which performed best on the validation set.
+A single epoch consisted of processing the minibatches of segments in chunks (subsegments) of length equal to 2048 samples. After each subsegment, the gradient of the loss with respect to the network parameters was calculated using the \ac{BPTT}. Then, a gradient step was performed using the Adam optimizer \cite{Kingma2017}, the computational graph was discarded, and the next subsegment was processed. After each minibatch, the learning rate scheduler performed its step (if such a scheduler was set). When an epoch ended, model parameters were stored by overwriting the previously saved ones. Additionally, the training session kept track of the model which performed best on the validation set.
 
 The number of epochs in training was determined by manually observing the validation loss curve. If the validation loss reached a plateau below 1\% of the loss, the training was deemed successful.
 
@@ -35,9 +35,9 @@ For the assessment of how well ODENet can model the diode clipper, two derivativ
 
 For benchmark, the following architectures were chosen:
 \begin{itemize}
-    \item \ac{STN} $2 \times 4 \times 4 \times 4 \times 1$ with $\tanh$ nonlinearity and biases enabled only in the second layer from \cite{Parker2019}, 
-    \item \ac{RINN} with \ac{RK}4 integration parameters and time step fixed to 1 (\ac{RINN}4) using a bilinear block with 6 units in each fully connected layer (BB6) from \cite{Ouala2019}, and 
-    \item \ac{LSTM} with 8 hidden units and a $8 \times 1$ output \ac{MLP} (mapping the hidden states to an output sample) from \cite{Wright2019} (\ac{LSTM}8).
+    \item \ac{STN} from \cite{Parker2019} of size $2 \times 4 \times 4 \times 4 \times 1$ with $\tanh$ nonlinearity and biases enabled only in the second layer, 
+    \item \ac{RINN} from \cite{Ouala2019} with \ac{RK}4 integration parameters and time step fixed to 1 (\ac{RINN}4) using a bilinear block with 6 units in each fully connected layer (BB6), and 
+    \item \ac{LSTM}-based architecture from \cite{Wright2019} with 8 hidden units and an $8 \times 1$ output \ac{MLP} mapping the hidden states to an output sample (\ac{LSTM}8).
 \end{itemize}
 
 All of the architectures were trained on audio data at \SI{44100}{Hz} sampling rate.
@@ -50,7 +50,7 @@ hyperparameter values during training, training time (in epochs and hours), and 
     \label{tab:diode_clipper_models_data}
 \end{table}
 
-Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal in using various sampling rates at test time was to analyze the presence of aliasing in the output. During test, \ac{STN} and ODENet models were informed about the new value of the times step, whereas \ac{LSTM}8 and \ac{RINN}4 were not. Test loss $\mathcal{E}(y, \hat{y})$ given by \Equation{eq:final_loss_function}, \ac{segSNR} given by \Equation{eq:seg_snr}, and \ac{ODG} described in \Section{subsec:va_evaluation}.
+Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal of using various sampling rates at test time was to analyze the presence of aliasing in the output and inspect the accuracy of the models at sampling rates different than the one in training. During test, \ac{STN} and ODENet models were informed about the new value of the time step, whereas \ac{LSTM}8 and \ac{RINN}4 were not. Test loss $\mathcal{E}(y, \hat{y})$ given by \Equation{eq:final_loss_function}, \ac{segSNR} given by \Equation{eq:seg_snr}, and \ac{PEAQ} described in \Section{subsec:va_evaluation}.
 were calculated for each model and test sampling rate.
 
 All models were tested on a one long sequence but the implicit Adams scheme consistently diverged in this test setting. Therefore, its tests were conducted using segments of 22050 samples which were concatenated afterwards.
@@ -60,9 +60,7 @@ All models were tested on a one long sequence but the implicit Adams scheme cons
 \label{sec:diode_clipper_results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In \Table{tab:diode_clipper_results} the test results of the compared models are shown. Loss and \ac{segSNR} are rounded to two significant digits, whereas \ac{ODG} is rounded to three significant digits. The best results are given in bold (lowest loss, highest \ac{segSNR} and \ac{ODG}). The models are separately evaluated in terms of the learned model quality (test sampling rate equal to training sampling rate) and performance at sampling rates different from the training sampling rate. 
-
-% ODENet @ 22kHz test sampling rate goes into self oscillations
+In \Table{tab:diode_clipper_results} the test results of the compared models are shown. The loss and \ac{PEAQ} were rounded to two significant digits, whereas \ac{segSNR} was rounded to one decimal place. The best results are given in bold (lowest loss, highest \ac{segSNR} and \ac{PEAQ}). The models were separately evaluated in terms of the learned model quality (test sampling rate equal to training sampling rate) and performance at sampling rates different from the training sampling rate. 
 
 \begin{table}[]
     \caption{Test results of the diode clipper models.}
@@ -74,7 +72,7 @@ In \Table{tab:diode_clipper_results} the test results of the compared models are
 \subsubsection{Model Quality}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The model quality in terms of the loss function is very good for all compared architectures (less than 1\% loss). In casual listening, only \ac{RINN}4 sounds differently from the target (despite the low test loss value). In terms of metrics, \ac{LSTM} outperformed all other models, even multiple times larger ODENet100(FE).
+The model quality in terms of the loss function is very good for all compared architectures (less than 1\% loss). In casual listening, only \ac{RINN}4 sounds differently from the target (despite the low test loss value). In terms of metrics, \ac{LSTM} outperformed all other models, even the multiple times larger ODENet100(FE).
 
 Results comparable to the established \ac{LSTM} and \ac{STN} architectures prove that ODENet is suitable for diode clipper modeling. Although the diode clipper is quite simple to learn, the results provide a proof of concept that ODENet, extended to incorporate an input signal into its processing, could be used for \ac{VA} modeling.
 
@@ -82,11 +80,11 @@ Results comparable to the established \ac{LSTM} and \ac{STN} architectures prove
 \subsubsection{Behavior at Unseen Sampling Rates}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For \SI{22050}{Hz} test sampling rate (half of the training sampling rate), the lowest loss value was obtained for \ac{RINN}4. The second best result, \ac{LSTM}8, obtained the highest \ac{segSNR} and \ac{ODG} and sounds most accurately in casual listening. The output of \ac{STN} as well as all ODENet models contain high amount of digital distortion. Moreover, ODENet100(FE) and ODENet9(IA) fall into self-oscillations, i.e., contain a constant high-frequency component even when input signal is very quiet. Although the digital distortion sounds unpleasantly, it is a sign that the networks learned the true derivative (or residual in the case of \ac{STN}) contained in the data. The derivative networks probably output a correct value but given a larger time step without any additional tuning, the produced sound contains components beyond the Nyquist frequency, which causes aliasing in the output sound. Contrary to the casually perceived quality of \ac{LSTM}, all produced outputs received equally low \ac{ODG}. It seems that models that were not informed about the time step significantly outperformed the informed ones. Thus, they are more suitable for processing at sampling rates lower than the training sampling rate.
+For \SI{22050}{Hz} test sampling rate (half of the training sampling rate), the lowest loss value was obtained for \ac{RINN}4. The second best result, \ac{LSTM}8, obtained the highest \ac{segSNR} and \ac{PEAQ} and sounds most accurately in casual listening. The output of \ac{STN} as well as all ODENet models contain high amount of digital distortion. Moreover, ODENet100(FE) and ODENet9(IA) fall into self-oscillations, i.e., contain a constant high-frequency component even when the input signal is very quiet. Although the digital distortion sounds unpleasantly, it is a sign that the networks learned the true derivative (or the residual in the case of \ac{STN}) contained in the data. The derivative networks probably output a correct value but given a larger time step without any additional tuning, the produced sound contains components beyond the Nyquist frequency, which cause aliasing in the output sound. Contrary to the casually perceived quality of \ac{LSTM}, all produced outputs received equally low \ac{PEAQ}. It seems that models that were not informed about the time step significantly outperformed the informed ones. Thus, they are more suitable for processing at sampling rates lower than the training sampling rate.
 
 For \SI{48000}{Hz} test sampling rate, again \ac{LSTM} outperformed other models in the analyzed metrics, yet all models had test loss value smaller than 1\%. In casual listening, there is not much difference between the model outputs.
 
-For \SI{192000}{Hz} test sampling rate, the advantage of the ODENet becomes clear with the largest model having the lowest loss value and biggest \ac{segSNR} and \ac{ODG}. The smaller ODENet models obtained just slightly worse results, especially given their significantly smaller number of parameters. As could be expected, architectures that take the sampling rate into account during processing (\ac{STN}, ODENet) obtained lower loss value and significantly higher \ac{ODG}. The only exception is the low \ac{ODG} of ODENet9(IA), probably because of zero-clicks resulting from all-zero initialization at the beginning of each segment. A slower but more accurate implicit solver obtained loss comparable to a hundred times larger architecture using an explicit scheme. However, all test loss values are below 1\% and \ac{segSNR} is relatively high.
+For \SI{192000}{Hz} test sampling rate, the advantage of the ODENet becomes clear with the largest model having the lowest loss value and biggest \ac{segSNR} and \ac{PEAQ}. The smaller ODENet models obtained just slightly worse results, especially given their significantly smaller number of parameters. As could be expected, architectures that take the sampling rate into account during processing (\ac{STN}, ODENet) obtained lower loss value and significantly higher \ac{PEAQ}. The only exception is the low \ac{PEAQ} of ODENet9(IA), probably because of zero-clicks resulting from all-zero initialization at the beginning of each segment. A slower but more accurate implicit solver obtained loss comparable to a hundred times larger architecture using an explicit scheme. However, all test loss values are below 1\% and \ac{segSNR} is relatively high.
 
 All in all, ODENet architectures proved their suitability for processing at sampling rates higher than training sampling rate. It was possible even for the smallest considered parametrization (9 hidden units) and the simplest numerical scheme, i.e., the forward Euler. 
 
@@ -120,7 +118,7 @@ The results of solving the diode clipper \ac{ODE} with the \ac{BDF} solver at 8x
     \label{tab:diode_clipper_ode_solvers}
 \end{table}
 
-One can observe that the numerical solutions of the \ac{ODE} achieved less than 1\% of the test loss. At the same time they obtained much lower values of \ac{segSNR} and \ac{ODG} than the ODENet models from \Table{tab:diode_clipper_results}. Moreover, the data input to the ODENet did not need any oversampling, because having a non-aliased dataset rules out the possibility of the derivative network learn an aliasing behavior. Thus, apart from not having to derive the \ac{ODE} and learning it from data instead, ODENet additionally does not need its input to be oversampled.
+One can observe that the numerical solutions of the \ac{ODE} achieved less than 1\% of the test loss. At the same time they obtained much lower values of \ac{segSNR} and \ac{PEAQ} than the ODENet models from \Table{tab:diode_clipper_results}. Moreover, the data input to the ODENet did not need any oversampling, because having a non-aliased dataset rules out the possibility of the derivative network learn an aliasing behavior. Thus, apart from not having to derive the \ac{ODE} and learning it from data instead, ODENet additionally does not need its input to be oversampled.
 
 It needs to be stressed again, that data used to conduct training and test of the \acp{ANN} was synthesized as well using LTspice \cite{LTspice}. There is, however, no reason to doubt that the networks would perform equally well on discretized, measured data.
 
