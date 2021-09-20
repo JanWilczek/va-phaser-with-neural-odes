@@ -84,11 +84,13 @@ For \SI{22050}{Hz} test sampling rate (half of the training sampling rate), the 
 
 For \SI{48000}{Hz} test sampling rate, again \ac{LSTM} outperformed other models in the analyzed metrics, yet all models had test loss value smaller than 1\%. In casual listening, there is not much difference between the model outputs despite the low \ac{PEAQ}.
 
-For \SI{192000}{Hz} test sampling rate, the advantage of the ODENet becomes clear with the largest model having the lowest loss value and biggest \ac{segSNR} and \ac{PEAQ}. The smaller ODENet models obtained just slightly worse results, especially given their significantly smaller number of parameters. As could be expected, architectures that take the sampling rate into account during processing (\ac{STN}, ODENet) obtained lower loss value and significantly higher \ac{PEAQ}. The only exception is the low \ac{PEAQ} of ODENet9(IA), probably because of zero-clicks resulting from all-zero initialization at the beginning of each segment. A slower but more accurate implicit solver obtained loss comparable to a hundred times larger architecture using an explicit scheme. However, all test loss values are below 1\% and \ac{segSNR} is relatively high.
+For \SI{192000}{Hz} test sampling rate, the advantage of ODENet becomes clear with the largest model having the lowest loss value and the biggest \ac{segSNR} and \ac{PEAQ}. The smaller ODENet models obtained just slightly worse results, especially given their significantly smaller number of parameters. As could be expected, architectures that take the sampling rate into account during processing (\ac{STN}, ODENet) obtained lower loss value and significantly higher \ac{PEAQ} than the non-informed ones. The only exception is the low \ac{PEAQ} of ODENet9(IA), probably because of the clicks resulting from all-zero initialization at the beginning of each segment and subsequent concatenation. A slower but more accurate implicit solver obtained loss comparable to a hundred times larger architecture using an explicit scheme. However, all test loss values are below 1\% and \ac{segSNR} is relatively high.
 
-All in all, ODENet architectures proved their suitability for processing at sampling rates higher than training sampling rate. It was possible even for the smallest considered parametrization (9 hidden units) and the simplest numerical scheme, i.e., the forward Euler. 
+All in all, ODENet architectures proved their suitability for processing at sampling rates higher than the training sampling rate. It was possible even for the smallest considered parametrization (9 hidden units) and the simplest numerical scheme, i.e., the forward Euler. 
 
-Although there was an advantage of the implicit solver over the explicit one in terms of the loss value but at the cost of doubled time needed to process the same amount of data, as indicated by the training time in \Table{tab:diode_clipper_models_data}. For the diode clipper model, it does not seem beneficial to increase the derivative network's capacity beyond the necessary minimum (here: 9 hidden units). 
+There was an advantage of the implicit solver over the explicit one in terms of the loss value but at the cost of doubled time needed to process the same amount of data, as indicated by the training time in \Table{tab:diode_clipper_models_data}. 
+
+For the diode clipper model, it does not seem beneficial to increase the derivative network's capacity beyond the necessary minimum (here: 9 hidden units). 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Convergence Speed}
@@ -107,13 +109,13 @@ Looking at how the validation loss of ODENet and LSTM changes during training, a
 \subsubsection{Comparison to Numerical Solvers}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-To get a sense of how a learned derivative performs in comparison to closed-form solution, a numerical solver was run on the diode clipper \ac{ODE} as presented in \Equation{eq:diode_clipper_equation} using the test set at \SI{44100}{Hz} sampling rate. To avoid aliasing, we oversampled the data before supplying it to the solver. The initial experiments showed, that scaling the input data by a factor of 20 significantly decreased the loss. After the solver completed the processing, its output was rescaled so as to minimize the \ac{ESR} as given by \Equation{eq:esr}. The loss function-informed scalings were supposed to compensate for the fact that the solver or the \ac{ODE} could not learn the proper scaling in a training phase as the \ac{ANN} models did and that scaling in itself should not determine the loss value of the solver's output. 
+To get a sense of how a learned derivative performs in comparison to the closed-form formula, a numerical solver was run on the diode clipper \ac{ODE} as presented in \Equation{eq:diode_clipper_equation} using the test set at \SI{44100}{Hz} sampling rate. To avoid aliasing, we oversampled the data before supplying it to the solver. The initial experiments showed, that scaling the input data by a factor of 20 significantly decreased the loss. After the solver completed the processing, its output was rescaled so as to minimize the \ac{ESR} as given by \Equation{eq:esr}. The loss function-informed scaling was supposed to compensate for the fact that the solver or the \ac{ODE} could not learn the proper scaling in a training phase as the \ac{ANN} models could and that scaling in itself should not determine the loss value of the solver's output. 
 
-The results of solving the diode clipper \ac{ODE} with the \ac{BDF} solver at 8x sampling rate and with the \ac{RK}4 solver at 30x sampling rate are presented in \Table{tab:diode_clipper_ode_solvers}. The metrics were computed with respect to the target of the test set used to evaluate the \ac{ANN} models.
+The results of solving the diode clipper \ac{ODE} with the \ac{BDF} solver at 8x sampling rate and with the \ac{RK}4 solver at 30x sampling rate are presented in \Table{tab:diode_clipper_ode_solvers}. These solvers are a part of Scipy library \cite{SciPy}. The metrics were computed with respect to the target of the test set used to evaluate the \ac{ANN} models.
 
 \begin{table}[]
     \centering
-    \caption{Results of solving the diode clipper \ac{ODE}.}
+    \caption{Results of numeric solutions to the diode clipper \ac{ODE}.}
     \input{tex/chapter_03/diode_clipper_ode_solvers.tex}
     \label{tab:diode_clipper_ode_solvers}
 \end{table}
