@@ -3,21 +3,12 @@
 \label{subsec:va_evaluation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An important part of \ac{VA} modeling is validation of how well the model imitates the original device. The quality of the \ac{VA} algorithm can be assessed objectively (using a similarity or distance measure between the outputs of the model and the device for a given input signal) or subjectively (using a listening test involving human participants).
+An important part of \ac{VA} modeling is the assessment of how well the model imitates the original device. The quality of the \ac{VA} algorithm can be assessed objectively (using a similarity or distance measure between the outputs of the model and the device for a given input signal) or subjectively (using a listening test involving human participants). 
 
-%TODO Remove the section and add a disclaimer that only objective measures are used in this work.
+In this work, a few objective measures between the target signal (device output) and the model were used. The subjective evaluation has been left for future work. One of the employed measures was the \ac{ESR} described in \Section{sec:loss_functions}.
+The \ac{ESR} is a distance measure that is minimized during neural network training and used as a validation and test metric. We may, however, employ a different objective measure at test time than at training time. The reasons for this are that not all measures are suited to neural network training and that different objective measures let us assess different aspects of the model.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Objective Measures}
-\label{subsubsec:va_objective_measures}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-In this work, a few objective measures between the target signal (device output) and the model were used. One of them was the \ac{ESR} described in \Section{sec:loss_functions}.
-\ac{ESR} is a distance measure that is minimized during neural network training, validation, and testing. We may, however, employ a different objective measure at test time than at training time. The reason for this are that not all measures are suited to neural network training and that different objective measures let us assess different aspects of the model.
-
-For the assessment of the models in this work, especially their aliasing behavior, two objective measures from the domain of speech enhancement were used.
-
-The \ac{segSNR} is an average signal-to-noise ratio across segments of the device output $s[n]$ and model output $\hat{s}[n]$ \cite{Hansen98}
+For the assessment of the models in this work, especially their aliasing behavior, an objective measure from the domain of speech enhancement was used. The \ac{segSNR} is an average signal-to-noise ratio across segments of the system-undery-study output $s[n]$ and the model output $\hat{s}[n]$ \cite{Hansen98}
 
 \begin{equation}
     \text{segSNR}(s, \hat{s}) = \frac{1}{M} \sum \limits_{m=0}^{M-1} 10 \log_{10} \left( \frac{\sum_{n=0}^{N-1} (s[n+mR])^2}{\sum_{n=0}^{N-1} (\hat{s}[n+mR] - s[n+mR])^2} \right),
@@ -25,8 +16,6 @@ The \ac{segSNR} is an average signal-to-noise ratio across segments of the devic
 \end{equation}
 
 where $m$ is the frame index, $R$ is the number of samples between successive frames, $N$ is the frame length, and $M$ is the number of frames.
-
-\cite{ITU1387}.
 
 % The \ac{fw-segSNR} is a perceptually motivated objective measure that uses a weighted average and a time-frequency representation \cite{Hu2008}
 
@@ -43,10 +32,10 @@ where $m$ is the frame index, $R$ is the number of samples between successive fr
 
 For computing \ac{segSNR} we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved 05.08.2021.}.
 
-\Ac{segSNR} is different from \ac{ESR} in that they measure the relative similarity between the target and model signals (the higher the obtained value the more accurate the model) and that they work in a frame-wise fashion. The latter allows large local errors to influence the overall measure more than non-segmental measures, which has high correlation with subjective quality when it comes to speech signals \cite{Hansen98}.
+\Ac{segSNR} is different from \ac{ESR} in that it measures the relative similarity between the target and the model signals (the higher the obtained value the more accurate the model) and that it works in a frame-wise fashion. \ac{segSNR} allows large local errors to influence the overall measure more than the \ac{ESR}, which has high correlation with the subjective quality when it comes to speech signals \cite{Hansen98}. That is why it was chosen for this work: as a temporary substitute for the listening tests.
 
 The other objective measure used was the \ac{ODG} from the \ac{ITU} recommendation \cite{ITU1387}. 
-Results obtained from \ac{ODG} are often referred to as \acs{PEAQ} which stands for "\acl{PEAQ}". However, the acronym is often translated into "Perceptual Evaluation of Audio Quality", a name not present in the recommendation. The goal of \ac{ODG} (\acs{PEAQ}) is to approximate the results of a subjective evaluation via listening tests. In the listening tests, the subjects evaluate the impairment of the presented signals with respect to a known reference signal. The given score is termed \ac{SDG}. Both, \ac{ODG} and \ac{SDG} are continuous-valued numbers from -4 to 0, where 0 means that the degradation from the reference is imperceptible and -4 means that the impairment is very annoying. These grades are ultimately converted to the ITU-R five-grade impairment scale \cite{ITU1387}. All of them are presented in \Table{tab:itu_impairment_scale}.
+Results obtained from \ac{ODG} are often referred to as \acs{PEAQ} which stands for "\acl{PEAQ}". However, the acronym is often translated into "Perceptual Evaluation of Audio Quality", a name not present in the recommendation. The goal of \acs{PEAQ} is to approximate the results of a subjective evaluation via listening tests. In the listening tests, the subjects evaluate the impairment of the presented signals with respect to a known reference signal. The given score is termed \ac{SDG}. Both, \ac{ODG} and \ac{SDG}, are continuous-valued numbers from -4 to 0, where 0 means that the degradation from the reference is imperceptible and -4 means that the impairment is very annoying. These grades are ultimately converted to the ITU-R five-grade impairment scale \cite{ITU1387}. All of them are presented in \Table{tab:itu_impairment_scale}.
 
 \begin{table}
   \centering

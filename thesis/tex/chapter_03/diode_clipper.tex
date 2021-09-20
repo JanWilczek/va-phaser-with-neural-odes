@@ -50,7 +50,7 @@ hyperparameter values during training, training time (in epochs and hours), and 
     \label{tab:diode_clipper_models_data}
 \end{table}
 
-Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal in using various sampling rates at test time was to analyze the presence of aliasing in the output. During test, \ac{STN} and ODENet models were informed about the new value of the times step, whereas \ac{LSTM}8 and \ac{RINN}4 were not. Test loss $\mathcal{E}(y, \hat{y})$ given by \Equation{eq:final_loss_function}, \ac{segSNR} given by \Equation{eq:seg_snr}, and \ac{ODG} described in \Section{subsubsec:va_objective_measures}.
+Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal in using various sampling rates at test time was to analyze the presence of aliasing in the output. During test, \ac{STN} and ODENet models were informed about the new value of the times step, whereas \ac{LSTM}8 and \ac{RINN}4 were not. Test loss $\mathcal{E}(y, \hat{y})$ given by \Equation{eq:final_loss_function}, \ac{segSNR} given by \Equation{eq:seg_snr}, and \ac{ODG} described in \Section{subsec:va_evaluation}.
 were calculated for each model and test sampling rate.
 
 All models were tested on a one long sequence but the implicit Adams scheme consistently diverged in this test setting. Therefore, its tests were conducted using segments of 22050 samples which were concatenated afterwards.
