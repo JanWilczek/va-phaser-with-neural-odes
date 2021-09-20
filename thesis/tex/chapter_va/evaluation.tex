@@ -1,0 +1,66 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluation}
+\label{subsec:va_evaluation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+An important part of \ac{VA} modeling is validation of how well the model imitates the original device. The quality of the \ac{VA} algorithm can be assessed objectively (using a similarity or distance measure between the outputs of the model and the device for a given input signal) or subjectively (using a listening test involving human participants).
+
+%TODO Remove the section and add a disclaimer that only objective measures are used in this work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Objective Measures}
+\label{subsubsec:va_objective_measures}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this work, a few objective measures between the target signal (device output) and the model were used. One of them was the \ac{ESR} described in \Section{sec:loss_functions}.
+\ac{ESR} is a distance measure that is minimized during neural network training, validation, and testing. We may, however, employ a different objective measure at test time than at training time. The reason for this are that not all measures are suited to neural network training and that different objective measures let us assess different aspects of the model.
+
+For the assessment of the models in this work, especially their aliasing behavior, two objective measures from the domain of speech enhancement were used.
+
+The \ac{segSNR} is an average signal-to-noise ratio across segments of the device output $s[n]$ and model output $\hat{s}[n]$ \cite{Hansen98}
+
+\begin{equation}
+    \text{segSNR}(s, \hat{s}) = \frac{1}{M} \sum \limits_{m=0}^{M-1} 10 \log_{10} \left( \frac{\sum_{n=0}^{N-1} (s[n+mR])^2}{\sum_{n=0}^{N-1} (\hat{s}[n+mR] - s[n+mR])^2} \right),
+    \label{eq:seg_snr}
+\end{equation}
+
+where $m$ is the frame index, $R$ is the number of samples between successive frames, $N$ is the frame length, and $M$ is the number of frames.
+
+\cite{ITU1387}.
+
+% The \ac{fw-segSNR} is a perceptually motivated objective measure that uses a weighted average and a time-frequency representation \cite{Hu2008}
+
+% \begin{equation}
+%     \text{fw-segSNR}(s, \hat{s}) = \frac{10}{M} \sum \limits_{m=0}^{M-1} \frac{ \sum_{j=1}^{K} W(j,m) \log_{10} \left( \frac{|S(j,m)|^2}{(|S(j,m)|-|\hat{S}(j,m)|)^2} \right)}{\sum_{j=1}^{K} W(j,m)},
+% \end{equation}
+% where $W(j,m)$ is the weight assigned to the $j$-th frequency band, $K$ is the number of bands, $m$ is the frame index, $M$ is the number of frames, $|S(j,m)|$ is the magnitude of a Gaussian window-weighted target signal spectrum in the $j$-th frequency band and at the $m$-th frame, and $|\hat{S}(j,m)|$ is the same value computed for the signal from the model. Additionally,
+
+% \begin{equation}
+%     W(j,m) = |S(j,m)|^{0.2}.
+% \end{equation}
+
+% The frequency bands are spaced according to the 25 critical bands of the ear spanning the range \SIrange{50}{3597.63}{Hz}. Therefore, only frequencies up to \SI{4000}{Hz} are taken into consideration although the frequencies above are still relevant for musical perception.
+
+For computing \ac{segSNR} we used a Python implementation available on GitHub\footnote{\url{https://github.com/schmiph2/pysepm}, retrieved 05.08.2021.}.
+
+\Ac{segSNR} is different from \ac{ESR} in that they measure the relative similarity between the target and model signals (the higher the obtained value the more accurate the model) and that they work in a frame-wise fashion. The latter allows large local errors to influence the overall measure more than non-segmental measures, which has high correlation with subjective quality when it comes to speech signals \cite{Hansen98}.
+
+The other objective measure used was the \ac{ODG} from the \ac{ITU} recommendation \cite{ITU1387}. 
+Results obtained from \ac{ODG} are often referred to as \acs{PEAQ} which stands for "\acl{PEAQ}". However, the acronym is often translated into "Perceptual Evaluation of Audio Quality", a name not present in the recommendation. The goal of \ac{ODG} (\acs{PEAQ}) is to approximate the results of a subjective evaluation via listening tests. In the listening tests, the subjects evaluate the impairment of the presented signals with respect to a known reference signal. The given score is termed \ac{SDG}. Both, \ac{ODG} and \ac{SDG} are continuous-valued numbers from -4 to 0, where 0 means that the degradation from the reference is imperceptible and -4 means that the impairment is very annoying. These grades are ultimately converted to the ITU-R five-grade impairment scale \cite{ITU1387}. All of them are presented in \Table{tab:itu_impairment_scale}.
+
+\begin{table}
+  \centering
+  \caption{The ITU-R five-grade impairment scale.}
+  \begin{tabular}{c | c}
+    \toprule
+    \textbf{Grade} & \textbf{Degradation description} \\ \midrule
+    5.0 & Imperceptible \\
+    4.0 & Perceptible but not annoying \\
+    3.0 & Slightly annoying \\
+    2.0 & Annoying \\
+    1.0 & Very annoying\\
+  \end{tabular}
+  \label{tab:itu_impairment_scale}
+\end{table}
+
+As the procedure for calculating \ac{ODG} is quite complex, we used a ready-made implementation by Giuseppe Gottardi\footnote{\url{https://github.com/akinori-ito/peaqb-fast}, retrieved 07.08.2021.}.

@@ -1,0 +1,127 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Phaser}
+\label{chap:phaser}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Phaser is a filter-based, time-varying effect \cite{Zoelzer2011}. It applies a series of notches to the spectrum of the input signal. The center frequencies of these notches are controlled by a \ac{LFO} and vary periodically over time, moving up and down the frequency range. The time-varying notches create a "swooshing" sound that is often identified as "robotic".
+
+Phaser should not be confused with another notch-sweeping effect, namely, flanger. Flanging differs from phasing in that the time-varying notches are equally-spaced and seemingly infinite in number (limited only by the sampling rate), whereas in phasing the notches are nonuniformly spaced and their number is fixed. In flanging, the notches are created by summing the direct path with an output of a variable-length delay line, whose length is controlled by an \ac{LFO}. The result is a time-varying comb filter. Its sound is often compared to a jet taking off.
+
+This section explains the basics of phasing and a typical implementation of a phaser using allpass filters. Firstly, a high-level view is presented followed by an explanation of an allpass filter and its impact on the phaser's behavior. Finally, known digital phaser models are presented.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Overview}
+\label{sec:phaser_overview}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}
+    \centering
+    \vspace{2mm}
+    \input{figures/tikz/phaser.tex}
+    \caption{A phaser implementation.}
+    \label{fig:phaser}
+\end{figure}
+
+Phaser is typically implemented by summing the input signal processed by a series of notch or allpass filters with a direct path \cite{Zoelzer2011}. Additionally, a feedback connection can be added around the filter chain \cite{Kiiski2016}. The feedback connection makes the phaser behavior more complex by introducing resonances and non-notch frequency boosting.
+
+In \Figure{fig:phaser}, a basic diagram of a phaser is depicted. This schematic holds for analog as well as digital phasers \cite{PASPWEB2010}. The direct path consists of a simple scaling by $D$ ("dry" signal). The indirect path is a series of allpass filters followed by a scaling by $W$ ("wet" signal). The allpass filters introduce frequency-dependent delay. Due to these shifts, summation of the two paths causes destructive and constructive interference, resulting in notches and peaks in the magnitude spectrum of the phaser. Scaling factors $D$ and $W$ control the amount of interference. The deepest possible notches appear when $D = W$. To keep the amplitude constant, one typically couples $D$ and $W$ so that $D + W = 1$.
+
+To understand phaser's effect on the signal, one should examine the allpass filters first. That is the topic of the next section.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{First-Order Allpass Filter}
+\label{sec:first_order_allpass_filter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \vspace{2mm}
+    \input{figures/tikz/first_order_allpass_filter.tex}
+    \caption{First-order digital allpass filter.}
+    \label{fig:first_order_allpass_filter}
+\end{figure}
+
+An allpass filter is a filter with unit magnitude gain at all frequencies. The general digital allpass filter has the following transfer function \cite{Zoelzer2011,PASPWEB2010,Kiiski2016}
+
+\begin{equation}
+    H_\text{allpass}(z) = \frac{a_1 + z^{-1}}{1 + a_1 z^{-1}},
+    \label{eq:allpass_transfer_function}
+\end{equation}
+where $a_1$ coefficient determines the break frequency of the allpass, i.e., the frequency at which the phase shift is exactly $-\frac{\pi}{2}$ $\frac{\text{rad}}{\text{s}}$. Given the break frequency $f_c$ in Hz and the sampling rate $f_s$ in Hz, the $a_1$ coefficient can be calculated as
+
+\begin{equation}
+    a_1 = \frac{\tan (\pi f_c / f_s) - 1}{\tan(\pi f_c / f_s) + 1}.
+    \label{eq:allpass_coefficient}
+\end{equation}
+
+\Equation{eq:allpass_coefficient} is the result of applying the bilinear transform to the transfer function of an analog allpass
+
+\begin{equation}
+    H_{\text{allpass}}^{\text{a}} (s) = \frac{s - 2\pi f_c}{s + 2\pi f_c},
+\end{equation}
+where 'a' superscript marks the analog (continuous) domain of the transfer function.
+
+The difference equation resulting from \Equation{eq:allpass_transfer_function} is
+\begin{equation}
+    y[n] = a_1 x[n] + \underbrace{x[n-1] - a_1 y[n-1]}{d[n-1]},
+    \label{eq:allpass_filter_difference_equation}
+\end{equation}
+where $x[n]$ denotes the input signal to the phaser and $y[n]$ denotes the output signal of the phaser. An diagram depicting this equation is shown in \Figure{fig:first_order_allpass_filter}. The right-hand side of \Equation{eq:allpass_filter_difference_equation} can be implemented using a one-element delay line.
+
+% TODO Explain shortly what you mean by the phase response (argument of the complex transfer function)
+
+The phase response of an allpass filter (specified in the \SIrange{-\pi}{0}{rad} range) is given by the formula \cite{Kiiski2016}
+
+\begin{equation}
+    \theta (\omega) = - \omega + 2 \arctan \left( \frac{a_1 \sin \omega}{1 + a_1 \cos \omega} \right),
+\end{equation}
+where $\omega = 2 \pi f / f_s$ is the angular frequency.
+
+In \Figure{fig:phase_response_allpass_filter} the phase responses of a digital allpass filters with different break frequencies are shown. An allpass does not change the magnitude of any frequency and it introduces a frequency-dependent delay that varies from 0 at DC to $-\pi$ at $f = \frac{f_s}{2}$ (or, equivalently, $\omega = \pi$). 
+
+\begin{figure}
+    \centering
+    \input{figures/tikz/allpass_phase_response.tex}
+    \caption{Phase response of a first-order allpass filter.}
+    \label{fig:phase_response_allpass_filter}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Analog and Digital Phasers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Cascading \ac{LTI} systems results in the summation of their phase responses \cite{Oppenheim1997}. Thus, a cascade of $N$ allpass filters introduces a frequency dependent delay that varies from 0 at DC to $N\pi$ at $\frac{f_c}{2}$ \cite{PASPWEB2010}. Summing the cascaded filters with the direct path (as in \Figure{fig:phaser}) leads to the appearance of notches in the output spectrum of a phaser at frequencies for which the phase shift is an odd multiplicity of $\pi$, i.e., $\pi, 3\pi, 5\pi$, etc. Since each first-order allpass filter has a maximum phase shift of $\pi$, $N$ allpass filters result in $\frac{N}{2}$ notches (assuming that $N$ is even).
+
+The core idea of a phaser is to modulate the break frequencies of the allpass filters so that the notches sweep up and down the frequency range creating an audibly interesting effect. In analog phasers, which are implemented using analog electronic circuitry, the values of physical components are be modulated. In digital phasers, the implementers can decide whether to modulate the break frequencies directly or to modulate just the allpass coefficients \cite{Kiiski2016}. The difference between these two design decisions are shown in \Figure{fig:pink_noise_phasered}. Modulating the allpass coefficients in a fixed range yields similar notch variation curves for each break frequency (middle spectrogram). Modulating the break frequencies themselves using a traditional frequency modulation scheme yields larger frequency variations for high frequencies than for low frequencies.
+
+\newcommand{\scaleboxsize}{0.65}
+\newcommand{\subfigurewidththree}{0.3\textwidth}
+\begin{figure}
+    \begin{subfigure}{0.33\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.28\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/pink_noise_10s-target_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.34\textwidth}
+        \centering
+        \scalebox{0.66}{\input{figures/tikz/pink_noise_10s_phasered_stft.tex}}
+    \end{subfigure}
+    \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. The color scale is in decibels. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
+    \label{fig:pink_noise_phasered}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Phaser Modeling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The phaser effect pedal was introduced in the ...s and gained popularity with musicians like ... Especially popular were Univibe and MXR Phase 90 models, which currently can reach high price on the second-hand market. Therefore, a need arises to create a faithful \ac{VA} models of famous phaser pedals.
+
+The variety of approaches to phaser modeling is representative for any \ac{VA} model. \cite{Eichas2014} analyze a circuit schematic of the MXR Phase 90 and derive a state-space model making have use of matrices. This is an example of a white-box approach.
+
+\cite{Kiiski2016} use the chirp signal to measure the impulse response of the Fame Sweet Tone phaser, which in this approach is treated as a \ac{LTV} system. This is not a fully black-box approach, because in the signal model design they make use of the circuit schematics to derive the modulation scheme. It, thus, falls under the category of grey-box modeling.
+
+\cite{Wright2020} provide a proof of concept that a phaser pedal can be modeled in an almost black-box fashion. The only deviation from the input-to-output relationship modeling is the estimation of the \ac{LFO} signal which is used to condition the neural network. The same type of data, i.e., the input signal and the (estimated or ground truth) \ac{LFO} signal, is used for this work.
+
+This work extends the work in \cite{Wright2020} in that it examines a different approach to neural modeling of the phaser. Instead of using an \ac{RNN}, an \ac{MLP} is used to learn the derivative of the system with respect to time. The \ac{MLP} is conditioned on the input, \ac{LFO}, and output at any given time (not just in a sample-by-sample manner). A desirable property of a system capable of modeling the phaser in this way would be a smaller computational complexity in comparison to an \ac{LSTM} network.
