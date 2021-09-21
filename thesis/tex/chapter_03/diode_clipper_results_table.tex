@@ -1,26 +1,4 @@
 \newcommand{\modelNameCellWidth}{1.8cm}
-%     \resizebox{\textwidth}{!}{%
-%     \begin{tabular}{@{}l|c|l|c|c|c|c|c|c|@{}}
-%         \cmidrule(l){2-9}
-%         & Model & Metric & LSTM8 & \makecell{STN\\3x4\\tanh} & \makecell{ODENet100\\(FE)\\ReLU} & \makecell{ODENet9\\(FE)\\ReLU} & \makecell{ODENet9\\(IA)\\SELU} & \makecell{RINN4\\BB6} \\ \midrule
-%         \multicolumn{1}{|c|}{\multirow{12}{*}{\rotatebox[origin=c]{270}{\hspace{1cm}test sampling rate [Hz]}}} & \multirow{3}{*}{ \makecell{44100\\(train)}} & 
-%                                     Loss    & \textbf{0.041\%} & 0.45\% & 0.090\% & 0.37\% & 0.11\% & 0.19\% \\
-%         \multicolumn{1}{|l|}{} &  & segSNR  & \textbf{30.5} & 18.5 & 25.3 & 23.4 & 24.6 & 25.0 \\
-%         \multicolumn{1}{|l|}{} &  & ODG     & \textbf{-1.9} & -3.3 & -2.8 & -2.7 & -3.8 & -2.8 \\  \cmidrule(l){2-9}
-%         \multicolumn{1}{|l|}{} & \multirow{3}{*}{22050} & 
-%                                     Loss    & 0.71\% & 230\% & 530\% & 28\% & 63\% & \textbf{0.54\%} \\
-%         \multicolumn{1}{|l|}{} &  & segSNR &  \textbf{24.0} & 5.1 & -5.7 & 10.9 & 2.5 & 23.9 \\
-%         \multicolumn{1}{|l|}{} &  & ODG     & \textbf{-1.0} & -3.9 & -3.3 & -3.9 & -3.8 & -1.7 \\ \cmidrule(l){2-9}
-%         \multicolumn{1}{|l|}{} & \multirow{3}{*}{48000} & 
-%                                     Loss    & \textbf{0.042\%} & 0.37\% & 0.080\% & 0.34\% & 0.094\% & 0.18\% \\
-%         \multicolumn{1}{|l|}{} &  & segSNR  & \textbf{30.0} & 18.9 & 25.9 & 23.7 & 24.8 & 25.0 \\
-%         \multicolumn{1}{|l|}{} &  & ODG     & \textbf{-1.8} & -3.2 & -2.8 & -2.3 & -3.8 & -2.7 \\ \cmidrule(l){2-9}
-%         \multicolumn{1}{|l|}{} & \multirow{3}{*}{192000} & 
-%                                     Loss    & 0.55\% & 0.36\% & \textbf{0.070\%} & 0.22\% & 0.086\% & 0.56\% \\
-%         \multicolumn{1}{|l|}{} &  & segSNR  & 21.6 & 19.0 & \textbf{28.4} & 25.9 & 24.7 & 20.6 \\
-%         \multicolumn{1}{|l|}{} &  & ODG     & -3.6 & -3.2 & \textbf{-2.2} & -2.4 & -3.8 & -3.6 \\ \bottomrule
-%     \end{tabular}%
-%     }
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{} c l | c c c c c c @{}}
         \toprule
@@ -28,18 +6,18 @@
         \multirow{3}{*}{ \makecell{44100\\(train)}} 
          & Loss    & \textbf{0.041\%} & 0.45\% & 0.090\% & 0.37\% & 0.11\% & 0.19\% \\
          & segSNR  & \textbf{30.5} & 18.5 & 25.3 & 23.4 & 24.6 & 25.0 \\
-         & ODG     & \textbf{-1.9} & -3.3 & -2.8 & -2.7 & -3.8 & -2.8 \\  \midrule
+         & PEAQ     & \textbf{3.1} & 1.7 & 2.2 & 2.3 & 1.2 & 2.2 \\  \midrule
         \multirow{3}{*}{22050} 
          & Loss    & 0.71\% & 230\% & 530\% & 28\% & 63\% & \textbf{0.54\%} \\
          & segSNR &  \textbf{24.0} & 5.1 & -5.7 & 10.9 & 2.5 & 23.9 \\
-         & ODG     & \textbf{-1.0} & -3.9 & -3.3 & -3.9 & -3.8 & -1.7 \\ \midrule
+         & PEAQ     & \textbf{4.0} & 1.1 & 1.7 & 1.1 & 1.2 & 3.3 \\ \midrule
         \multirow{3}{*}{48000} 
          & Loss    & \textbf{0.042\%} & 0.37\% & 0.080\% & 0.34\% & 0.094\% & 0.18\% \\
          & segSNR  & \textbf{30.0} & 18.9 & 25.9 & 23.7 & 24.8 & 25.0 \\
-         & ODG     & \textbf{-1.8} & -3.2 & -2.8 & -2.3 & -3.8 & -2.7 \\ \midrule
+         & PEAQ     & \textbf{3.2} & 1.8 & 2.2 & 2.7 & 1.2 & 2.3\\ \midrule
         \multirow{3}{*}{192000} 
          & Loss    & 0.55\% & 0.36\% & \textbf{0.070\%} & 0.22\% & 0.086\% & 0.56\% \\
          & segSNR  & 21.6 & 19.0 & \textbf{28.4} & 25.9 & 24.7 & 20.6 \\
-         & ODG     & -3.6 & -3.2 & \textbf{-2.2} & -2.4 & -3.8 & -3.6 \\ \bottomrule
+         & PEAQ     & 1.4 & 1.8 & \textbf{2.8} & 2.6 & 1.2 & 1.4 \\ \bottomrule
     \end{tabular}%
     }
