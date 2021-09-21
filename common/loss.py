@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from CoreAudioML import training
+from CoreAudioML.training import LossWrapper, ESRLoss
 
 
 def l1_stft(output, target):
@@ -30,9 +30,12 @@ def log_spectral_distance(output, target):
     return torch.mean(torch.mean(log_spectral_distance_frames, -1)) # Average across time and batch dimensions
 
 def get_loss_function(loss_function_name):
-    if loss_function_name == 'ESR_DC_prefilter':
-        return training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
-    elif loss_function_name.lower() in globals():
-        return globals()[loss_function_name.lower()]
+    loss_function_name = loss_function_name.lower()
+    if loss_function_name == 'esr_dc_prefilter':
+        return LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
+    elif loss_function_name == 'esrloss':
+        return ESRLoss()
+    elif loss_function_name in globals():
+        return globals()[loss_function_name]
     else:
         raise RuntimeError('Invalid loss function name.')

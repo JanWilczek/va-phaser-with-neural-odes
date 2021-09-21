@@ -7,7 +7,7 @@ from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, 
 
 def get_architecture(args, dt):
     if args.method == 'LSTM':
-        network = networks.SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=2)
+        network = networks.SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=2, output_size=args.state_size)
     elif args.method == 'ResIntRK4':
         network = ResidualIntegrationNetworkRK4(nn.Sequential(BilinearBlock(input_size=3,
                                                               output_size=6,
@@ -22,6 +22,7 @@ def get_architecture(args, dt):
                                     'excitation_size': 2,
                                     'output_size': args.state_size,
                                     'hidden_size': args.hidden_size}
+        # Initialize the derivative network by name
         derivative_network = globals()[args.derivative_network](**derivative_network_args)
         network = ODENet(derivative_network, method, dt)
     return network
