@@ -88,13 +88,15 @@ def get_peaq_measures(args):
             odg_match = odg_regex.match(line)
             if odg_match:
                 odg = float(odg_match.group(1))
+
+    peaq = odg + 5
     
     # Clean up
     clean_signal_int16_path.unlink(missing_ok=True)
     estimated_signal_int16_path.unlink(missing_ok=True)
     Path(PEAQ_OUTPUT_FILENAME).unlink()
 
-    return di, odg
+    return di, odg, peaq
 
 
 def main():
@@ -109,14 +111,14 @@ def main():
     # ESR
     esr_value, full_loss_value = get_losses(clean_signal, estimated_signal)
     
-    # DI, ODG
-    di, odg = get_peaq_measures(args)
+    # DI, ODG, PEAQ
+    di, odg, peaq = get_peaq_measures(args)
 
     estimated_signal_dir = Path(args.estimated_signal_path).parent
     measures_output_file_path = estimated_signal_dir / 'measures.csv'
 
-    measures = np.asarray([[seg_snr, fw_seg_snr, esr_value, full_loss_value, di, odg]])
-    np.savetxt(measures_output_file_path, measures, delimiter=',', header='segSNR,fw-segSNR,ESR,ESR+DC+prefilter,DI,ODG')
+    measures = np.asarray([[seg_snr, fw_seg_snr, esr_value, full_loss_value, di, odg, peaq]])
+    np.savetxt(measures_output_file_path, measures, delimiter=',', header='segSNR,fw-segSNR,ESR,ESR+DC+prefilter,DI,ODG,PEAQ')
 
 
 if __name__ == '__main__':

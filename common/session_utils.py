@@ -272,6 +272,7 @@ def argument_parser():
         '\n{:<20}\t{:<20}'.format('L1_STFT', 'L1(STFT_output, STFT_target).') + \
         '\n{:<20}\t{:<20}'.format('L2_STFT', 'L2(STFT_output, STFT_target).') + \
         '\nlog_spectral_distance')
+    ap.add_argument('--derivative_network', default='DerivativeMLP2', help='Derivative network to use in case of ODENet.')
     return ap
 
 
