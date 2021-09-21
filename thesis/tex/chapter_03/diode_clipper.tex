@@ -51,7 +51,7 @@ hyperparameter values during training, training time (in epochs and hours), and 
 \end{table}
 
 Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal of using various sampling rates at test time was to analyze the presence of aliasing in the output and inspect the accuracy of the models at sampling rates different than the one in training. During test, \ac{STN} and ODENet models were informed about the new value of the time step, whereas \ac{LSTM}8 and \ac{RINN}4 were not. Test loss $\mathcal{E}(y, \hat{y})$ given by \Equation{eq:final_loss_function}, \ac{segSNR} given by \Equation{eq:seg_snr}, and \ac{PEAQ} described in \Section{subsec:va_evaluation}.
-were calculated for each model and test sampling rate.
+were calculated for each model and test sampling rate. The meaning of the \ac{PEAQ} scores was explained in \Table{tab:itu_impairment_scale}.
 
 All models were tested on a one long sequence but the implicit Adams scheme consistently diverged in this test setting. Therefore, its tests were conducted using segments of 22050 samples which were concatenated afterwards.
 
