@@ -297,6 +297,19 @@ There are a few popular schedules \cite{Smith2018}. In the \emph{cyclical learni
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Regularization}
+\label{subsec:regularization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In the context of deep learning, \emph{regularization} is any action, whose goal is to decrease the generalization error but not the training error \cite{Goodfellow-et-al-2016}. In other words, it is a form of a constraint on the neural network to prevent it from overfitting the training set.
+
+Regularization can be introduced in different ways. One of them is to put a \emph{penalty term} on the parameters of the model. This strategy adds the $L_2$ norm of the weights and biases of the \ac{ANN} to the cost function multiplied by some fixed constant $\lambda$. This additional term prevents the parameters from achieving very high absolute values \cite{Goodfellow-et-al-2016}. High absolute values are undesired because they may cause some layers to neutralize each other or render the network unstable. An example of such neutralization would be a multiplication of a number by a large weight and successive subtraction of a large bias. This strategy of regularization is called \emph{weight decay}. In parameter lists, "weight decay" refers to the scale of the penalty term, i.e., the value of $\lambda$.
+
+Another way to regularize the model is via big learning rates \cite{Smith2018}. This can be achieved with learning rate schedules, which were explained in the previous section.
+
+Additionally, one can also regularize via minibatch size \cite{Bengio2012}. Smaller size makes the minibatch estimate of the batch gradient more noisy and, thus, enables the network to explore more of the parameter space.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Teacher Forcing, Curriculum Learning, and Scheduled Sampling}
 \label{subsec:teacher_forcing}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
