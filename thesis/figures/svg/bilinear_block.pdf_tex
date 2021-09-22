@@ -1,6 +1,6 @@
 %% Creator: Inkscape 1.1 (c68e22c387, 2021-05-23), www.inkscape.org
 %% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
-%% Accompanies image file 'bilinear_block.pdf' (pdf, eps, ps)
+%% Accompanies image file 'figures/svg/bilinear_block.pdf' (pdf, eps, ps)
 %%
 %% To include the image in your LaTeX document, write
 %%   \input{<filename>.pdf_tex}
@@ -59,5 +59,6 @@
     \put(0.24277924,0.19108348){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$l_1$}\end{tabular}}}}%
     \put(0.37568178,0.19108348){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$l_2$}\end{tabular}}}}%
     \put(0.64262241,0.19156395){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$l_3$}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/bilinear_block.pdf}}%
   \end{picture}%
 \endgroup%
