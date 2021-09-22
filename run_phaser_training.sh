@@ -7,16 +7,28 @@ CUDA_VISIBLE_DEVICES=0 python phaser/main.py --method forward_euler --batch_size
 
 CUDA_VISIBLE_DEVICES=0 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.001 --one_cycle_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --hidden_size 30 --nonlinearity SELU --validate_every 10 --state_size 1 --name L1_STFT_DerivativeMLP2 --loss_function L1_STFT
 #--------------------------------------------------------
-# Allpass states
+# FameSweetDryWet dataset (for dummies)
 #--------------------------------------------------------
 #--------------- TO RUN -----------------------------------------
-CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.0005 --cyclic_lr 0.005 --teacher_forcing always --dataset_name PinkNoise --state_size 1 --hidden_size 30 --nonlinearity SELU --validate_every 10 --loss_function log_spectral_distance --derivative_network DerivativeMLP --name state1
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --teacher_forcing always --dataset_name FameSweetDryWet --state_size 1 --hidden_size 10 --nonlinearity Identity --validate_every 10 --loss_function ESRLoss --derivative_network DerivativeMLP --name state1
+#--------------------------------------------------------
+# PinkNoise dataset
+#--------------------------------------------------------
+#--------------- TO RUN -----------------------------------------
+#------------------------ ALREADY RUN -----------------------------
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --teacher_forcing always --dataset_name PinkNoise --state_size 1 --hidden_size 15 --nonlinearity Tanh --validate_every 10 --loss_function log_spectral_distance --derivative_network DerivativeMLP --name state1
 
-CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.0005 --cyclic_lr 0.005 --teacher_forcing always --dataset_name PinkNoise --state_size 11 --hidden_size 30 --nonlinearity SELU --validate_every 10 --loss_function log_spectral_distance --derivative_network DerivativeMLP --name state11
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --teacher_forcing always --dataset_name PinkNoise --state_size 11 --hidden_size 15 --nonlinearity Tanh --validate_every 10 --loss_function log_spectral_distance --derivative_network DerivativeMLP --name state11
 
 CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method LSTM --batch_size 64 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --dataset_name PinkNoise --hidden_size 16 --validate_every 10 --loss_function log_spectral_distance
 #--------------------------------------------------------
+# Allpass states
+#--------------------------------------------------------
+#--------------- TO RUN -----------------------------------------
+#--------------------------------------------------------
 #--------------- ALREADY RUN -----------------------------------------
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --teacher_forcing always --dataset_name FameSweetToneOffNoFbAllpassStates --state_size 11 --hidden_size 9 --nonlinearity Identity --validate_every 10 --loss_function ESRLoss --weight_decay 0.0000001 --derivative_network DerivativeMLP
+
 CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.0005 --cyclic_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFbAllpassStates --state_size 11 --hidden_size 30 --nonlinearity SELU --validate_every 10 --loss_function ESRLoss --weight_decay 0.0000001 --derivative_network DerivativeMLP --name DerivativeMLP
 
 CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.0005 --cyclic_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFbAllpassStates --state_size 11 --hidden_size 30 --nonlinearity SELU --validate_every 10 --loss_function ESRLoss --weight_decay 0.0000001 --derivative_network DerivativeMLP2 --name DerivativeMLP2
