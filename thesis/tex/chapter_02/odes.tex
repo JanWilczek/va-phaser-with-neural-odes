@@ -118,7 +118,7 @@ A simple example of an implicit method is the \emph{backward Euler} method, whic
 
 Using \Equation{eq:backward_euler} in \Equation{eq:time_stepping_identity} sometimes requires iterating between the two, while the first estimate of $y(t_{i+1})$ can be computed using the forward Euler formula of \Equation{eq:forward_euler}. The iterations stop when the difference between subsequent estimates of $y(t_{i+1})$ is sufficiently small \cite{Yeh2007}. 
 
-Since the number of iterations cannot be predicted in advance, the running times of these solvers are not fixed. In practice, they are typically much slower than explicit solvers. Therefore, they are not suitable for real-time computations.
+Since the number of iterations cannot be predicted in advance, the running times of implicit solvers are not fixed. In practice, they are typically much slower than explicit solvers. Therefore, they are not suitable for real-time computations.
 
 Solvers that are capable of solving stiff problems are called \emph{stiff solvers}.
 
