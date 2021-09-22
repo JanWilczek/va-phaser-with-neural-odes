@@ -7,6 +7,7 @@ Learning rate & 0.001 & 0.001 & 0.001 & 0.001 & 0.001 & 0.001 \\ \midrule
 Learning rate schedule & none & none & \makecell{one-cycle\\LR 0.02} & \makecell{one-cycle\\LR 0.02} & \makecell{cyclical\\LR 0.01} & \makecell{one-cycle\\LR 0.02} \\ \midrule
 Epochs in training & 200 & 340 & 300 & 300 & 600 & 600 \\ \midrule
 Hours in training & 1 & 49 & 8 & 10 & 75 & 24 \\ \midrule
-Teacher forcing & never & bernoulli & always & always & always & never \\ \bottomrule
+Teacher forcing & never & bernoulli & always & always & always & never \\ \midrule
+Minibatch size & 40 & 256 & 256 & 256 & 256 & 512 \\ \bottomrule
 \end{tabular}%
 }
