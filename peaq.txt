@@ -1,0 +1,442 @@
+
+File: diode_clipper/runs/diodeclip/forward_euler/July13_07-49-07_axel_ODENet2Hidden100/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.785
+WinModDiff1b: 222.181
+ADBb: 4.10674
+EHSb: 0.000277387
+AvgModDiff1b: 223.153
+AvgModDiff2b 880.758
+RmsNoiseLoudb: 1.60654
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.225237
+ODG: -1.6445
+
+File: diode_clipper/runs/diodeclip/forward_euler/July13_12-01-25_axel_ODENet2Hidden100Test22kHz/test_output.wav
+
+frame: 1930
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 148.766
+WinModDiff1b: 122.176
+ADBb: 4.0376
+EHSb: 0.000621933
+AvgModDiff1b: 121.95
+AvgModDiff2b 858.901
+RmsNoiseLoudb: 0.293798
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.93257
+ODG: -3.89929
+
+File: diode_clipper/runs/diodeclip/forward_euler/July13_10-53-41_axel_ODENet2Hidden100Test48kHz/test_output.wav
+
+frame: 4203
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.96
+WinModDiff1b: 239.089
+ADBb: 4.17168
+EHSb: 0.000254843
+AvgModDiff1b: 231.813
+AvgModDiff2b 856.977
+RmsNoiseLoudb: 1.5996
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.399236
+ODG: -1.46628
+
+File: diode_clipper/runs/diodeclip/forward_euler/July13_11-08-11_axel_ODENet2Hidden100Test192kHz/test_output.wav
+
+frame: 16817
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 149.029
+WinModDiff1b: 124.643
+ADBb: 4.22597
+EHSb: 0.000440055
+AvgModDiff1b: 87.9236
+AvgModDiff2b 96.3957
+RmsNoiseLoudb: 1.40306
+MFPDb: 1
+RelDistFramesb: 1
+DI: -2.2593
+ODG: -3.58289
+
+File: diode_clipper/runs/diodeclip/stn/May20_07-33-56_axel/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.857
+WinModDiff1b: 203.332
+ADBb: 4.13762
+EHSb: 0.000510708
+AvgModDiff1b: 203.237
+AvgModDiff2b 836.28
+RmsNoiseLoudb: 1.64538
+MFPDb: 1
+RelDistFramesb: 1
+DI: -0.213091
+ODG: -2.1029
+
+File: diode_clipper/runs/diodeclip/stn/August09_17-36-02_axel_Test22050/test_output.wav
+
+frame: 1930
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.154
+WinModDiff1b: 116.015
+ADBb: 3.98941
+EHSb: 0.000486018
+AvgModDiff1b: 118.148
+AvgModDiff2b 793.054
+RmsNoiseLoudb: 0.230482
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.92901
+ODG: -3.89901
+
+File: diode_clipper/runs/diodeclip/stn/August09_17-39-06_axel_Test48000/test_output.wav
+
+frame: 4203
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.981
+WinModDiff1b: 219.742
+ADBb: 4.19754
+EHSb: 0.000408295
+AvgModDiff1b: 208.4
+AvgModDiff2b 782.127
+RmsNoiseLoudb: 1.60003
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.23366
+ODG: -1.63577
+
+File: diode_clipper/runs/diodeclip/stn/August09_17-45-45_axel_Test192000/test_output.wav
+
+frame: 16817
+BandwidthRefb: 921
+BandwidthTestb: 849
+TotalNMRb 148.095
+WinModDiff1b: 116.939
+ADBb: 4.20748
+EHSb: 0.000685859
+AvgModDiff1b: 81.6588
+AvgModDiff2b 86.348
+RmsNoiseLoudb: 1.41971
+MFPDb: 1
+RelDistFramesb: 0.999822
+DI: 0.316902
+ODG: -1.55001
+
+File: diode_clipper/runs/diodeclip/lstm/June30_13-57-49_axel/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.799
+WinModDiff1b: 216.583
+ADBb: 4.08876
+EHSb: 0.000210646
+AvgModDiff1b: 217.265
+AvgModDiff2b 851.142
+RmsNoiseLoudb: 1.51418
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.174907
+ODG: -1.69681
+
+File: diode_clipper/runs/diodeclip/lstm/July13_11-57-04_axel_LSTMTest22kHz/test_output.wav
+
+frame: 1930
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.15
+WinModDiff1b: 119.831
+ADBb: 3.98684
+EHSb: 0.00031063
+AvgModDiff1b: 126.524
+AvgModDiff2b 862.649
+RmsNoiseLoudb: 0.214415
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.92795
+ODG: -3.89892
+
+File: diode_clipper/runs/diodeclip/lstm/July13_09-24-08_axel_LSTMTest48kHz/test_output.wav
+
+frame: 4203
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.984
+WinModDiff1b: 248.477
+ADBb: 4.15934
+EHSb: 0.000192809
+AvgModDiff1b: 239.977
+AvgModDiff2b 854.118
+RmsNoiseLoudb: 1.49338
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.448786
+ODG: -1.41653
+
+File: diode_clipper/runs/diodeclip/lstm/July13_11-59-01_axel_LSTMTest192kHz/test_output.wav
+
+frame: 16817
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 148.042
+WinModDiff1b: 123.855
+ADBb: 4.23343
+EHSb: 0.000336506
+AvgModDiff1b: 90.3842
+AvgModDiff2b 96.8271
+RmsNoiseLoudb: 1.33324
+MFPDb: 1
+RelDistFramesb: 1
+DI: -2.19585
+ODG: -3.55948
+
+File: diode_clipper/runs/diodeclip/forward_euler/July16_13-14-04_axel_ODENet2Hidden9/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.802
+WinModDiff1b: 239.134
+ADBb: 4.11515
+EHSb: 0.000269363
+AvgModDiff1b: 239.634
+AvgModDiff2b 1000.77
+RmsNoiseLoudb: 1.58496
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.327321
+ODG: -1.53935
+
+File: diode_clipper/runs/diodeclip/forward_euler/August07_09-35-21_axel_Hidden9Test22050/test_output.wav
+
+frame: 1930
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.255
+WinModDiff1b: 121.447
+ADBb: 3.98683
+EHSb: 0.00045001
+AvgModDiff1b: 123.458
+AvgModDiff2b 853.667
+RmsNoiseLoudb: 0.228317
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.92191
+ODG: -3.89844
+
+File: diode_clipper/runs/diodeclip/forward_euler/August07_09-42-23_axel_Hidden9Test48000/test_output.wav
+
+frame: 4203
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.993
+WinModDiff1b: 255.031
+ADBb: 4.17349
+EHSb: 0.000193164
+AvgModDiff1b: 257.999
+AvgModDiff2b 968.916
+RmsNoiseLoudb: 1.53102
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.453679
+ODG: -1.41164
+
+File: diode_clipper/runs/diodeclip/forward_euler/August07_10-00-01_axel_Hidden9Test192000/test_output.wav
+
+frame: 16817
+BandwidthRefb: 921
+BandwidthTestb: 849
+TotalNMRb 148.039
+WinModDiff1b: 126.845
+ADBb: 4.22724
+EHSb: 0.000421039
+AvgModDiff1b: 95.2037
+AvgModDiff2b 107.358
+RmsNoiseLoudb: 1.36699
+MFPDb: 1
+RelDistFramesb: 0.999941
+DI: 0.404158
+ODG: -1.46132
+
+File: diode_clipper/runs/diodeclip/odeint_implicit_adams/August04_12-16-11_axel/test_output.wav
+
+frame: 3853
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.759
+WinModDiff1b: 209.948
+ADBb: 4.14293
+EHSb: 0.000582325
+AvgModDiff1b: 201.385
+AvgModDiff2b 838.905
+RmsNoiseLoudb: 1.66918
+MFPDb: 1
+RelDistFramesb: 1
+DI: -0.09945
+ODG: -1.98434
+
+File: diode_clipper/runs/diodeclip/odeint_implicit_adams/August07_09-31-06_axel_Test22050/test_output.wav
+
+frame: 1915
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 151.925
+WinModDiff1b: 112.645
+ADBb: 3.98676
+EHSb: 0.000511605
+AvgModDiff1b: 121.612
+AvgModDiff2b 797.538
+RmsNoiseLoudb: 0.245512
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.94356
+ODG: -3.90016
+
+File: diode_clipper/runs/diodeclip/odeint_implicit_adams/August07_09-31-54_axel_Test48000/test_output.wav
+
+frame: 4197
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.973
+WinModDiff1b: 220.26
+ADBb: 4.20075
+EHSb: 0.000456497
+AvgModDiff1b: 207.918
+AvgModDiff2b 803.57
+RmsNoiseLoudb: 1.63439
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.20224
+ODG: -1.66837
+
+File: diode_clipper/runs/diodeclip/odeint_implicit_adams/August07_09-32-43_axel_Test192000/test_output.wav
+
+frame: 16816
+BandwidthRefb: 921
+BandwidthTestb: 849
+TotalNMRb 148.059
+WinModDiff1b: 118.34
+ADBb: 4.20535
+EHSb: 0.000701916
+AvgModDiff1b: 84.809
+AvgModDiff2b 92.7617
+RmsNoiseLoudb: 1.47965
+MFPDb: 1
+RelDistFramesb: 0.999822
+DI: 0.330402
+ODG: -1.5362
+
+File: diode_clipper/runs/diodeclip/resintrk4/July06_12-52-13_axelFinalLossFunctionStep1/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.801
+WinModDiff1b: 237.127
+ADBb: 4.11823
+EHSb: 0.000328919
+AvgModDiff1b: 235.036
+AvgModDiff2b 997.862
+RmsNoiseLoudb: 1.52856
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.29838
+ODG: -1.569
+
+File: diode_clipper/runs/diodeclip/resintrk4/August07_18-46-02_axel_Test22050/test_output.wav
+
+frame: 1930
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.114
+WinModDiff1b: 122.292
+ADBb: 3.98568
+EHSb: 0.000342856
+AvgModDiff1b: 127.7
+AvgModDiff2b 869.53
+RmsNoiseLoudb: 0.206137
+MFPDb: 1
+RelDistFramesb: 1
+DI: -3.90881
+ODG: -3.89739
+
+File: diode_clipper/runs/diodeclip/resintrk4/August07_19-12-33_axel_Test48000/test_output.wav
+
+frame: 4203
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 152.965
+WinModDiff1b: 250.112
+ADBb: 4.17887
+EHSb: 0.000274692
+AvgModDiff1b: 248.237
+AvgModDiff2b 936.577
+RmsNoiseLoudb: 1.49476
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.438805
+ODG: -1.42651
+
+File: diode_clipper/runs/diodeclip/resintrk4/August07_20-00-25_axel_Test192000/test_output.wav
+
+frame: 16817
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 148.064
+WinModDiff1b: 125.585
+ADBb: 4.21951
+EHSb: 0.000651592
+AvgModDiff1b: 91.5883
+AvgModDiff2b 103.353
+RmsNoiseLoudb: 1.40505
+MFPDb: 1
+RelDistFramesb: 1
+DI: -2.15019
+ODG: -3.54188
+
+File: diode_clipper/runs/diodeclip/ode_solver/BDF/June16_12-49-56_DESKTOP-O3T26KF/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 145.77
+WinModDiff1b: 409.686
+ADBb: 4.11394
+EHSb: 8.9033e-05
+AvgModDiff1b: 223.643
+AvgModDiff2b 923.566
+RmsNoiseLoudb: 2.32804
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.504716
+ODG: -1.36102
+
+File: diode_clipper/runs/diodeclip/ode_solver/RK45/June17_08-34-31_DESKTOP-O3T26KF/test_output.wav
+
+frame: 3861
+BandwidthRefb: 0
+BandwidthTestb: 0
+TotalNMRb 145.768
+WinModDiff1b: 409.335
+ADBb: 4.11307
+EHSb: 8.86716e-05
+AvgModDiff1b: 222.979
+AvgModDiff2b 920.692
+RmsNoiseLoudb: 2.33881
+MFPDb: 1
+RelDistFramesb: 1
+DI: 0.504711
+ODG: -1.36102

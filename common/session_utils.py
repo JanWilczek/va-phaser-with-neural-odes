@@ -10,6 +10,7 @@ import CoreAudioML.dataset as dataset
 from CoreAudioML import training
 from .resample import resample_test_files
 from .NetworkTraining import NetworkTraining
+from .loss import get_loss_function
 
 
 def initialize_session(model_name, args, get_architecture):
@@ -24,8 +25,9 @@ def initialize_session(model_name, args, get_architecture):
     session.segments_in_a_batch = args.batch_size
     session.samples_between_updates = args.up_fr
     session.initialization_length = args.init_len
+    session.validate_every = args.validate_every
     session.enable_teacher_forcing = get_teacher_forcing_gate(args.teacher_forcing)
-    session.loss = training.LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
+    session.loss = get_loss_function(args.loss_function)
 
     session.device = get_device()
     session.network = get_architecture(args, 1 / session.sampling_rate('train'))
@@ -47,6 +49,8 @@ def initialize_session(model_name, args, get_architecture):
 
     if args.save_sets:
         session.save_subsets()
+    
+    session.writer.add_text('Architecture', str(session.network))
 
     return session
 
@@ -85,6 +89,7 @@ def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050,
         the created DataSet object
     """
     d = dataset.DataSet(data_dir=str(dataset_path))
+    d.name = dataset_name
 
     d.create_subset('train', frame_len=train_frame_len)
     d.create_subset('validation', frame_len=validation_frame_len)
@@ -144,12 +149,14 @@ def save_args(session, args):
 
 def test(session):
     session.device = 'cpu'
+    # Load the model performing best on the validation set for test
+    session.load_checkpoint(best_validation=True)
     test_output, test_loss = session.test()
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
 
     test_output_path = (session.run_directory / 'test_output.wav').resolve()
-    torchaudio.save(test_output_path, test_output[None, :], session.sampling_rate('test'))
+    session.save_audio(test_output_path, test_output[None, :], session.sampling_rate('test'))
 
 
 def get_teacher_forcing_gate(teacher_forcing_description):
@@ -190,6 +197,7 @@ def argument_parser():
             'STN',
             'ResIntRK4',
             'odeint_dopri5',
+            'odeint_rk4',
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
@@ -247,7 +255,7 @@ def argument_parser():
         '--hidden_size',
         default=100,
         type=int,
-        help='The size of the two hidden layers in the ODENet2 model (default: %(default)s).')
+        help='The size of the hidden layers (model-dependent) (default: %(default)s).')
     ap.add_argument('--test_sampling_rate', type=int, default=44100,
                     help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
     ap.add_argument(
@@ -258,6 +266,15 @@ def argument_parser():
         '--dataset_name',
         help='Name of the dataset to use for modeling.',
         required=True)
+    ap.add_argument('--nonlinearity', default='ReLU', help='Name of the torch.nn nonlinearity to use in the ODENet derivative network if that method is used (default: %(default)s).')
+    ap.add_argument('--validate_every', default=1, type=int, help='Number of epochs to calculate validation loss after (default: %(default)s).')
+    ap.add_argument('--state_size', default=1, type=int, help='Number of elements of the state vector of the dynamical system. The first element is always taken as the audio output of the system (default: %(default)s).')
+    ap.add_argument('--loss_function', default='ESR_DC_prefilter', help='Loss function to use during training (default: %(default)s). Possible choices:' \
+        '\n{:<20}\t{:<20}'.format('ESR_DC_prefilter', '0.5 * ESR(prefiltered_output, prefiltered_target) + 0.5 * DCloss(prefiltered_output, prefiltered_target)') + \
+        '\n{:<20}\t{:<20}'.format('L1_STFT', 'L1(STFT_output, STFT_target).') + \
+        '\n{:<20}\t{:<20}'.format('L2_STFT', 'L2(STFT_output, STFT_target).') + \
+        '\nlog_spectral_distance')
+    ap.add_argument('--derivative_network', default='DerivativeMLP2', help='Derivative network to use in case of ODENet.')
     return ap
 
 

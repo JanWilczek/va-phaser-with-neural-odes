@@ -12,4 +12,3 @@ def get_method(args):
     method_dict = {"forward_euler": ForwardEuler(),
                    "trapezoid_rule": trapezoid_rule}
     return method_dict[args.method]
-

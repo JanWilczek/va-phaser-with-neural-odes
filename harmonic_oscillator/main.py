@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env python3
 """Sample call
-python harmonic_oscillator/main.py --visualize --epochs 100 -m 1 -k 1 -c 0.1 --nsteps 5000 --nperiods 8 --method forward_euler --excitation 1.8 0.8 --name TimeInSamples --use_samples
+python harmonic_oscillator/main.py --visualize --epochs 100 -m 1 -k 1 -c 0.1 --nsteps 5000 --nperiods 8 --method forward_euler --excitation 1.8 0.8 --name TimeInSamples --interpolation linear --duffing 0.8
 """
 import os
 import sys
@@ -39,7 +39,7 @@ class HarmonicOscillator():
     It is a second-order ODE, which can be rewritten as a system
     of first-order ODEs
     x' = v
-    v' = - (k/m) x - (c/m) v + F(t) - e x
+    v' = - (k/m) x - (c/m) v + F(t) - e x^3
     x(0) = x0
     v(0) = v0
     
@@ -153,6 +153,7 @@ def main():
 
     if args.use_samples:
         t_samples = torch.arange(0, args.nsteps, dtype=torch.float)
+        amplitude, frequency = args.excitation
         excitation_samples = ExcitationSamples(amplitude, frequency, dt)
 
         excitation_samples_values = torch.Tensor([excitation_samples(n) for n in t_samples]).unsqueeze(1).unsqueeze(2)

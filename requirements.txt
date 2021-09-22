@@ -3,3 +3,4 @@ torch
 torchaudio
 torchdiffeq
 parameterized
+https://github.com/schmiph2/pysepm/archive/master.zip

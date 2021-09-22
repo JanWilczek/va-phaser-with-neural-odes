@@ -31,3 +31,8 @@ python -m cProfile -o diode_ode_numerical_profile.bin diode_clipper\diode_ode_nu
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 ```
+
+## Delete all files created today from a directory except for pngs
+```bash
+find DIR -daystart -ctime 0 -type f -not -name '*.png' -print -delete
+```

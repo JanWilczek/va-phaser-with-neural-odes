@@ -1,5 +1,7 @@
 import math
 from pathlib import Path
+import numpy as np
+from scipy.io import wavfile
 import torch
 import torchaudio
 from torch.utils.tensorboard import SummaryWriter
@@ -23,22 +25,24 @@ class NetworkTraining:
         self.writer = None
         self.__run_directory = None
         self.scheduler = None
+        self.__audio_metadata = None
 
     def run(self):
         """Run full network training."""
-        self.writer.add_text('Architecture', str(self.network))
         self.transfer_to_device()
         self.best_validation_loss = float('inf')
 
         self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
             epoch_loss = self.train_epoch()
+            self.log_loss('train', epoch_loss)
 
             if math.isnan(epoch_loss):
                 raise RuntimeError('NaN encountered in the training loss. Aborting training.')
 
-            validation_loss = self.run_validation()
-            self.log_epoch_validation_loss(epoch_loss=epoch_loss, validation_loss=validation_loss)
+            if self.epoch % self.validate_every == 0:
+                validation_loss = self.run_validation()
+                self.log_loss('validation', validation_loss)
 
     def train_epoch(self):
         self.timer.epoch_started()
@@ -56,20 +60,20 @@ class NetworkTraining:
             self.network.reset_hidden()
             if self.initialization_length > 0:
                 with torch.no_grad():
-                    self.network(input_minibatch[0:self.initialization_length])
+                    self.network(input_minibatch[0:self.initialization_length].to(self.device))
 
             subsegment_start = self.initialization_length
 
             for subsequence_id in range(self.subsegments_count):
                 
                 if should_include_teacher_forcing:
-                    self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates]
+                    self.network.true_state = true_state_minibatch[subsegment_start:subsegment_start + self.samples_between_updates].to(self.device)
 
                 self.optimizer.zero_grad()
 
-                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates])
+                output = self.network(input_minibatch[subsegment_start:subsegment_start + self.samples_between_updates].to(self.device))
 
-                loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates])
+                loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates].to(self.device))
                 loss.backward()
                 self.optimizer.step()
 
@@ -92,7 +96,7 @@ class NetworkTraining:
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')
 
-        torchaudio.save(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
+        self.save_audio(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
         
         if validation_loss < self.best_validation_loss:
             self.save_checkpoint(best_validation=True)
@@ -135,23 +139,22 @@ class NetworkTraining:
         # if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:
             # self.scheduler.load_state_dict(checkpoint[self.SCHEDULER_STATE_DICT_KEY])
 
-    def log_epoch_validation_loss(self, epoch_loss, validation_loss):
-        print(f'Epoch: {self.epoch}/{self.epochs}; Train loss: {epoch_loss}; Validation loss: {validation_loss}.')
+    def log_loss(self, name, loss):
+        print(f'Epoch: {self.epoch}/{self.epochs}; {name} loss: {loss}.')
 
         if self.writer is not None:
-            self.writer.add_scalar('Loss/train', epoch_loss, self.epoch)
-            self.writer.add_scalar('Loss/validation', validation_loss, self.epoch)
+            self.writer.add_scalar(f'Loss/{name}', loss, self.epoch)
             self.writer.flush()
 
     def get_minibatch(self, minibatch_index, segments_order, true_state):
         minibatch_segment_indices = segments_order[minibatch_index*self.segments_in_a_batch:(minibatch_index+1)*self.segments_in_a_batch]
 
-        def extract_minibatch_segment_and_transfer_to_device(data):
-            return data[:, minibatch_segment_indices, :].to(self.device)
+        def extract_minibatch_segment(data):
+            return data[:, minibatch_segment_indices, :]
 
-        input_minibatch = extract_minibatch_segment_and_transfer_to_device(self.input_data('train'))
-        target_minibatch = extract_minibatch_segment_and_transfer_to_device(self.target_data('train'))
-        true_state_minibatch = extract_minibatch_segment_and_transfer_to_device(true_state)
+        input_minibatch = extract_minibatch_segment(self.input_data('train'))
+        target_minibatch = extract_minibatch_segment(self.target_data('train'))
+        true_state_minibatch = extract_minibatch_segment(true_state)
 
         return input_minibatch, target_minibatch, true_state_minibatch
 
@@ -164,8 +167,8 @@ class NetworkTraining:
             else:
                 input_data = input_data.transpose(0, 1) # torchaudio.save needs the saved tensor to be of shape (channels, samples)
 
-            torchaudio.save(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
-            torchaudio.save(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
+            self.save_audio(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
+            self.save_audio(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
 
     @property
     def run_directory(self):
@@ -223,5 +226,21 @@ class NetworkTraining:
 
     def sampling_rate(self, subset_name='train'):
         return self.dataset.subsets[subset_name].fs
+
+    @property
+    def audio_metadata(self):
+        if not self.__audio_metadata:
+            test_file_path = Path(self.dataset.data_dir) / 'test' / (self.dataset.name + '-target.wav')
+            test_file_metadata = torchaudio.info(test_file_path)
+            metadata = {
+                "encoding": test_file_metadata.encoding,
+                "bits_per_sample": test_file_metadata.bits_per_sample
+            }
+            self.__audio_metadata = metadata
+        return self.__audio_metadata
+
+    def save_audio(self, path, tensor, sampling_rate):
+        data = tensor.squeeze().cpu().detach().numpy()
+        wavfile.write(path, sampling_rate, data)
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'

@@ -5,13 +5,56 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: STN 22050Hz Measures",
+            "type": "python",
+            "request": "launch",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "program": "compute_measures.py",
+            "console": "integratedTerminal",
+            "args": ["-c", "diode_clipper/data/test/diodeclip22050Hz-target.wav", "-e", "diode_clipper/runs/diodeclip/stn/August11_14-01-49_axel_Test22050/test_output.wav"]
+        },
+        {
+            "name": "Python: Visualize ODE",
+            "type": "python",
+            "request": "launch",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "program": "diode_clipper/visualize_ode.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--run_path",
+                "diode_clipper/runs/diodeclip/forward_euler/July16_13-14-04_axel_ODENet2Hidden9"
+            ]
+        },
+        {
             "name": "Python: Harmonic Oscillator",
             "type": "python",
             "request": "launch",
             "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
             "program": "harmonic_oscillator/main.py",
             "console": "integratedTerminal",
-            "args": ["--visualize", "--epochs", "20", "-m", "1", "-k", "1", "-c", "0.1", "--nsteps", "5000", "--nperiods", "8", "--method", "forward_euler", "--excitation", "1.8", "0.1", "--use_samples"]
+            "args": [
+                "--visualize",
+                "--epochs",
+                "20",
+                "-m",
+                "1",
+                "-k",
+                "1",
+                "-c",
+                "0.1",
+                "--nsteps",
+                "5000",
+                "--nperiods",
+                "8",
+                "--method",
+                "forward_euler",
+                "--excitation",
+                "1.8",
+                "0.1",
+                "--use_samples",
+                "--interpolation",
+                "linear"
+            ]
         },
         {
             "name": "Python: Test",
@@ -95,12 +138,14 @@
             "program": "${workspaceFolder}/diode_clipper/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "env": {"CUDA_VISIBLE_DEVICES": "0"},
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
             "args": [
                 "--method",
-                "ResIntRK4",
+                "forward_euler",
                 "--batch_size",
-                "512",
+                "128",
                 "--val_chunk",
                 "22050",
                 "--test_chunk",
@@ -108,7 +153,7 @@
                 "--init_len",
                 "0",
                 "--up_fr",
-                "2048",
+                "4096",
                 "--learn_rate",
                 "0.001",
                 "--epochs",
@@ -116,7 +161,49 @@
                 "--test_sampling_rate",
                 "22050",
                 "--dataset_name",
-                "diodeclip"
+                "diodeclip",
+                "--name",
+                "TEST_RUN",
+                "--loss_function",
+                "L1_STFT"
+            ]
+        },
+        {
+            "name": "Python: Diode Clipper STN 44kHz Test",
+            "type": "python",
+            "python": "/home/ALABSAD/janwilczek/anaconda3/envs/thesis/bin/python",
+            "request": "launch",
+            "program": "${workspaceFolder}/diode_clipper/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "args": [
+                "--method",
+                "STN",
+                "--batch_size",
+                "256",
+                "--val_chunk",
+                "22050",
+                "--test_chunk",
+                "0",
+                "--init_len",
+                "0",
+                "--up_fr",
+                "22050",
+                "--learn_rate",
+                "0.001",
+                "--epochs",
+                "140",
+                "--dataset_name",
+                "diodeclip",
+                "--name",
+                "TEST_RUN",
+                "--teacher_forcing",
+                "bernoulli",
+                "--checkpoint", 
+                "May20_07-33-56_axel",
             ]
         },
         {
@@ -127,10 +214,13 @@
             "program": "${workspaceFolder}/phaser/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "env": {"CUDA_VISIBLE_DEVICES": "0"},
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "postDebugTask": "clean_test_run_phaser",
             "args": [
                 "--method",
-                "ResIntRK4",
+                "odeint_dopri5",
                 "--batch_size",
                 "128",
                 "--val_chunk",
@@ -145,10 +235,12 @@
                 "0.001",
                 "--epochs",
                 "2",
-                "--test_sampling_rate",
-                "22050",
                 "--dataset_name",
-                "FameSweetToneOffNoFb"
+                "FameSweetToneOffNoFb",
+                "--hidden_size",
+                "100",
+                "--name",
+                "TEST_RUN"
             ]
         }
     ]

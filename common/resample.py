@@ -1,7 +1,11 @@
 import os
 from pathlib import Path
 from scipy.signal import resample
-import soundfile as sf
+from scipy.io import wavfile
+import numpy as np
+import torch
+import torchaudio
+from CoreAudioML.dataset import audio_converter
 
 
 def resample_file_if_not_already_resampled(filepath: Path, target_sampling_rate: int):
@@ -14,10 +18,11 @@ def resample_file_if_not_already_resampled(filepath: Path, target_sampling_rate:
     return resampled_filename
 
 def resample_file(filepath: Path, resampled_filepath: Path, target_sampling_rate: int):
-    data, sampling_rate = sf.read(filepath)
-    resampled_length = data.shape[0] * target_sampling_rate // sampling_rate
-    resampled = resample(data, resampled_length, axis=0)
-    sf.write(resampled_filepath, resampled, target_sampling_rate)
+    sampling_rate, data = wavfile.read(filepath)
+    data_normalized = audio_converter(data) # we assume that non-resampled data is of np.int16 type
+    resampled_length = data_normalized.shape[0] * target_sampling_rate // sampling_rate
+    resampled_normalized = resample(data_normalized, resampled_length, axis=0)
+    wavfile.write(resampled_filepath, target_sampling_rate, resampled_normalized)
 
 def resample_test_files(dataset_path: Path, test_filename: str, target_sampling_rate: int):
     files = [dataset_path / (test_filename + '-input.wav'),
@@ -27,4 +32,8 @@ def resample_test_files(dataset_path: Path, test_filename: str, target_sampling_
         resampled_filename = resample_file_if_not_already_resampled(file, target_sampling_rate)
     
     # Prepend additional directories, if they were present in test_filename.
-    return os.path.join(test_filename[:test_filename.rindex(os.path.sep)], resampled_filename[:resampled_filename.index('-')])
+    resampled_file_prefix = resampled_filename[:resampled_filename.index('-')] # typically dataset name
+    if os.path.sep in test_filename:
+        return os.path.join(test_filename[:test_filename.rindex(os.path.sep)], resampled_file_prefix)
+    else:
+        return resampled_file_prefix
