@@ -65,6 +65,18 @@ class DerivativeMLP2(DerivativeMLP):
             nn.Linear(2*self.hidden_size, self.hidden_size), activation,
             nn.Linear(self.hidden_size, self.output_size))
 
+class SingleLinearLayer(DerivativeMLP):
+    def __init__(self, excitation, activation, excitation_size, output_size, hidden_size):
+        super().__init__(excitation, activation, excitation_size, output_size, hidden_size)
+        self.densely_connected_layers = nn.Sequential(nn.Linear(self.input_size, self.output_size, bias=False), activation)
+
+class ScaledSingleLinearLayer(SingleLinearLayer):
+    def __init__(self, excitation, activation, excitation_size, output_size, hidden_size):
+        super().__init__(excitation, activation, excitation_size, output_size, hidden_size)
+        scaling = nn.Linear(self.output_size, self.output_size, bias=False)
+        scaling.weight.data.fill_(441.0)
+        # scaling.weight.data.requires_grad_(False)
+        self.densely_connected_layers = nn.Sequential(nn.Linear(self.input_size, self.output_size, bias=False), activation, scaling)
 
 class ODENet(nn.Module):
     def __init__(self, derivative_network, odeint, dt):

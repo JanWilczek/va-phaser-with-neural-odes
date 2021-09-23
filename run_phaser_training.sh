@@ -10,6 +10,13 @@ CUDA_VISIBLE_DEVICES=0 python phaser/main.py --method forward_euler --batch_size
 # FameSweetDryWet dataset (for dummies)
 #--------------------------------------------------------
 #--------------- TO RUN -----------------------------------------
+#------------------------ ALREADY RUN -----------------------------
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --teacher_forcing always --dataset_name FameSweetDryWet --state_size 1 --hidden_size 10 --nonlinearity Identity --validate_every 10 --loss_function ESRLoss --derivative_network ScaledSingleLinearLayer --name ScaledSingleLinearLayer
+
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 100 --teacher_forcing always --dataset_name FameSweetDryWet --state_size 1 --hidden_size 10 --nonlinearity Identity --validate_every 10 --loss_function ESRLoss --derivative_network SingleLinearLayer --name SingleLinearLayer
+
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method LSTM --batch_size 64 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --dataset_name FameSweetDryWet --hidden_size 16 --validate_every 10 --loss_function ESRLoss
+
 CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --teacher_forcing always --dataset_name FameSweetDryWet --state_size 1 --hidden_size 10 --nonlinearity Identity --validate_every 10 --loss_function ESRLoss --derivative_network DerivativeMLP --name state1
 #--------------------------------------------------------
 # PinkNoise dataset
