@@ -12,7 +12,7 @@
     \node[dspadder,right=of c4] (adder) {};
     \node[dspnodeopen,right=of adder,dsp/label=above] (y) {$y[n]$};
     \node[coordinate, below=of c4] (c5) {};
-    \node[dspmixer,left= of c5,dsp/label=below] (a1_feedback) {$a_1$};
+    \node[dspmixer,left= of c5,dsp/label=below] (a1_feedback) {$-a_1$};
     \node[coordinate,left=of a1_feedback] (c6) {};
 
     % Feedforward connections
