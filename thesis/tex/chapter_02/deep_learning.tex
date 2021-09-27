@@ -6,7 +6,7 @@
 
 Broadly speaking, machine learning is a field of engineering using data to improve on a task at hand \cite{Goodfellow-et-al-2016}. A subfield of machine learning called deep learning uses multi-layer \acp{ANN} for the improvement process. 
 
-An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_{in}(t)$ to an output signal $s_{out}(t)$, i.e., $s_{out}(t) = f^*(s_{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_{out}(t) = f(s_{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims to find a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
+An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_\text{in}(t)$ to an output signal $s_\text{out}(t)$, i.e., $s_\text{out}(t) = f^*(s_\text{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_\text{out}(t) = f(s_\text{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims to find a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
 
 % TODO: Add figure with an MLP
 
@@ -41,9 +41,9 @@ As deep learning is a widely and actively pursued field of science, there exist 
 \subsubsection{Long Short-Term Memory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\Ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as a part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
+A \ac{RNN} is a neural network that maintains a \emph{feedback} connection, i.e., a connection from its output to its input. Typically, to calculate the current output, the previous output is taken as a part of the input. This step-by-step processing is characteristic to sequence modeling, where \acp{RNN} are found most useful.
 
-A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to allow or disallow its \emph{memory cells} to be updated during processing. This helps to learn long-term dependencies which are crucial for the network to maintain the notion of a context.
+A particularly successful \ac{RNN} architecture is the \ac{LSTM} \cite{Hochreiter1997}. \ac{LSTM} uses \emph{gating units} to control the extent to which its \emph{memory cells} are updated at each processing step. This helps to learn long-term dependencies which are crucial for the network to maintain the notion of a context.
 
 A memory cell $i$ has an associated state vector at time step $t$ denoted $\pmb{c}_t$. The output of a memory cell is the \emph{hidden state} $\pmb{h}_t$, which is an element-wise (Hadamard) product of the output gate $\pmb{o}_t$ and the cell state processed by hyperbolic tangent
 
@@ -52,23 +52,23 @@ A memory cell $i$ has an associated state vector at time step $t$ denoted $\pmb{
   \label{eq:lstm_hidden_state}
 \end{equation}
 
-Output gate's purpose is to determine whether the cell will produce an output at time step $t$. Output gate is a function of the current input and the previous hidden state
+The output gate's purpose is to determine how much output will the cell produce at time step $t$. The output gate is a function of the current input and the previous hidden state
 
 \begin{equation}
   \pmb{o}_t = \sigma (\pmb{W}_{io} \pmb{x}_t + \pmb{b}_{io} + \pmb{W}_{ho} \pmb{h}_{t-1} + \pmb{b}_{ho}),
   \label{eq:lstm_output_gate}
 \end{equation}
 
-where $\pmb{x}_t$ is the cell's input at time $t$, $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are output gate's weight matrices for input and hidden state respectively, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function (\Equation{eq:logistic_sigmoid}) applied element-wise.
+where $\pmb{x}_t$ is the cell's input at time $t$, $\pmb{W}_{io}$ and $\pmb{W}_{ho}$ are the output gate's weight matrices for the input and the hidden state respectively, $\pmb{b}_{io}$ and $\pmb{b}_{ho}$ are the output gate's bias vectors, and $\sigma$ denotes the sigmoid function (\Equation{eq:logistic_sigmoid}) applied element-wise.
 
-Input gate vector $\pmb{i}_t$ and forget gate vector $\pmb{f}_t$ are defined analogously
+The input gate vector $\pmb{i}_t$ and the forget gate vector $\pmb{f}_t$ are defined analogously
 
 \begin{align}
   \pmb{i}_t &= \sigma (\pmb{W}_{ii} \pmb{x}_t + \pmb{b}_{ii} + \pmb{W}_{hi} \pmb{h}_{t-1} + \pmb{b}_{hi}), \label{eq:lstm_input_gate}\\
   \pmb{f}_t &= \sigma (\pmb{W}_{if} \pmb{x}_t + \pmb{b}_{if} + \pmb{W}_{hf} \pmb{h}_{t-1} + \pmb{b}_{hf}). \label{eq:lstm_forget_gate}
 \end{align}
 
-Input gate determines the amount of information introduced to the cell state from the current input. The forget gate controls the amount of information preserved from the previous cell state. This results in the following update equation
+The input gate determines the amount of information introduced to the cell state from the current input. The forget gate controls the amount of information preserved from the previous cell state. This results in the following update equation
 
 \begin{equation}
   \pmb{c}_t = \pmb{f}_t \odot \pmb{c}_{t-1} + \pmb{i}_t \odot \pmb{g}_t,
@@ -115,7 +115,7 @@ Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. 
 \subsubsection{State Trajectory Network}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. Current state is supplied together with current input sample as the input used to compute the next state, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
+A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to learn the state transitions and the relation between the state and the output. To facilitate this task, not the full mapping is learned by the network but just the residual (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The current state is supplied together with the current input sample as the input used to compute the next state, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
 
 \begin{figure}
   \centering
@@ -131,7 +131,7 @@ The architecture of \ac{STN} is shown in \Figure{fig:stn}. The layers $l_1, \dot
 \end{equation}
 where $f_{s\text{,train}}, f_{s\text{,processing}}$ are the sampling rates used at train time and at processing time respectively. According to the authors, if the sampling rate at processing time is higher than the one used at training, high-frequency behavior of the original system may be lacking. Using sampling rates at processing time lower than the one used at training (without any additional anti-aliasing facility) can result in aliasing behavior. The aliasing aspect is important to this work and \ac{STN} naturally fits as a model to compare the tested ODENet methodology to.
 
-As most of the recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing} \cite{Parker2019}.
+As with most recurrent architectures, \ac{STN} can be trained using teacher forcing as explained in \Section{subsec:teacher_forcing} \cite{Parker2019}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Residual Integration Network, Bilinear Block}
