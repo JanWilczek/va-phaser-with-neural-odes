@@ -135,7 +135,7 @@ The results of solving the diode clipper \ac{ODE} with the \ac{BDF} solver at 8x
     \label{tab:diode_clipper_ode_solvers}
 \end{table}
 
-One can observe that the numerical solutions of the \ac{ODE} achieved less than 1\% of the test loss. At the same time they obtained much lower values of \ac{segSNR} and \ac{PEAQ} than the ODENet models from \Table{tab:diode_clipper_results}. Moreover, the data input to the ODENet did not need any oversampling, because having a non-aliased dataset rules out the possibility of the derivative network learning an aliasing behavior. Thus, apart from not having to derive the \ac{ODE} and learning it from data instead, ODENet additionally does not need its input to be oversampled.
+One can observe that the numerical solutions of the \ac{ODE} achieved less than 1\% of the test loss. At the same time they obtained much lower values of \ac{segSNR} and \ac{PEAQ} than the ODENet models from \Table{tab:diode_clipper_results}. Moreover, the data input to the ODENet did not need any oversampling, because having a non-aliased dataset significantly diminishes the chance of the derivative network learning an aliasing behavior. Thus, apart from not having to derive the \ac{ODE} and learning it from data instead, ODENet additionally does not need its input to be oversampled.
 
 It needs to be stressed again, that data used to conduct the training and tests of the \acp{ANN} was synthesized using LTspice \cite{LTspice}. There is, however, no reason to doubt that the networks would perform equally well on discretized, measured data.
 
