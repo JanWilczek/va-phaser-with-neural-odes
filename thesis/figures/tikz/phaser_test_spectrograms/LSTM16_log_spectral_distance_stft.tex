@@ -1,0 +1,28 @@
+% This file was created by tikzplotlib v0.9.6.
+\begin{tikzpicture}
+
+\begin{axis}[
+colorbar,
+colorbar style={ytick={-40,-20,0,20},yticklabels={\(\displaystyle -40\),\(\displaystyle -20\),\(\displaystyle 0\),\(\displaystyle 20\)},ylabel={}},
+colormap/viridis,
+point meta max=21.1321993583666,
+point meta min=-55.5277115981883,
+tick align=outside,
+tick pos=left,
+x grid style={white!69.0196078431373!black},
+xlabel={Time [s]},
+xmin=0, xmax=14.9072108843537,
+xtick style={color=black},
+xtick={0,5,10,15},
+xticklabels={\(\displaystyle 0\),\(\displaystyle 5\),\(\displaystyle 10\),\(\displaystyle 15\)},
+y grid style={white!69.0196078431373!black},
+ylabel={Frequency [kHz]},
+ymin=0, ymax=22,
+ytick style={color=black},
+ytick={0,5,10,15,20,25},
+yticklabels={\(\displaystyle 0\),\(\displaystyle 5\),\(\displaystyle 10\),\(\displaystyle 15\),\(\displaystyle 20\),\(\displaystyle 25\)}
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=0, xmax=14.9072108843537, ymin=0, ymax=22] {figures/tikz/phaser_test_spectrograms/LSTM16_log_spectral_distance_stft-000.png};
+\end{axis}
+
+\end{tikzpicture}

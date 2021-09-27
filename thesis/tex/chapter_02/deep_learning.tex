@@ -115,7 +115,7 @@ Another architecture significant to this work is the \ac{ResNet} \cite{He2015}. 
 \subsubsection{State Trajectory Network}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a state-space description. The goal is to model the mapping from the input to the state and the relation between the state and the output. To facilitate this task, the residual of the state transition is learned (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The current state is supplied together with the current input sample as the input used to compute the next state, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
+A \ac{ResNet}-based architecture that was successfully applied to \ac{VA} modeling is the \acf{STN} \cite{Parker2019}. In this approach, a schematic of the electronic circuit of the device under study is analyzed and the voltage value across the capacitors is combined to form the state vector of a discrete state-space description. The goal is to model the mapping from the input to the state and the relation between the state and the output. To facilitate this task, the residual between the states at subsequent time steps is learned (the \emph{trajectory} of the state). One of the elements of the state is associated with the output sample. The current state is supplied together with the current input sample as the input used to compute the next state, rendering the network recurrent. Gathering data to determine the true state requires voltage measurements inside the modeled device. 
 
 \begin{figure}
   \centering
@@ -228,13 +228,13 @@ where $w$ is a time-domain window of length $W$, $x$ is the time-domain audio si
 
 Having computed the \ac{STFT} representation, one can calculate the distance in the time-frequency domain between the obtained and desired signals and then average across all time frames and minibatch examples to obtain a single number. That number can be used for gradient calculation.
 
-Among the considered distances were the $L_1$ and $L_2$ norms. However, the distance we found most useful was the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as \cite{Gray1976}
+We used three distance measures: $L_1$ and $L_2$ norms and the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as \cite{Gray1976}
 \begin{equation}
   LSD_\text{RMS}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} \Bigl\lvert \ln \bigl\lvert X_1[\omega]\bigr\rvert^2 - \ln \bigl\lvert X_2[\omega]\bigr\rvert^2 \Bigr\rvert^2}.
   \label{eq:log_spectral_distance}
 \end{equation}
 
-After obtaining $LSD_\text{RMS}$ for each time frame, we can compute the average over time, followed by the average over the minibatch.
+After obtaining the distance for each time frame, we can compute the average over time, followed by the average over the minibatch.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Backpropagation}

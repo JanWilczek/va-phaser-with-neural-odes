@@ -19,9 +19,9 @@ The dataset was synthesized using the digital model of a phaser from \cite{Kiisk
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 The training procedure was identical to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch.
 
-The loss function used for the training and the validation was the mean frame-wise log spectral distance as described by 
-\Equation{eq:log_spectral_distance}.
-It was chosen because of superior validation performance at high frequencies when used to train the baseline (\ac{LSTM}) in comparison to $L_1$ and $L_2$ distances in the \ac{STFT} domain as well as the \ac{ESR}.
+The loss functions used for the training and the validation were the average distance measures in the time-frequency domain as described in \Section{sec:loss_functions}. Different distance measures allowed to observe different characteristics of ODENet.
+
+% It was chosen because of superior validation performance at high frequencies when used to train the baseline (\ac{LSTM}) in comparison to $L_1$ and $L_2$ distances in the \ac{STFT} domain as well as the \ac{ESR}.
 
 All models were trained and tested on data at \SI{44100}{Hz} sampling rate.
 
@@ -49,12 +49,12 @@ The goal of phaser modeling was not only to compare ODENet to the approach taken
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{The Impact of State Augmentation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The effect of augmenting the state vector from 1 to 18 can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it is beneficial to augment the state, even if no training signal is provided for them.
+The effect of augmenting the state vector from 1 to 18 when training with the average $L_1$ distance in the \ac{STFT} domain can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it may be beneficial to augment the state, even if no training signal is provided for them. However, the improvement was not observed when $L_2$ or $LSD_\text{RMS}$ distances were used.
 
 \begin{figure}
     \centering
     \input{figures/tikz/state_augmentation/state_augmentation.tex}
-    \caption{Validation loss of the ODENet with and without state augmentation.}
+    \caption{Average $L_1$ distance in the \ac{STFT} domain of ODENet on the validation set with and without state augmentation.}
     \label{fig:state_augmentation}
 \end{figure}
 
@@ -62,7 +62,7 @@ The effect of augmenting the state vector from 1 to 18 can be seen in \Figure{fi
 \subsubsection{Comparison to the Baseline}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Test results of phaser modeling are contained in \Table{tab:phaser_results}. The 'Loss' is the \ac{ESR}-based loss from \Equation{eq:final_loss_function}. \ac{segSNR} was defined in \Equation{eq:seg_snr}. %TODO: + PEAQ...
+Test results of phaser modeling are contained in \Table{tab:phaser_results}. $LSD_\text{RMS}$ was defined in \Equation{eq:log_spectral_distance}. It was chosen for comparison because in visual inspection of the magnitude \ac{STFT} it resulted in best match of phaser notches in the output signal for the baseline model. It was assumed that it would enable effective learning for ODENet as well. \ac{segSNR} was defined in \Equation{eq:seg_snr}. \ac{PEAQ} was explained in \Section{subsec:va_evaluation}.
 
 \begin{table}[]
     \caption{Test results of the phaser models.}
@@ -71,12 +71,34 @@ Test results of phaser modeling are contained in \Table{tab:phaser_results}. The
     \label{tab:phaser_results}
 \end{table}
 
+In terms of numerical measures, \ac{LSTM}16 significantly outperformed ODENet. The comparison on the validation curves can be seen in \Figure{fig:phaser_lstm_vs_fe}. \ac{LSTM}16 has smaller dynamics of learning, which could point to the fact that it is more suited for modeling the phaser.
+
 \begin{figure}
     \centering
     \input{figures/tikz/phaser_lstm_vs_fe/phaser_lstm_vs_fe.tex}
-    \caption{Placeholder.}
+    \caption{Average $LSD_\text{RMS}$ of the compared models on the validation set.}
     \label{fig:phaser_lstm_vs_fe}
 \end{figure}
 
-% TODO: Add spectrograms
+The results in the \ac{STFT} domain can be seen in \Figure{fig:phaser_test_spectrograms}. The notches learned by phaser very closely match those of the target. The notches learned by ODENet are almost visible (although they are present at closer inspection). It must also be stated added that ODENet always diverged during test, what can be seen in the scale of the colormap values.
 
+\newcommand{\scaleboxsizee}{0.8}
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.7\textwidth}
+        \centering
+        \scalebox{\scaleboxsizee}{\input{figures/tikz/phaser_test_spectrograms/FameSweetToneOffNoFb-test-target_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.7\textwidth}
+        \centering
+        \scalebox{\scaleboxsizee}{\input{figures/tikz/phaser_test_spectrograms/LSTM16_log_spectral_distance_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.7\textwidth}
+        \centering
+        \scalebox{\scaleboxsizee}{\input{figures/tikz/phaser_test_spectrograms/FE_log_spectral_distance_stft.tex}}
+    \end{subfigure}
+    \caption{Fragment of the magnitude \ac{STFT} of the phaser test set. (Top) Target. (Middle) \ac{LSTM}16. (Bottom) ODENet (state size 36).}
+    \label{fig:phaser_test_spectrograms}
+\end{figure}
+
+Ultimately, we were not able to achieve a better performance of ODENet on the phaser dataset. This result suggests, that ODENet may not be able to learn the instantaneous derivative of the phaser system.

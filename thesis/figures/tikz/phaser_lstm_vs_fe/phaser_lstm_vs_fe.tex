@@ -9,8 +9,10 @@
         xlabel = Epoch,
         ylabel = Validation Loss,
     ]
-        \addplot[smooth,mark=none,color=blue] table [x=Step, y=Value, col sep=comma] {figures/tikz/phaser_lstm_vs_fe/LSTM_L1_STFT.csv};
-        \addplot[smooth,mark=none,color=green] table [x=Step, y=Value, col sep=comma] {figures/tikz/phaser_lstm_vs_fe/FE_L1_STFT.csv};
-        \legend{LSTM16, ODENet};
+        % \addplot[smooth,mark=none,color=blue] table [x=Step, y=Value, col sep=comma] {figures/tikz/phaser_lstm_vs_fe/LSTM_L1_STFT.csv};
+        % \addplot[smooth,mark=none,color=green] table [x=Step, y=Value, col sep=comma] {figures/tikz/phaser_lstm_vs_fe/FE_L1_STFT.csv};
+        \addplot[smooth,mark=none,color=blue] table [x=Step, y=Value, col sep=comma] {figures/tikz/phaser_lstm_vs_fe/LSTM_avgLSD.csv};
+        \addplot[smooth,mark=none,color=green] table [x=Step, y=Value, col sep=comma] {figures/tikz/phaser_lstm_vs_fe/FE_avgLSD.csv};
+        \legend{LSTM16, ODENet (state size 36)};
     \end{axis}
 \end{tikzpicture}

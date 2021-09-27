@@ -1,9 +1,10 @@
 \newcommand{\modelNameCellWidth}{1.8cm}
     \begin{tabular}{@{} l | c c @{}}
         \toprule
-        Model & LSTM16 & ODENet \\ \midrule
-        Loss    & \textbf{4.7\%} & TBF \\
-        segSNR  & \textbf{8.5} & TBF  \\
-        PEAQ     & \textbf{4.7} & TBF \\ \bottomrule
+        Model & LSTM16 & ODENet (state size 36) \\ \midrule
+        average $LSD_\text{RMS}$ & \textbf{0.33} & 4.3 \\
+        % \ac{ESR}+DC+prefilter   & \textbf{4.7\%} & 4.5e11\% \\
+        segSNR  & \textbf{8.5} & -9.6  \\
+        PEAQ     & \textbf{4.7} & 2.1 \\ \bottomrule
     \end{tabular}%
     
