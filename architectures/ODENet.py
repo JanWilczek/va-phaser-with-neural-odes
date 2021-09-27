@@ -78,6 +78,22 @@ class ScaledSingleLinearLayer(SingleLinearLayer):
         # scaling.weight.data.requires_grad_(False)
         self.densely_connected_layers = nn.Sequential(nn.Linear(self.input_size, self.output_size, bias=False), activation, scaling)
 
+class DerivativeWithMemory(nn.Module):
+    def __init__(self, excitation, activation, excitation_size=1, output_size=1, hidden_size=10, memory_length=10):
+        super().__init__()
+        self.excitation = excitation
+        self.excitation_size = excitation_size
+        self.output_size = output_size
+        self.hidden_size = hidden_size
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(self.input_size, self.hidden_size), activation,
+            nn.Linear(self.hidden_size, self.hidden_size), activation,
+            nn.Linear(self.hidden_size, self.output_size))
+
+    def forward(t, y):
+        raise NotImplementedError
+
+
 class ODENet(nn.Module):
     def __init__(self, derivative_network, odeint, dt):
         super().__init__()

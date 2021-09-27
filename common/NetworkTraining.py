@@ -130,10 +130,12 @@ class NetworkTraining:
         torch.save(checkpoint_dict, self.best_validation_model_path if best_validation else self.checkpoint_path)
 
     def load_checkpoint(self, best_validation=False):
-        checkpoint = torch.load(self.best_validation_model_path if best_validation else self.checkpoint_path)
+        checkpoint_path = self.best_validation_model_path if best_validation else self.checkpoint_path
+        checkpoint = torch.load(checkpoint_path)
         self.network.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
+        print(f'Successfully loaded checkpoint from {checkpoint_path}')
         
         # Scheduler loading is not recommended; uncomment the following two lines on your own risk.
         # if self.scheduler is not None and self.SCHEDULER_STATE_DICT_KEY in checkpoint:

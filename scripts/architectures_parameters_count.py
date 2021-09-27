@@ -15,7 +15,11 @@ def main():
                 ResidualIntegrationNetworkRK4(BilinearBlock(input_size=2, output_size=1, latent_size=6), dt),
                 ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), nn.ReLU(), excitation_size=1, output_size=1, hidden_size=100), ForwardEuler(), dt),
                 ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), nn.ReLU(), excitation_size=1, output_size=1, hidden_size=9), ForwardEuler(), dt),
-                ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), nn.ReLU(), excitation_size=1, output_size=1, hidden_size=9), partial(odeint, method='implicit_adams'), dt)]
+                ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), nn.ReLU(), excitation_size=1, output_size=1, hidden_size=9), partial(odeint, method='implicit_adams'), dt),
+                SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=2),
+                ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.SELU(), excitation_size=2, output_size=1, hidden_size=30), ForwardEuler(), dt),
+                ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.SELU(), excitation_size=2, output_size=18, hidden_size=30), ForwardEuler(), dt),
+                ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.SELU(), excitation_size=2, output_size=36, hidden_size=30), ForwardEuler(), dt)]
 
     print('Number of parameters for each model' \
           '====================================')

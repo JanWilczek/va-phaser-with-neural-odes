@@ -150,7 +150,10 @@ def save_args(session, args):
 def test(session):
     session.device = 'cpu'
     # Load the model performing best on the validation set for test
-    session.load_checkpoint(best_validation=True)
+    try:
+        session.load_checkpoint(best_validation=True)
+    except FileNotFoundError:
+        print("No best validation model found. Staying with the current setup.")
     test_output, test_loss = session.test()
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
