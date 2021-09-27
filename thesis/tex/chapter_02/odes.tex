@@ -103,7 +103,7 @@ By fixing the values of the coefficients $\alpha_j, \beta_\text{\underline{\hspa
 The accuracy of numerical solvers can be further improved by using an \emph{adaptive stepsize} (changing the size of the step according to the error estimate) or using \emph{multiple steps} (using more than one of the already computed values of $y$). Different modifications lead to different accuracy-performance trade-offs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Stiffness}
+\subsection{Implicit Methods}
 \label{subsection:stiffness}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -116,12 +116,12 @@ A simple example of an implicit method is the \emph{backward Euler} method, whic
   \label{eq:backward_euler}
 \end{equation}
 
-Using \Equation{eq:backward_euler} in \Equation{eq:time_stepping_identity} sometimes requires iterating between the two, while the first estimate of $y(t_{i+1})$ can be computed using the forward Euler formula of \Equation{eq:forward_euler}. The iterations stop when the difference between subsequent estimates of $y(t_{i+1})$ is sufficiently small \cite{Yeh2007}. 
+Using \Equation{eq:backward_euler} in \Equation{eq:time_stepping_identity} sometimes requires iterating between the two, while the first estimate of $y(t_{i+1})$ can be computed using the forward Euler formula of \Equation{eq:forward_euler}. The iterations stop when the difference between subsequent estimates of $y(t_{i+1})$ is sufficiently small \cite{Yeh2007}. The desired accuracy of the estimate is typically set by specifying an absolute and a relative error, which are combined to form a specific criterion \cite{SciPy}. Decreasing the desired error increases the number of iterations at each step. Thus, one can trade off speed for accuracy.
 
 Since the number of iterations cannot be predicted in advance, the running times of implicit solvers are not fixed. In practice, they are typically much slower than explicit solvers. Therefore, they are not suitable for real-time computations.
 
 An example of an implicit, multistep method relevant for this work is the adaptive order Adams-Moulton-Bashford method \cite{Karlsson2019}. We will refer to it as the "implicit Adams" scheme.
 
-Solvers that are capable of solving stiff problems are called \emph{stiff solvers}.
+The improved stability of implicit solvers makes them more suitable for stiff \acp{ODE} than explicit solvers.
 
 The diode clipper \ac{ODE} is stiff \cite{Parker2019}.
