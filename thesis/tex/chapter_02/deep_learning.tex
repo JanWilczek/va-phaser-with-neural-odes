@@ -4,7 +4,9 @@
 \label{section:deep_learning}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Broadly speaking, machine learning is a field of engineering using data to improve on a task at hand \cite{Goodfellow-et-al-2016}. A subfield of machine learning called deep learning uses multi-layer \acp{ANN} for the improvement process. 
+Broadly speaking, machine learning is a field of engineering using data to improve algorithms' performance at a given task \cite{Goodfellow-et-al-2016}. An example of a machine learning problem is assigning labels to images.
+
+A subfield of machine learning called deep learning uses multi-layer \acp{ANN} to solve the problem. \Acp{ANN} have parameters that can be adjusted according to the data.
 
 An \ac{ANN} is a model whose goal is to approximate some function $f^*$ \cite{Goodfellow-et-al-2016}. A \emph{feedforward network} or an \ac{MLP} is an input-to-output mapping. For example, in the context of audio signal processing, $f^*$ could be a mapping of an input signal $s_\text{in}(t)$ to an output signal $s_\text{out}(t)$, i.e., $s_\text{out}(t) = f^*(s_\text{in}(t))$. The mapping $f$ defined by an \ac{MLP}, $\hat{s}_\text{out}(t) = f(s_\text{in}(t); \pmb{\theta})$, is dependent on the parameter vector $\pmb{\theta}$. The learning process aims to find a parameter vector $\pmb{\theta^*}$ that allows for a sufficiently accurate approximation of $f^*$ by $f$.
 

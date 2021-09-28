@@ -49,12 +49,12 @@ The goal of phaser modeling was not only to compare ODENet to the approach taken
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{The Impact of State Augmentation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The effect of augmenting the state vector from 1 to 18 when training with the average $L_1$ distance in the \ac{STFT} domain can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it may be beneficial to augment the state, even if no training signal is provided for them. However, the improvement was not observed when $L_2$ or $LSD_\text{RMS}$ distances were used.
+The effect of augmenting the state vector from 1 to 18 entries when training with the average $L_1$ distance in the \ac{STFT} domain can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it may be beneficial to augment the state, even if the training signal is not provided for all of its entries. However, the improvement was not observed when $L_2$ or $LSD_\text{RMS}$ distances were used.
 
 \begin{figure}
     \centering
     \input{figures/tikz/state_augmentation/state_augmentation.tex}
-    \caption{Average $L_1$ distance in the \ac{STFT} domain of ODENet on the validation set with and without state augmentation.}
+    \caption{Average $L_1$ loss of ODENet in the \ac{STFT} domain on the validation set with and without state augmentation.}
     \label{fig:state_augmentation}
 \end{figure}
 
@@ -62,7 +62,7 @@ The effect of augmenting the state vector from 1 to 18 when training with the av
 \subsubsection{Comparison to the Baseline}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Test results of phaser modeling are contained in \Table{tab:phaser_results}. $LSD_\text{RMS}$ was defined in \Equation{eq:log_spectral_distance}. It was chosen for comparison because in visual inspection of the magnitude \ac{STFT} it resulted in best match of phaser notches in the output signal for the baseline model. It was assumed that it would enable effective learning for ODENet as well. \ac{segSNR} was defined in \Equation{eq:seg_snr}. \ac{PEAQ} was explained in \Section{subsec:va_evaluation}.
+Test results of phaser modeling are shown in \Table{tab:phaser_results}. $LSD_\text{RMS}$ was defined in \Equation{eq:log_spectral_distance}. It was chosen for the final training and comparison, because during a visual inspection of the magnitude \ac{STFT} it resulted in the best match of phaser notches in the output signal of the baseline model. It was assumed that it would enable effective learning for ODENet as well. \ac{segSNR} was defined in \Equation{eq:seg_snr}. \ac{PEAQ} was explained in \Section{subsec:va_evaluation}.
 
 \begin{table}[]
     \caption{Test results of the phaser models.}
@@ -71,7 +71,7 @@ Test results of phaser modeling are contained in \Table{tab:phaser_results}. $LS
     \label{tab:phaser_results}
 \end{table}
 
-In terms of numerical measures, \ac{LSTM}16 significantly outperformed ODENet. The comparison on the validation curves can be seen in \Figure{fig:phaser_lstm_vs_fe}. \ac{LSTM}16 has smaller dynamics of learning, which could point to the fact that it is more suited for modeling the phaser.
+In terms of numerical measures, \ac{LSTM}16 significantly outperformed ODENet. The validation curves of both models can be seen in \Figure{fig:phaser_lstm_vs_fe}. \ac{LSTM}16 has smaller dynamics of learning, which could point to the fact that it is more suited for modeling the phaser.
 
 \begin{figure}
     \centering
@@ -80,14 +80,14 @@ In terms of numerical measures, \ac{LSTM}16 significantly outperformed ODENet. T
     \label{fig:phaser_lstm_vs_fe}
 \end{figure}
 
-The results in the \ac{STFT} domain can be seen in \Figure{fig:phaser_test_spectrograms}. The notches learned by phaser very closely match those of the target. The notches learned by ODENet are almost visible (although they are present at closer inspection). It must also be stated added that ODENet always diverged during test, what can be seen in the scale of the colormap values.
+The results in the \ac{STFT} domain can be seen in \Figure{fig:phaser_test_spectrograms}. The notches learned by \ac{LSTM}16 closely match those of the target. The notches learned by ODENet are almost invisible (although they are present at closer inspection). It must also be stated that ODENet always diverged during test, what can be seen in the range of values in the colorbar.
 
 \newcommand{\scaleboxsizee}{0.8}
 \begin{figure}
     \centering
     \begin{subfigure}{0.7\textwidth}
         \centering
-        \scalebox{\scaleboxsizee}{\input{figures/tikz/phaser_test_spectrograms/FameSweetToneOffNoFb-test-target_stft.tex}}
+        \scalebox{0.81}{\input{figures/tikz/phaser_test_spectrograms/FameSweetToneOffNoFb-test-target_stft.tex}}
     \end{subfigure}
     \begin{subfigure}{0.7\textwidth}
         \centering
@@ -97,8 +97,10 @@ The results in the \ac{STFT} domain can be seen in \Figure{fig:phaser_test_spect
         \centering
         \scalebox{\scaleboxsizee}{\input{figures/tikz/phaser_test_spectrograms/FE_log_spectral_distance_stft.tex}}
     \end{subfigure}
-    \caption{Fragment of the magnitude \ac{STFT} of the phaser test set. (Top) Target. (Middle) \ac{LSTM}16. (Bottom) ODENet (state size 36).}
+    \caption{A fragment of the magnitude \ac{STFT} of the models' test output. (Top) Target. (Middle) \ac{LSTM}16. (Bottom) ODENet (state size 36).}
     \label{fig:phaser_test_spectrograms}
 \end{figure}
 
-Ultimately, we were not able to achieve a better performance of ODENet on the phaser dataset. This result suggests, that ODENet may not be able to learn the instantaneous derivative of the phaser system.
+In casual listening, \ac{LSTM}16 sounds indistinguishable from the target. On the contrary, the output of ODENet does not sound as processed with phaser at all. The gentle notches that can be seen under a close inspection of ODENet output spectrograms are not audible.
+
+Ultimately, we were not able to achieve a better performance of ODENet on the phaser dataset. This suggests that ODENet may not be able to learn the instantaneous derivative of the phaser system.
