@@ -7,9 +7,7 @@ The aim of this work was to investigate whether the ODENet framework--teaching a
 
 Ultimately, the answer to this question turned out to be only partially positive. It has been proven on the example of the diode clipper that the ODENet architecture can learn the \ac{ODE} governing a dynamical system. A significant advantage of the learned derivative over an analytical one is the lack of aliasing (unless it is present in the training data). Consequently, there is no need for time- and memory-expensive oversampling.
 
-Furthermore, the learned derivative can with success be used at sampling rates higher than the training sampling rate. However, ODENet outperforms other models in that regard only for significantly higher sampling rates, i.e., four times larger than the training sampling rate.
-
-It has also been proven that in the context of \ac{VA} modeling, ODENet can provide results comparable to the established recurrent architectures like the \ac{LSTM} albeit with a smaller number of parameters.
+Furthermore, the learned derivative can with success be used at sampling rates higher than the training sampling rate. However, ODENet outperforms other models in that regard only for significantly higher sampling rates, i.e., four times larger than the training sampling rate. It has also been proven that in the context of \ac{VA} modeling, ODENet can provide results comparable to the established recurrent architectures like the \ac{LSTM} albeit with a smaller number of parameters.
 
 Taking the above into consideration, there is a potential for real-time implementations of \ac{DAW} plugins using ODENet architecture. With proper code optimization, ODENet probably could be faster than the state-of-the-art \ac{LSTM} architecture. Since during real-time processing, the computation time must be strictly bounded, most likely explicit solvers would need to be used as the implicit methods cannot guarantee fixed convergence time per sample.
 

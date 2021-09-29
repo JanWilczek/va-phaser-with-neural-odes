@@ -22,9 +22,7 @@ A group of numerical methods is called \emph{time-stepping methods}. Given a gri
   y(t_{i+1}) = y(t_{i}) + \int \limits_{t_i}^{t_{i+1}} f(\tau, y(\tau)) \mathrm{d} \tau
   \label{eq:time_stepping_identity}
 \end{equation}
-to approximate the value of $y$ at the points on the grid, $y(t_1), y(t_2), \dots, y(t_n)$. The core idea is to approximate the integral in \Equation{eq:time_stepping_identity}. Thus, the process of solving an \ac{IVP} is often referred to as \emph{integrating} the \ac{ODE} \cite{Gockenbach2011}.
-
-What follows is a description of some of the numerical schemes used to approximate the integral in \Equation{eq:time_stepping_identity}.
+to approximate the value of $y$ at the points on the grid, $y(t_1), y(t_2), \dots, y(t_n)$. The core idea is to approximate the integral in \Equation{eq:time_stepping_identity}. Thus, the process of solving an \ac{IVP} is often referred to as \emph{integrating} the \ac{ODE} \cite{Gockenbach2011}. What follows is a description of some of the numerical schemes used to approximate the integral in \Equation{eq:time_stepping_identity}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Forward Euler}
@@ -38,13 +36,9 @@ The simplest approximation of the integral in \Equation{eq:time_stepping_identit
   \label{eq:forward_euler}
 \end{equation}
 
-where $\Delta t = t_{i+1} - t_i$.
+where $\Delta t = t_{i+1} - t_i$. It is important to note, that unless $y(t_i)$ is the initial value, it must be computed from previous time points. This results in error accumulation across time steps. The total error is on the order of the time step size $\Delta t$, which leads to the conclusion that in order to get a more accurate approximation with the forward Euler method, one needs to decrease the time step used \cite{Gockenbach2011}. In turn, decreasing the time step increases the number of computations needed to obtain the values of $y$ at the specified points.
 
-It is important to note, that unless $y(t_i)$ is the initial value, it must be computed from previous time points. This results in error accumulation across time steps. The total error is on the order of the time step size $\Delta t$, which leads to the conclusion that in order to get a more accurate approximation with the forward Euler method, one needs to decrease the time step used \cite{Gockenbach2011}. In turn, decreasing the time step increases the number of computations needed to obtain the values of $y$ at the specified points.
-
-The benefits of the Euler method are a straightforward implementation and the least amount of computations in comparison to other schemes.
-
-Since we compute the solution according to the time steps ordering (\emph{forward} in time), this method is called an \emph{explicit} method.
+The benefits of the Euler method are a straightforward implementation and the least amount of computations in comparison to other schemes. Since we compute the solution according to the time steps ordering (\emph{forward} in time), this method is called an \emph{explicit} method.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Explicit Runge-Kutta Methods}
@@ -118,10 +112,4 @@ A simple example of an implicit method is the \emph{backward Euler} method, whic
 
 Using \Equation{eq:backward_euler} in \Equation{eq:time_stepping_identity} sometimes requires iterating between the two, while the first estimate of $y(t_{i+1})$ can be computed using the forward Euler formula of \Equation{eq:forward_euler}. The iterations stop when the difference between subsequent estimates of $y(t_{i+1})$ is sufficiently small \cite{Yeh2007}. The desired accuracy of the estimate is typically set by specifying an absolute and a relative error, which are combined to form a specific criterion \cite{SciPy}. Decreasing the desired error increases the number of iterations at each step. Thus, one can trade off speed for accuracy.
 
-Since the number of iterations cannot be predicted in advance, the running times of implicit solvers are not fixed. In practice, they are typically much slower than explicit solvers. Therefore, they are not suitable for real-time computations.
-
-An example of an implicit, multistep method relevant for this work is the adaptive order Adams-Moulton-Bashford method \cite{Karlsson2019}. We will refer to it as the "implicit Adams" scheme.
-
-The improved stability of implicit solvers makes them more suitable for stiff \acp{ODE} than explicit solvers.
-
-The diode clipper \ac{ODE} is stiff \cite{Parker2019}.
+Since the number of iterations cannot be predicted in advance, the running times of implicit solvers are not fixed. In practice, they are typically much slower than explicit solvers. Therefore, they are not suitable for real-time computations. On the other hand, their improved stability makes them more suitable for stiff \acp{ODE}, such as the diode clipper equation \cite{Parker2019}, than explicit solvers. An example of an implicit, multistep method relevant for this work is the adaptive order Adams-Moulton-Bashford method \cite{Karlsson2019}. We will refer to it as the "implicit Adams" scheme.

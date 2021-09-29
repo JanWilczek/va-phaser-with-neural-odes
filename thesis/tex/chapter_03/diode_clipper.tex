@@ -46,8 +46,6 @@ For benchmark, the following architectures were chosen:
     \item \ac{LSTM}-based architecture from \cite{Wright2019} with 8 hidden units and an $8 \times 1$ output \ac{MLP} mapping the hidden states to an output sample (\ac{LSTM}8).
 \end{itemize}
 
-All of the architectures were trained on audio data at \SI{44100}{Hz} sampling rate.
-
 Each model is listed with its number of parameters,
 hyperparameter values during training, training time (in epochs and hours), and teacher forcing curriculum in \Table{tab:diode_clipper_models_data}. The curriculum descriptions mean the following: "never" does not use teacher forcing, "always" provides true output for each minibatch at each time step, "bernoulli" uses scheduled sampling, where the probability of using teacher forcing for a minibatch decreases with each epoch. If a binary sample drawn from the Bernoulli distribution determines that teacher forcing should be used for a given minibatch, then the previous true output is supplied at each time step of the processing of that minibatch.
 
@@ -57,7 +55,7 @@ hyperparameter values during training, training time (in epochs and hours), and 
     \label{tab:diode_clipper_models_data}
 \end{table}
 
-Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal of using various sampling rates at test time was to analyze the presence of aliasing in the output and inspect the accuracy of the models at sampling rates different than the one in training. 
+All of the architectures were trained on audio data at \SI{44100}{Hz} sampling rate. Each of these models was tested on previously unseen data at \SI{44100}{Hz} (same as training data), \SI{22050}{Hz}, \SI{48000}{Hz}, and \SI{192000}{Hz} sampling rates. The goal of using various sampling rates at test time was to analyze the presence of aliasing in the output and inspect the accuracy of the models at sampling rates different than the one in training. 
 
 During test, \ac{STN} and ODENet models were informed about the new value of the time step, whereas \ac{LSTM}8 and \ac{RINN}4 were not. \ac{LSTM} and \ac{RINN} architectures don't provide a tunable parameter for explicitly changing the time step; they rather learn the time step from data.
 
