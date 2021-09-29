@@ -11,7 +11,7 @@ This section presents the results of diode clipper modeling. First, the training
 \label{sec:diode_clipper_training_data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The dataset used for diode clipper modeling consisted of 7 minutes and 59 seconds of guitar and bass recordings from \cite{Abesser2013} and \cite{Kehling2014} respectively. The amount of guitar recordings was roughly the same as the amount of bass recordings and their ordering was arbitrary. All recordings were single-channel and used \SI{44100}{Hz} sampling rate. 1 minute and 29 seconds (approximately 20\%) of these were used as the test set. 
+The dataset used for diode clipper modeling consisted of 7 minutes and 59 seconds of guitar and bass recordings from \cite{Abesser2013} and \cite{Kehling2014} respectively. The amount of guitar recordings was roughly the same as the amount of bass recordings and their ordering was arbitrary. All recordings were single-channel and used \SI{44100}{Hz} sampling rate. Out of these, 1 minute and 29 seconds (approximately 20\%) were used as the test set. 
 
 Care was taken so that the test file begins with silence. Thanks to this, ODENet's initialization with the all-zero vector did not obscure the comparison between the architectures in terms of quality. If the first true output sample was far from zero, the all-zero initialization would cause a click in ODENet's test output. 
 

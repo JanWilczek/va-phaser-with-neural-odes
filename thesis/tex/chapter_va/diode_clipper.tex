@@ -69,7 +69,7 @@ The second part of the diode clipper is the diode limiter also called a \emph{di
 
 If the diodes were ideal, i.e., they would behave as an open for voltages across smaller than 0 and as a short for voltages across larger than 0, $V_\text{out}$ would always be 0. However, to a second approximation, the diodes cause a voltage drop of \SI{0.7}{V} when conducting. Thus, the voltage cannot exceed the \SIrange{-0.7}{0.7}{V} range, being clamped when attempting to do so. The positive clipper guards the upper limit and the negative clipper guards the lower limit. The effect of passing an \ac{AC} signal through the diode limiter is shown in \Figure{fig:diode_limiter_signal}.
 
-\cite{Yeh2007} contains a small-signal interpretation of the diode limiter circuit.
+The analytical derivation of the differential equation governing the diode limiter circuit is more challenging than that of the first-order lowpass. Yeh et al. \cite{Yeh2007} present a small-signal interpretation of the diode limiter circuit.
 
 \begin{figure}
   \centering
