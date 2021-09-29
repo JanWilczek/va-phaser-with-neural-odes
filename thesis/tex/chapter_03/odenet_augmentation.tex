@@ -27,7 +27,7 @@ At test time, for most dynamical systems, we could also provide a meaningful ini
 \label{subsec:excitation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In the existing applications of the ODENet framework, the derivative network was unaware of any external excitation of the system. The excitation is an important element of an \ac{IVP} that significantly influences the dynamics of the system. In the context of \ac{VA} modeling, the excitation typically consists of the input signal to the device (amplifier, distortion effect, phaser, etc.). The importance of the input signal as an excitation is visible in the diode clipper example, as discussed in \Section{subsec:diode_clipper_intro}.
+In the existing applications of the ODENet framework, the derivative network was unaware of any external excitation of the system. The excitation is an important element of an \ac{IVP} that significantly influences the dynamics of the system. In the context of \ac{VA} modeling, the excitation typically consists of the input signal to the modeled device such as a distortion pedal. The importance of the input signal as an excitation is visible in the diode clipper example, as discussed in \Section{subsec:diode_clipper_intro}.
 
 How to condition the derivative network with an excitation signal? The implementation must consider the following requirements:
 \begin{itemize}
