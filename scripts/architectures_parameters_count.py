@@ -21,7 +21,7 @@ def main():
                 ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.SELU(), excitation_size=2, output_size=18, hidden_size=30), ForwardEuler(), dt),
                 ODENet(DerivativeMLP2(ExcitationSecondsLinearInterpolation(), nn.SELU(), excitation_size=2, output_size=36, hidden_size=30), ForwardEuler(), dt)]
 
-    print('Number of parameters for each model' \
+    print('Number of parameters of each model\n' \
           '====================================')
 
     for network in networks:

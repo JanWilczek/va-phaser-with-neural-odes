@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from CoreAudioML.training import LossWrapper, ESRLoss
+from CoreAudioML.training import LossWrapper, ESRLoss, DCLoss
 
 
 def l1_stft(output, target):
@@ -27,7 +27,9 @@ def log_spectral_distance(output, target):
     power_output = torch.clamp_min(stft_output.abs() ** 2, 1e-7)
     power_target = torch.clamp_min(stft_target.abs() ** 2, 1e-7)
     log_spectral_distance_frames = torch.sqrt(torch.mean(torch.square(torch.log(power_target) - torch.log(power_output)), -2))
-    return torch.mean(torch.mean(log_spectral_distance_frames, -1)) # Average across time and batch dimensions
+    average_log_spectral_distance = torch.mean(torch.mean(log_spectral_distance_frames, -1)) # Average across time and batch dimensions
+    NORMALIZATION_CONSTANT = 3  # Peak average log spectral distance for LSTM at training was 2.85. Thus, 3 seems like a natural normalization constant.
+    return average_log_spectral_distance / NORMALIZATION_CONSTANT
 
 def get_loss_function(loss_function_name):
     loss_function_name = loss_function_name.lower()
@@ -35,6 +37,8 @@ def get_loss_function(loss_function_name):
         return LossWrapper({'ESR': .5, 'DC': .5}, pre_filt=[1, -0.85])
     elif loss_function_name == 'esrloss':
         return ESRLoss()
+    elif loss_function_name == 'dc_log_spectral_distance':
+        return lambda output, target: 0.5 * DCLoss()(output, target) + 0.5 * log_spectral_distance(output, target)
     elif loss_function_name in globals():
         return globals()[loss_function_name]
     else:
