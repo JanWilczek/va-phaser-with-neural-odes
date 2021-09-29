@@ -61,12 +61,12 @@ The \ac{RK} methods are based on evaluating the function and the derivative in b
   \vdots & \\
   k_m &= f(t_i + \gamma_m \Delta t, y(t_i) + \sum \limits_{l=1}^{m-1} \beta_{ml} \Delta t k_l), \label{eq:rk_last}
 \end{align}
-where
+with
 \begin{equation}
-    \sum \limits_{j=1}^{m} \alpha_j = 1.
+    \sum \limits_{j=1}^{m} \alpha_j = 1,
 \end{equation}
 
-$k_j$ are estimates of the derivative $f$ at $m$ nodes in the interval $[t_i, t_{i+1}]$, $\alpha_j$ are weights with which to sum the partial residuals $\Delta t k_j$. $\beta_\text{\underline{\hspace{2mm}}}$ coefficients have the same role for intermediate computations of $f$. $\gamma_j$ coefficients control which derivative approximations to use at specific nodes. For example, one could set $\gamma_j = \sum \limits_{l=1}^{j-1} \beta_{jl}$.
+where $k_j$ are estimates of the derivative $f$ at $m$ nodes in the interval $[t_i, t_{i+1}]$, $\alpha_j$ are weights with which to sum the partial residuals $\Delta t k_j$, $\beta_\text{\underline{\hspace{2mm}}}$ coefficients have the same role for intermediate computations of $f$, and $\gamma_j$ coefficients control which derivative approximations to use at specific nodes. For example, one could set $\gamma_j = \sum \limits_{l=1}^{j-1} \beta_{jl}$.
 
 By fixing the values of the coefficients $\alpha_j, \beta_\text{\underline{\hspace{2mm}}}$, and $\gamma_j$, one obtains different numerical schemes. Their \emph{order} is the number of nodes used in between the steps. The most popular schemes are forward Euler (order 1), midpoint (order 2), \ac{RK}4 (order 4), and \ac{DOPRI} (using 4th and 5th order estimates). The values of the coefficients for the \ac{RK} methods are stored in \emph{Butcher tableaus} \cite{Atkinson2009}. The structure of a tableau corresponding to \EquationRange{eq:rk_first}{eq:rk_last}is shown in \Table{tab:rk_tableau}. A tableau for \ac{RK}4 is given in \Table{tab:rk4_tableau}.
 

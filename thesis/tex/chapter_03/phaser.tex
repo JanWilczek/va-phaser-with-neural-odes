@@ -62,7 +62,7 @@ The effect of augmenting the state vector from 1 to 18 entries when training wit
 \subsubsection{Comparison to the Baseline}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Test results of phaser modeling are shown in \Table{tab:phaser_results}. $LSD_\text{RMS}$ was defined in \Equation{eq:log_spectral_distance}. It was chosen for the final training and comparison, because during a visual inspection of the magnitude \ac{STFT} it resulted in the best match of phaser notches in the output signal of the baseline model. It was assumed that it would enable effective learning for ODENet as well. \ac{segSNR} was defined in \Equation{eq:seg_snr}. \ac{PEAQ} was explained in \Section{subsec:va_evaluation}.
+Test results of phaser modeling are shown in \Table{tab:phaser_results}, where $LSD_\text{RMS}$ was defined in \Equation{eq:log_spectral_distance}, \ac{segSNR} was defined in \Equation{eq:seg_snr}, and \ac{PEAQ} was explained in \Section{subsec:va_evaluation}. The $LSD_\text{RMS}$  loss was chosen for the final training and comparison, because during a visual inspection of the magnitude \ac{STFT} it resulted in the best match of phaser notches in the output signal of the baseline model. It was assumed that it would enable effective learning for ODENet as well.
 
 \begin{table}[]
     \caption{Test results of the phaser models.}

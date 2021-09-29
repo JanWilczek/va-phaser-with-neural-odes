@@ -107,7 +107,7 @@ In audio processing, \ac{LSTM}-based architectures have been successfully applie
 \begin{figure}
   \centering
   \input{figures/tikz/resblock.tex}
-  \caption{A residual block (ResBlock). $\pmb{x}$ represents the block's input, $h(\pmb{x})$ represents a neural network learning the residual, and $f(\pmb{x})$ represents the block's output.}
+  \caption{A residual block (ResBlock). In the diagram, $\pmb{x}$ represents the block's input, $h(\pmb{x})$ represents a neural network learning the residual, and $f(\pmb{x})$ represents the block's output.}
   \label{fig:resblock}
 \end{figure}
 
@@ -162,7 +162,7 @@ In this approach, the residual is computed using $S$ stages of computations, eac
 \end{figure}
 
 The neural network chosen in \cite{Ouala2019}
-for the parametrization of each stage consists of three fully-connected layers. The output of the first one is concatenated with the element-wise product of the output of the two remaining layers. The goal of the element-wise multiplication is to enable second-order interactions between the variables. This parametrization is called a \emph{bilinear block} \cite{Fablet2017} and is shown in \Figure{fig:bilinear_block}. $\pmb{x}_t$ denotes the input to the bilinear block at time $t$, layers $l_1, l_2,$ and $l_3$ are fully-connected and $F(t, \pmb{x}_t)$ is the partial residual. If the number of stages $S$ is equal to 1 and time step is equal to 1, then $F(t, \pmb{x}_t)$ is the full residual. The physical interpretation of the bilinear block depends on the computation scheme in which it is used and the modeled problem.
+for the parametrization of each stage consists of three fully-connected layers. The output of the first one is concatenated with the element-wise product of the output of the two remaining layers. The goal of the element-wise multiplication is to enable second-order interactions between the variables. This parametrization is called a \emph{bilinear block} \cite{Fablet2017} and is shown in \Figure{fig:bilinear_block}. In the figure, $\pmb{x}_t$ denotes the input to the bilinear block at time $t$, layers $l_1, l_2,$ and $l_3$ are fully-connected, and $F(t, \pmb{x}_t)$ is the partial residual. If the number of stages $S$ is equal to 1 and time step is equal to 1, then $F(t, \pmb{x}_t)$ is the full residual. The physical interpretation of the bilinear block depends on the computation scheme in which it is used and the modeled problem.
 
 
 
@@ -319,7 +319,7 @@ Additionally, one can also regularize via minibatch size \cite{Bengio2012}. Smal
 \begin{figure}
     \centering
     \scalebox{0.6}{\input{figures/svg/teacher_forcing.pdf_tex}}
-    \caption{Teacher forcing at a single time step. At train time, true previous output is part of the input used for calculating the current hidden state. At test time, the previous output of the network is used instead. $L$ denotes the loss function. After \cite{Goodfellow-et-al-2016}.}
+    \caption{Teacher forcing at a single time step. At train time, true previous output is part of the input used for calculating the current hidden state. At test time, the previous output of the network is used instead. In the computational graph, $L$ denotes the loss function. After \cite{Goodfellow-et-al-2016}.}
     \label{fig:teacher_forcing}
 \end{figure}
 
@@ -347,7 +347,7 @@ A deep learning practitioner needs to implement the designed architectures, loss
 
 As described in \Section{subsection:forward_euler}, in the Euler method of solving \acp{ODE}, function's value at time step $t_{i+1}$ is approximated by adding the value of the derivative at time step $t_{i}$ multiplied by the time step size $t_{i+1} - t_i$ to the function's value at $t_i$.
 It has been observed that learning the residual instead of the function by an \ac{ANN} in \ac{ResNet} can be viewed as an Euler step of solving a differential equation. \cite{Chen2018} restated this observation
-and proposed to change the discrete scheme to a continuous one. In such a scheme, the network learns not the residual but the derivative of the desired function. This \emph{derivative network} is supplied to a numerical solver of choice. The loss is calculated using the solver's (not the network's) output. The backpropagation through the solver's operations can be done in constant time using the adjoint sensitivity method \cite{Chen2018}. Such generically defined architecture was named ODENet and is presented in \Figure{fig:odenet_architecture}. $t$ denotes a vector with time instances, $\pmb{y}_0$ is the initial value, such that $\pmb{y}(t[0]) = \pmb{y}_0$ (unknown function $\pmb{y}$ is assumed to be a vector-valued function for generality), and $f(t, \pmb{y})$ is the right-hand side of the \ac{ODE} we want to solve, as in \Equation{eq:general_ode}.
+and proposed to change the discrete scheme to a continuous one. In such a scheme, the network learns not the residual but the derivative of the desired function. This \emph{derivative network} is supplied to a numerical solver of choice. The loss is calculated using the solver's (not the network's) output. The backpropagation through the solver's operations can be done in constant time using the adjoint sensitivity method \cite{Chen2018}. Such generically defined architecture was named ODENet and is presented in \Figure{fig:odenet_architecture}. In the figure, $t$ denotes a vector with time instances, $\pmb{y}_0$ is the initial value, such that $\pmb{y}(t[0]) = \pmb{y}_0$ (unknown function $\pmb{y}$ is assumed to be a vector-valued function for generality), and $f(t, \pmb{y})$ is the right-hand side of the \ac{ODE} we want to solve, as in \Equation{eq:general_ode}.
 
 Long before the renaissance of deep learning, function $f(t, \pmb{y})$ supplied to the solver was a software procedure that could be evaluated for arbitrary time $t$ and function value $\pmb{y}$ (as long as they were in the domain of the function $f$). However, in the ODENet framework, $f$ \emph{is the neural network that learned to approximate the derivative function}. Ideally, the numerical solver should not be able to distinguish whether it receives a deterministic function or a neural network. However, in reality, the implementation may require an intervention into the code of the solver, for example, for \ac{GPU} optimization purposes.
 
