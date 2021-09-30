@@ -7,9 +7,11 @@
         grid,
         xlabel = Epoch,
         ylabel = Validation Loss,
+        ymode=log,
     ]
-        \addplot[smooth,mark=none,color=red, dashed] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-forward_euler_July16_13-14-04_axel_ODENet2Hidden9-tag-Loss_validation.csv};
+        \addplot[smooth,mark=none,color=green] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-forward_euler_July16_13-14-04_axel_ODENet2Hidden9-tag-Loss_validation.csv};
         \addplot[smooth,mark=none,color=blue] table [x=Step, y=Value, col sep=comma] {figures/tikz/diode_clipper_validation_curves/run-lstm_June30_13-57-49_axel-tag-Loss_validation.csv};
+        \addplot[mark=none,red,dashed,thin] coordinates {(0,0.01) (200,0.01)};
         \legend{ODENet9(FE), LSTM8};
     \end{axis}
 \end{tikzpicture}
