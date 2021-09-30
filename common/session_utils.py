@@ -125,8 +125,8 @@ def attach_scheduler(args, session):
                                                               cycle_momentum=False)
     elif args.exponential_lr is not None:
         session.scheduler = torch.optim.lr_scheduler.ExponentialLR(session.optimizer,
-                                                                   gamma=math.exp(math.log(args.exponential_lr / args.learn_rate) / (session.epochs)),
-                                                                   last_epoch = (session.epoch - 1))
+                                                                   gamma=math.exp(math.log(args.exponential_lr / args.learn_rate) / (session.epochs * session.minibatch_count)),
+                                                                   last_epoch = max(-1, session.minibatch_count * (session.epoch - 1)))
 
 
 def load_checkpoint(args, session, model_directory):
