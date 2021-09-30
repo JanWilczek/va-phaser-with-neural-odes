@@ -9,7 +9,7 @@ class ForwardEuler:
     def __call__(self, f, y0, t, args=[], **kwargs):
         return self.forward(f, y0, t, args=[], **kwargs)
 
-    def forward(self, f, y0, t, args=[], **kwargs):
+    def forward(self, f, y0, t, dt=None, args=[], **kwargs):
         """Euler scheme of solving an ordinary differential 
         equation (ODE) numerically.
 
@@ -38,7 +38,12 @@ class ForwardEuler:
 
         n = 1
         for t0, t1 in zip(t[:-1], t[1:]):
-            y1 = y0 + (t1 - t0) * f(t0, y0, *args)
+            if dt:
+                time_step = dt
+            else:
+                time_step = (t1 - t0)
+
+            y1 = y0 + time_step * f(t0, y0, *args)
             y[n] = y1
             n += 1
             y0 = y1

@@ -138,7 +138,7 @@ class ODENet(nn.Module):
 
         self.derivative_network.set_excitation_data(self.time, x)
 
-        odeint_output = self.odeint(self.derivative_network, self.state, self.time)
+        odeint_output = self.odeint(self.derivative_network, self.state, self.time, dt=self.dt)
         # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
 
         # Store the last output sample as the initial value for the next segment computation

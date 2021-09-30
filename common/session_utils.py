@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import torch
 import torchaudio
 import socket
@@ -122,6 +123,10 @@ def attach_scheduler(args, session):
                                                               step_size_up=250,
                                                               last_epoch=(session.epoch - 1),
                                                               cycle_momentum=False)
+    elif args.exponential_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.ExponentialLR(session.optimizer,
+                                                                   gamma=math.exp(math.log(args.exponential_lr / args.learn_rate) / (session.epochs)),
+                                                                   last_epoch = (session.epoch - 1))
 
 
 def load_checkpoint(args, session, model_directory):
@@ -227,6 +232,13 @@ def argument_parser():
         default=None,
         help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
         's parameter.')
+    ap.add_argument(
+        '--exponential_lr',
+        '-elr',
+        type=float,
+        default=None,
+        help='If given, uses the exponential learning rate schedule: exponentially decreases the learning rate from the one given in the learn_rate argument to the one specified in this argument.'
+    )
     ap.add_argument('--init_len', '-il', type=int, default=0,
                     help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,

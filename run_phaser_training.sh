@@ -45,13 +45,19 @@ CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method LSTM --batch_size 64 --up_
 #--------------------------------------------------------
 # Time-frequency domain loss functions
 #--------------------------------------------------------
+
+#--------------- TO RUN -----------------------------------------
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.1 --exponential_lr 0.001 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --state_size 18 --hidden_size 30 --nonlinearity Softsign --validate_every 10 --loss_function DC_log_spectral_distance --weight_decay 0.0000001 --name log_spectral_distance_DC_DerivativeMLP1_Softsign_CorrectedFE_ExponentialLR --derivative_network DerivativeMLP
+
+CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.1 --exponential_lr 0.001 --teacher_forcing bernoulli --dataset_name FameSweetToneOffNoFb --state_size 18 --hidden_size 30 --nonlinearity Softsign --validate_every 10 --loss_function DC_log_spectral_distance --weight_decay 0.0000001 --name log_spectral_distance_DC_DerivativeMLP1_Softsign_CorrectedFE_ExponentialLR --derivative_network DerivativeMLP
+#--------------------------------------------------------
+#--------------- ALREADY RUN -----------------------------------------
  
 CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.001 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --state_size 36 --hidden_size 30 --nonlinearity SELU --validate_every 10 --loss_function L2_STFT --weight_decay 0.0000001 --name L2_STFT_DerivativeMLP2
 
 CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.0005 --one_cycle_lr 0.003 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --state_size 36 --hidden_size 30 --nonlinearity SELU --validate_every 10 --loss_function DC_log_spectral_distance --weight_decay 0.0000001 --name log_spectral_distance_DC
 
-CUDA_VISIBLE_DEVICES=1 python phaser/main.py --method forward_euler --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 1200 --learn_rate 0.001 --one_cycle_lr 0.005 --teacher_forcing always --dataset_name FameSweetToneOffNoFb --state_size 18 --hidden_size 30 --nonlinearity Softsign --validate_every 10 --loss_function DC_log_spectral_distance --weight_decay 0.0000001 --name log_spectral_distance_DC_DerivativeMLP1_Softsign --derivative_network DerivativeMLP --checkpoint September28_08-21-06_axel_log_spectral_distance_DC_MLP1_Softsign
-
+#--------------------------------------------------------
  
 #--------------------------------------------------------
 # Test run for thesis
