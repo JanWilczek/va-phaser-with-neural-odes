@@ -242,7 +242,7 @@ After obtaining the distance for each time frame, we can compute the average ove
 \label{sec:backpropagation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Backpropagation is an algorithm calculating the gradient of a loss function with respect to the model parameters. The basis of the backpropagation algorithm is the chain rule of calculus. Using its vector-valued formulation, one can derive the scalar as well as the tensor formulations \cite{Goodfellow-et-al-2016}.
+Backpropagation is an algorithm calculating the gradient of a loss function with respect to the model parameters. It was first described by Seppo Linnainmaa in his master thesis in 1970 \cite{Linnainmaa1970}. The basis of the backpropagation algorithm is the chain rule of calculus. Using its vector-valued formulation, one can derive the scalar as well as the tensor formulations \cite{Goodfellow-et-al-2016}.
 
 Assuming that $\pmb{x} \in \mathbb{R}^m, \pmb{y} \in \mathbb{R}^n$, and given functions $g: \mathbb{R}^m \rightarrow \mathbb{R}^n, f: \mathbb{R}^n \rightarrow \mathbb{R}$, we can compute the gradient of $z = f(\pmb{y}) = f(g(\pmb{x}))$ with respect to $x_i$ as follows
 
