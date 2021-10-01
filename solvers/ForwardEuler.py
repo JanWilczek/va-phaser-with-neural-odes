@@ -26,6 +26,9 @@ class ForwardEuler:
             time points to evaluate y at
             t[0] corresponds to y0
             shape (K,) where K is the number of time points
+        dt : float
+            if given, dt is used as the time step size of the method
+            instead of t[n+1] - t[n].
         args: additional arguments to be passed to f
 
         Returns
