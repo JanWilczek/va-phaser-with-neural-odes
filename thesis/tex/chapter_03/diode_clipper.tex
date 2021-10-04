@@ -89,6 +89,13 @@ Results comparable to the established \ac{LSTM} and \ac{STN} architectures prove
 \subsubsection{Behavior at Unseen Sampling Rates}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{figure}
+    \centering
+    \includegraphics{figures/tikz/diode_clipper_aliasing/diode_clipper_aliasing.tex.png}
+    \caption{Magnitude frequency spectrum of the A2 note played on the bass guitar. (Top) Target spectrum. (Middle) ODENet9(FE) output at \SI{192000}{Hz} sampling rate. (Bottom) ODENet9(FE) output at \SI{192000}{Hz} sampling rate. All spectra were normalized to the highest absolute value before the conversion to the decibel scale.}
+    \label{fig:diode_clipper_aliasing}
+\end{figure}
+
 For \SI{22050}{Hz} test sampling rate (half of the training sampling rate), the lowest loss value was obtained for \ac{RINN}4. The second best result, \ac{LSTM}8, obtained the highest \ac{segSNR} and \ac{PEAQ} and sounds most accurately in casual listening. 
 
 The output of \ac{STN} as well as all ODENet models contain high amount of noise. Moreover, ODENet100(FE) and ODENet9(IA) fall into self-oscillations, i.e., contain a constant high-frequency component even when the input signal is very quiet. Although the noise sounds unpleasantly, it is a sign that the networks learned the true derivative (or the residual in the case of \ac{STN}) contained in the data. The derivative networks probably output a correct value but given a larger time step without any additional tuning, the produced sound contains components beyond the Nyquist frequency, which cause aliasing in the output sound. 
@@ -98,6 +105,8 @@ Although the casually perceived quality of \ac{LSTM} is quite good, all produced
 For \SI{48000}{Hz} test sampling rate, again \ac{LSTM} outperformed other models in the analyzed metrics, yet all models had test loss value smaller than 1\%. In casual listening, there is not much difference between the model outputs despite the low \ac{PEAQ}.
 
 For \SI{192000}{Hz} test sampling rate, the advantage of ODENet becomes clear with the largest model having the lowest loss value and the biggest \ac{segSNR} and \ac{PEAQ}. The smaller ODENet models obtained just slightly worse results, especially given their significantly smaller number of parameters. As could be expected, architectures that take the sampling rate into account during processing (\ac{STN}, ODENet) obtained lower loss value and significantly higher \ac{PEAQ} than the non-informed ones. The only exception is the low \ac{PEAQ} of ODENet9(IA), probably because of the clicks resulting from all-zero initialization at the beginning of each segment and subsequent concatenation. A slower but more accurate implicit solver obtained loss comparable to a hundred times larger architecture using an explicit scheme. However, all test loss values are below 1\% and \ac{segSNR} is relatively high.
+
+The magnitude frequency spectrum of a sample output of ODENet9(FE) at different sampling rates can be seen in \Figure{fig:diode_clipper_aliasing}. At \SI{192000}{Hz} test sampling rate, the magnitude spectrum (middle) is indistinguishable from the target (top). However, at \SI{22050}{Hz} sampling rate (bottom), significant aliasing artifact can be observed above \SI{2500}{Hz}.
 
 All in all, ODENet architectures proved their suitability for processing at sampling rates higher than the training sampling rate. It was possible even for the smallest considered parametrization (9 hidden units) and the simplest numerical scheme, i.e., the forward Euler. 
 
