@@ -65,6 +65,34 @@ class DerivativeMLP2(DerivativeMLP):
             nn.Linear(2*self.hidden_size, self.hidden_size), activation,
             nn.Linear(self.hidden_size, self.output_size))
 
+class SingleLinearLayer(DerivativeMLP):
+    def __init__(self, excitation, activation, excitation_size, output_size, hidden_size):
+        super().__init__(excitation, activation, excitation_size, output_size, hidden_size)
+        self.densely_connected_layers = nn.Sequential(nn.Linear(self.input_size, self.output_size, bias=False), activation)
+
+class ScaledSingleLinearLayer(SingleLinearLayer):
+    def __init__(self, excitation, activation, excitation_size, output_size, hidden_size):
+        super().__init__(excitation, activation, excitation_size, output_size, hidden_size)
+        scaling = nn.Linear(self.output_size, self.output_size, bias=False)
+        scaling.weight.data.fill_(441.0)
+        # scaling.weight.data.requires_grad_(False)
+        self.densely_connected_layers = nn.Sequential(nn.Linear(self.input_size, self.output_size, bias=False), activation, scaling)
+
+class DerivativeWithMemory(nn.Module):
+    def __init__(self, excitation, activation, excitation_size=1, output_size=1, hidden_size=10, memory_length=10):
+        super().__init__()
+        self.excitation = excitation
+        self.excitation_size = excitation_size
+        self.output_size = output_size
+        self.hidden_size = hidden_size
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(self.input_size, self.hidden_size), activation,
+            nn.Linear(self.hidden_size, self.hidden_size), activation,
+            nn.Linear(self.hidden_size, self.output_size))
+
+    def forward(t, y):
+        raise NotImplementedError
+
 
 class ODENet(nn.Module):
     def __init__(self, derivative_network, odeint, dt):
@@ -110,7 +138,7 @@ class ODENet(nn.Module):
 
         self.derivative_network.set_excitation_data(self.time, x)
 
-        odeint_output = self.odeint(self.derivative_network, self.state, self.time)
+        odeint_output = self.odeint(self.derivative_network, self.state, self.time, dt=self.dt)
         # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
 
         # Store the last output sample as the initial value for the next segment computation

@@ -51,9 +51,9 @@ class ExcitationSecondsLinearInterpolation(nn.Module):
         last_sample_id = (t // self.dt).type(torch.long)
         next_sample_id = last_sample_id + 1
 
-        if next_sample_id == 0:
-            return self.excitation_data[0]
-        elif next_sample_id > self.excitation_data.shape[0] - 1:
+        # if next_sample_id == 0:
+            # return self.excitation_data[0]
+        if next_sample_id >= self.excitation_data.shape[0]:
             warnings.warn(f'Attempting to acces time index {t} beyond available data in time range [{self.time[0]}, {self.time[-1]}].', category=RuntimeWarning)
             return self.excitation_data[-1]
 

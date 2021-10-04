@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import torch
 import torchaudio
 import socket
@@ -122,6 +123,10 @@ def attach_scheduler(args, session):
                                                               step_size_up=250,
                                                               last_epoch=(session.epoch - 1),
                                                               cycle_momentum=False)
+    elif args.exponential_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.ExponentialLR(session.optimizer,
+                                                                   gamma=math.exp(math.log(args.exponential_lr / args.learn_rate) / (session.epochs * session.minibatch_count)),
+                                                                   last_epoch = max(-1, session.minibatch_count * (session.epoch - 1)))
 
 
 def load_checkpoint(args, session, model_directory):
@@ -150,7 +155,10 @@ def save_args(session, args):
 def test(session):
     session.device = 'cpu'
     # Load the model performing best on the validation set for test
-    session.load_checkpoint(best_validation=True)
+    try:
+        session.load_checkpoint(best_validation=True)
+    except FileNotFoundError:
+        print("No best validation model found. Staying with the current setup.")
     test_output, test_loss = session.test()
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
@@ -224,6 +232,13 @@ def argument_parser():
         default=None,
         help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
         's parameter.')
+    ap.add_argument(
+        '--exponential_lr',
+        '-elr',
+        type=float,
+        default=None,
+        help='If given, uses the exponential learning rate schedule: exponentially decreases the learning rate from the one given in the learn_rate argument to the one specified in this argument.'
+    )
     ap.add_argument('--init_len', '-il', type=int, default=0,
                     help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,

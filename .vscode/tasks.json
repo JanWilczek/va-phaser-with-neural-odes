@@ -6,7 +6,7 @@
         {
             "label": "clean_test_run_phaser",
             "type": "shell",
-            "command": "rm -rv phaser/runs/FameSweetToneOffNoFb/*/*TEST_RUN"
+            "command": "rm -rv phaser/runs/*/*/*TEST_RUN"
         }
     ]
 }
