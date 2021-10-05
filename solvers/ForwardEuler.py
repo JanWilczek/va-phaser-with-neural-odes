@@ -36,16 +36,16 @@ class ForwardEuler:
         torch.Tensor
             y values at points specified in t
         """
+        if dt:
+            time_step = dt
+        else:
+            time_step = t[1] - t[0]
+
         y = torch.empty((t.shape[0], *y0.shape), dtype=y0.dtype, device=t.device)
         y[0] = y0
 
         n = 1
         for t0, t1 in zip(t[:-1], t[1:]):
-            if dt:
-                time_step = dt
-            else:
-                time_step = (t1 - t0)
-
             y1 = y0 + time_step * f(t0, y0, *args)
             y[n] = y1
             n += 1
