@@ -6,9 +6,9 @@ This section describes the proposed extensions to the ODENet framework. The goal
 \begin{enumerate}
   \item How to initialize the first sample in a sequence? (\Section{subsec:initialization})
   \item How to provide the input audio signal? (\Section{subsec:excitation})
+  \item How to parametrize the derivative network? (\Section{subsec:derivative_parametrization})
   \item How to aid the network when processing complex models? (\Section{subsec:dimensionality})
   \item How to implement the ODENet in the context of audio signal processing? (\Section{subsec:odenet_implementation})
-  \item How to parametrize the derivative network? (\Section{subsec:derivative_parametrization})
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -45,6 +45,15 @@ To facilitate incorporating the excitation signal into the framework, the follow
 \end{itemize}
 
 In the initial experiments, linear interpolation proved itself sufficient to model oscillating systems. Therefore, higher-order interpolation methods were not used in this work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Derivative Network Parametrization}
+\label{subsec:derivative_parametrization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to compute subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is implied by the dependence on $t$. However, as already explained in the introduction to this section, the derivative must not hold any "memory" from previous evaluations.
+
+These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. For the derivative network solely \acp{MLP} are used. In all cases, $i = o + e$, where $i$ is the input layer size, $o$ is the output layer size, and $e$ is the dimensionality of the excitation. All layers are fully connected and apply the same nonlinearity to their output.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The Problem of Dimensionality}
@@ -90,10 +99,11 @@ The input sequence can be multidimensional, i.e., one vector from the input sequ
 The input sequence may be processed in chunks, i.e., each training sequence is processed in subsequences. This allows more frequent gradient update during training. To maintain the accuracy of the gradient estimation and increase the level of parallelism during training, the minibatches may be large. Short subsegments and large batches can be used instead of small batches and long subsegments, which shortens the time needed to complete one epoch of training.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Derivative Network Parametrization}
-\label{subsec:derivative_parametrization}
+\subsubsection{Example: Forward Euler Scheme}
+\label{subsec:odenet_fe}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Although the ODENet framework as a whole may be perceived as a form of an \ac{RNN} (because it uses its previous outputs to compute subsequent outputs), the derivative itself must be dependent only on the supplied time $t$ and the output value $\pmb{y}_t$. The dependence on the excitation data is implied by the dependence on $t$. However, as already explained in the introduction to this section, the derivative must not hold any "memory" from previous evaluations.
-
-These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. For the derivative network solely \acp{MLP} are used. In all cases, $i = o + e$, where $i$ is the input layer size, $o$ is the output layer size, and $e$ is the dimensionality of the excitation. All layers are fully connected and apply the same nonlinearity to their output.
+\begin{figure}
+    \centering
+    \scalebox{0.7}{\input{figures/svg/odenet_fe_diagram.pdf_tex}}
+\end{figure}

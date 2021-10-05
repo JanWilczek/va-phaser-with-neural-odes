@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="213.03625mm"
+   height="59.554676mm"
+   viewBox="0 0 213.03625 59.554676"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="odenet_fe_diagram.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="4.1928018"
+     inkscape:cx="283.58125"
+     inkscape:cy="95.043844"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="258"
+     inkscape:window-y="1432"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     fit-margin-top="5"
+     fit-margin-left="5"
+     fit-margin-right="5"
+     fit-margin-bottom="5"
+     lock-margins="true"
+     inkscape:object-nodes="false"
+     inkscape:snap-object-midpoints="false"
+     inkscape:snap-center="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid38977"
+       originx="1.1476047"
+       originy="-3.8169682" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <rect
+       x="731.9314"
+       y="39.80088"
+       width="82.300125"
+       height="56.665657"
+       id="rect42750" />
+    <marker
+       style="overflow:visible"
+       id="Arrow1Lend"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path39561" />
+    </marker>
+    <rect
+       x="539.67291"
+       y="34.404148"
+       width="297.49469"
+       height="91.7444"
+       id="rect28364" />
+    <rect
+       x="414.87357"
+       y="53.292702"
+       width="116.02968"
+       height="64.086159"
+       id="rect20124" />
+    <rect
+       x="247.57497"
+       y="51.94352"
+       width="64.76075"
+       height="50.594337"
+       id="rect13227" />
+  </defs>
+  <g
+     inkscape:label="Warstwa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(1.1476047,-3.8169684)">
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;line-height:1.25;font-family:'Latin Modern Math';-inkscape-font-specification:'Latin Modern Math, Normal';text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="17.244522"
+       y="13.743389"
+       id="text4959"><tspan
+         sodipodi:role="line"
+         id="tspan4957"
+         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="17.244522"
+         y="13.743389">x[n]</tspan><tspan
+         sodipodi:role="line"
+         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="17.244522"
+         y="21.680889"
+         id="tspan4961">s_LFO[n]</tspan><tspan
+         sodipodi:role="line"
+         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="17.244522"
+         y="29.618389"
+         id="tspan4963">y[n]</tspan></text>
+    <rect
+       style="opacity:0.85;fill:none;fill-opacity:0;stroke:#000000;stroke-width:0.357732;stroke-linejoin:round;paint-order:stroke fill markers"
+       id="rect9835"
+       width="21.166672"
+       height="21.166666"
+       x="47.625"
+       y="8.9958344" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-16.218712,0.98865377)"
+       id="text13225"
+       style="font-size:32px;line-height:1.25;font-family:'Latin Modern Math';-inkscape-font-specification:'Latin Modern Math, Normal';text-align:center;white-space:pre;shape-inside:url(#rect13227)"
+       x="3.888"
+       y="0"><tspan
+         x="275.05908"
+         y="81.543359"
+         id="tspan889">f</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-35.491918,-3.9519392)"
+       id="text20122"
+       style="font-size:24px;line-height:1.25;font-family:'Latin Modern Math';-inkscape-font-specification:'Latin Modern Math, Normal';white-space:pre;shape-inside:url(#rect20124)"><tspan
+         x="414.87305"
+         y="75.492969"
+         id="tspan891">dy/dt [n]</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-39.158345,6.8791668)"
+       id="text28362"
+       style="font-size:24px;line-height:1.25;font-family:'Latin Modern Math';-inkscape-font-specification:'Latin Modern Math, Normal';white-space:pre;shape-inside:url(#rect28364)"><tspan
+         x="539.67383"
+         y="56.604297"
+         id="tspan893">y[n+1]=y[n] + dt dy/dt[n]</tspan></text>
+    <rect
+       style="opacity:0.85;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.326622;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+       id="rect57105"
+       width="13.229163"
+       height="13.229167"
+       x="97.895836"
+       y="44.979168" />
+    <text
+       xml:space="preserve"
+       style="font-size:7.82659px;line-height:1.25;font-family:'Latin Modern Math';-inkscape-font-specification:'Latin Modern Math, Normal';stroke-width:0.326107"
+       x="99.720558"
+       y="54.199989"
+       id="text59543"><tspan
+         sodipodi:role="line"
+         id="tspan59541"
+         style="font-size:7.82659px;stroke-width:0.326107"
+         x="99.720558"
+         y="54.199989">z-1</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 179.91666,21.166666 H 206.375"
+       id="path38979" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 187.85416,21.166666 v 29.104167 l -76.05984,0.290039"
+       id="path39263"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 97.895832,50.270833 H 15.875 v -15.875"
+       id="path39265" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 34.395834,21.166667 H 47.625"
+       id="path39267" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 68.791666,21.166666 H 100.54167"
+       id="path39444" />
+    <circle
+       style="opacity:0.85;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.365001;stroke-linejoin:round;paint-order:stroke fill markers"
+       id="path39884"
+       cx="187.85608"
+       cy="21.195162"
+       r="0.44621393" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-5.7115385,-0.38213136)"
+       id="text42748"
+       style="font-size:24px;line-height:1.25;font-family:'Latin Modern Math';-inkscape-font-specification:'Latin Modern Math, Normal';white-space:pre;shape-inside:url(#rect42750)"><tspan
+         x="731.93164"
+         y="62.000781"
+         id="tspan895">y[n+1]</tspan></text>
+  </g>
+</svg>
