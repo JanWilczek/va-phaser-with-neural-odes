@@ -99,7 +99,7 @@ The input sequence can be multidimensional, i.e., one vector from the input sequ
 The input sequence may be processed in chunks, i.e., each training sequence is processed in subsequences. This allows more frequent gradient update during training. To maintain the accuracy of the gradient estimation and increase the level of parallelism during training, the minibatches may be large. Short subsegments and large batches can be used instead of small batches and long subsegments, which shortens the time needed to complete one epoch of training.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Example: Forward Euler Scheme}
+\subsubsection{Implementation Example: Forward Euler Scheme}
 \label{subsec:odenet_fe}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

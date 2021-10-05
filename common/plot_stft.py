@@ -22,7 +22,7 @@ def plot_stft(signal, output_filepath, sampling_rate):
     n_fft = 4096
     hop_length = n_fft // 2
     stft = librosa.stft(signal, n_fft=n_fft, hop_length=hop_length)
-    log_magnitude_stft = 10 * np.log10(np.abs(stft))
+    log_magnitude_stft = 10 * np.log10(np.maximum(np.abs(stft), 1e-6))
     K, M = log_magnitude_stft.shape
     t = fft_time(M, hop_length, sampling_rate)
     f_max = F_coef(frequency_index=n_fft//2, window_size=n_fft, sampling_rate=sampling_rate)
