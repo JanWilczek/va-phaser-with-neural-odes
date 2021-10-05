@@ -106,4 +106,10 @@ The input sequence may be processed in chunks, i.e., each training sequence is p
 \begin{figure}
     \centering
     \scalebox{0.7}{\input{figures/svg/odenet_fe_diagram.pdf_tex}}
+    \caption{ODENet processing using the forward Euler scheme.}
+    \label{fig:odenet_fe_diagram}
 \end{figure}
+
+If we use the forward Euler scheme, the entire ODENet simplifies to a sample-wise processing. For phaser modeling, this is shown in \Figure{fig:odenet_fe_diagram}. We provide the input $x[n]$, the conditioning (\ac{LFO}) signal $s_\text{LFO}[n]$, and the output $\pmb{y}[n]$ at step $n$ to the derivative network f to obtain an estimate of the derivative at that step, $\frac{d\pmb{y}}{dt}[n]$. We then perform a time step of the Euler scheme to obtain an estimate of the output $\pmb{y}[n+1]$ at the next time step. This value is stored for the next iteration.
+
+\Figure{fig:odenet_fe_diagram} shows how closely the concept of ODENet and \ac{ResNet} are related. Indeed, if $dt = 1$, then the diagram is equivalent to \Figure{fig:resblock}.

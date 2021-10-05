@@ -53,14 +53,14 @@
   \begin{picture}(1,0.27955184)%
     \lineheight{1}%
     \setlength\tabcolsep{0pt}%
-    \put(0.08633332,0.26295685){\makebox(0,0)[t]{\lineheight{2.5}\smash{\begin{tabular}[t]{c}\huge{$x[n]$}\\\huge{$s_\text{LFO}[n]$}\\\huge{$y[n]$}\end{tabular}}}}%
+    \put(0.01633332,0.20295685){\huge{$\begin{bmatrix} x[n] \\ s_\text{LFO}[n] \\ \pmb{y}[n] \end{bmatrix}$}}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{figures/svg/odenet_fe_diagram.pdf}}%
     \put(0.26694976,0.19155414){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\Huge{f}\end{tabular}}}}%
-    \put(0.35404386,0.22225983){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\huge{$\frac{dy}{dt}[n]$}\end{tabular}}}}%
-    \put(0.49183158,0.19487727){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\huge{$y[n+1]=y[n] + dt \frac{dy}{dt}[n]$}\end{tabular}}}}%
+    \put(0.35404386,0.22225983){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\huge{$\frac{d\pmb{y}}{dt}[n]$}\end{tabular}}}}%
+    \put(0.49183158,0.19487727){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}{\fontsize{20}{25}\selectfont$\pmb{y}[n+1]=\pmb{y}[n] + dt \cdot \frac{d\pmb{y}}{dt}[n]$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/odenet_fe_diagram.pdf}}%
     \put(0.47347886,0.04305209){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\huge{$z^{-1}$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/odenet_fe_diagram.pdf}}%
-    \put(0.88760937,0.22225983){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\huge{$y[n+1]$}\end{tabular}}}}%
+    \put(0.88760937,0.22225983){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\huge{$\pmb{y}[n+1]$}\end{tabular}}}}%
   \end{picture}%
 \endgroup%
