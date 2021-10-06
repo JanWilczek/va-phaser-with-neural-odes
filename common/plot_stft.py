@@ -33,7 +33,7 @@ def plot_stft(signal, output_filepath, sampling_rate):
     plt.xlabel('Time [s]')
     plt.ylabel('Frequency [kHz]')
     plt.colorbar()
-    plt.savefig(f'{output_filepath}.png', bbox_inches='tight', dpi=300, transparent=True)
+    plt.savefig(f'{output_filepath}.png', bbox_inches='tight', dpi=600, transparent=True)
     save_tikz(output_filepath)
 
 def main():

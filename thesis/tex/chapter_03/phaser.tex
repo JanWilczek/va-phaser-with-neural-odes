@@ -17,11 +17,27 @@ The dataset was synthesized using the digital model of a phaser from \cite{Kiisk
 \subsection{Training}
 \label{sec:phaser_training}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The training procedure was identical to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch. 
 
-The loss functions used for the training and the validation were the average distance measures in the time-frequency domain as described in \Section{sec:loss_functions}. Different distance measures allowed to observe different characteristics of ODENet. All models were trained and tested on data at \SI{44100}{Hz} sampling rate.
+\begin{figure}[t]
+    \begin{subfigure}{0.33\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/spectral_distances/LSTM16_L1_STFT/test_output_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.28\textwidth}
+        \centering
+        \scalebox{\scaleboxsize}{\input{figures/tikz/spectral_distances/LSTM16_L2_STFT/test_output_stft.tex}}
+    \end{subfigure}
+    \begin{subfigure}{0.34\textwidth}
+        \centering
+        \scalebox{0.66}{\input{figures/tikz/spectral_distances/LSTM16_rmsLSD_STFT/test_output_stft.tex}}
+    \end{subfigure}
+    \caption{Spectrogram of the outputs of the baseline \ac{LSTM}16 model for three different training losses measuring the average distance in the \ac{STFT} domain. From left to right: $L_1$ distance, $L_2$ distance, average root mean square \ac{LSD}.}
+    \label{fig:spectral_distances}
+\end{figure}
 
-% It was chosen because of superior validation performance at high frequencies when used to train the baseline (\ac{LSTM}) in comparison to $L_1$ and $L_2$ distances in the \ac{STFT} domain as well as the \ac{ESR}.
+The training procedure was identical to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch. All models were trained and tested on data at \SI{44100}{Hz} sampling rate.
+
+The loss functions used for the training and the validation were the average distance measures in the time-frequency domain as described in \Section{sec:loss_functions}. Different distance measures allowed to observe different characteristics of ODENet. The difference between the outputs of the baseline architecture trained with these distances can be seen in \Figure{fig:spectral_distances}. The average root mean square \ac{LSD} loss results in the most pronounced notches in the magnitude frequency spectrum of the output. Interestingly, the model trained using \ac{LSD} has the highest validation error as measured by the $\mathcal{E}$ loss from \Equation{eq:final_loss_function}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Compared Models}
