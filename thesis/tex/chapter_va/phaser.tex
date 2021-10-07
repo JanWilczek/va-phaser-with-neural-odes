@@ -93,7 +93,7 @@ Cascading \ac{LTI} systems results in a summation of their phase responses \cite
 
 The core idea of the phaser is to modulate the break frequencies of the allpass filters so that the notches sweep up and down the frequency range creating an audibly interesting effect. In analog phasers, which are implemented using analog electronic circuitry, the values of physical components are being modulated. In digital phasers, the implementers can decide whether to modulate the break frequencies directly or to modulate just the allpass coefficients \cite{Kiiski2016}. The difference between these two design decisions are shown in \Figure{fig:pink_noise_phasered}. Modulating the allpass coefficients in a fixed range yields similar notch variation curves for each break frequency (middle spectrogram). Modulating the break frequencies themselves using a traditional frequency modulation scheme yields larger frequency variations for high frequencies than for low frequencies.
 
-\newcommand{\scaleboxsize}{0.65}
+\newcommand{\scaleboxsize}{0.6}
 \newcommand{\subfigurewidththree}{0.3\textwidth}
 \begin{figure}
     \begin{subfigure}{0.33\textwidth}
@@ -106,9 +106,9 @@ The core idea of the phaser is to modulate the break frequencies of the allpass 
     \end{subfigure}
     \begin{subfigure}{0.34\textwidth}
         \centering
-        \scalebox{0.66}{\input{figures/tikz/pink_noise_10s_phasered_stft.tex}}
+        \scalebox{0.61}{\input{figures/tikz/pink_noise_10s_phasered_stft.tex}}
     \end{subfigure}
-    \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. The color scale is in decibels full scale. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
+    \caption{The effect of a phaser with 10 allpass filters on a pink noise visualized using the spectrogram. (Left) Input signal. (Middle) Output of a phaser that has six out of ten allpass coefficients modulated. (Right) Output of a phaser that has the break frequencies of all of its allpass filters modulated.}
     \label{fig:pink_noise_phasered}
 \end{figure}
 
