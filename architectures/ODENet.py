@@ -1,4 +1,3 @@
-import warnings
 import torch
 from torch import nn
 from CoreAudioML.networks import SimpleRNN
