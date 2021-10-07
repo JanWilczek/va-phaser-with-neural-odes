@@ -31,13 +31,13 @@ The dataset was synthesized using the digital model of a phaser from \cite{Kiisk
         \centering
         \scalebox{0.66}{\input{figures/tikz/spectral_distances/LSTM16_rmsLSD_STFT/test_output_stft.tex}}
     \end{subfigure}
-    \caption{Spectrogram of the outputs of the baseline \ac{LSTM}16 model for three different training losses measuring the average distance in the \ac{STFT} domain. From left to right: $L_1$ distance, $L_2$ distance, average root mean square \ac{LSD}.}
+    \caption{Spectrogram of the outputs of the baseline \ac{LSTM}16 model for training losses measuring three different average distance measures in the \ac{STFT} domain. From left to right: $L_1$ distance, $L_2$ distance, root mean square \ac{LSD}.}
     \label{fig:spectral_distances}
 \end{figure}
 
 The training procedure was identical to the one for the diode clipper as described in \Section{sec:diode_clipper_training}. The only difference was that the validation loss was computed every 10 epochs instead of every epoch. All models were trained and tested on data at \SI{44100}{Hz} sampling rate.
 
-The loss functions used for the training and the validation were the average distance measures in the time-frequency domain as described in \Section{sec:loss_functions}. Different distance measures allowed to observe different characteristics of ODENet. The difference between the outputs of the baseline architecture trained with these distances can be seen in \Figure{fig:spectral_distances}. The average root mean square \ac{LSD} loss results in the most pronounced notches in the magnitude frequency spectrum of the output. Interestingly, the model trained using \ac{LSD} has the highest validation error as measured by the $\mathcal{E}$ loss from \Equation{eq:final_loss_function}.
+The loss functions used for the training and the validation were the average distance measures in the time-frequency domain as described in \Section{sec:loss_functions}. Different distance measures used in the loss function lead to different characteristics of the trained models. The difference between the baseline models trained with these distances can be seen in \Figure{fig:spectral_distances}. The average root mean square \ac{LSD} loss results in the most pronounced notches in the magnitude frequency spectrum of the output. However, this observation does not correlate with the validation error as measured by the $\mathcal{E}$ loss from \Equation{eq:final_loss_function}; the model trained using \ac{LSD} has the highest validation error of the three. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Compared Models}
