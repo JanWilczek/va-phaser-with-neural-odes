@@ -2,7 +2,7 @@
 import torch.nn as nn
 import CoreAudioML.networks as networks
 from common import initialize_session, argument_parser, train_and_test, get_method
-from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, DerivativeMLP2, SingleLinearLayer, ScaledSingleLinearLayer, ExcitationSecondsLinearInterpolation, get_nonlinearity
+from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, DerivativeMLP2, SingleLinearLayer, ScaledSingleLinearLayer, DerivativeLSTM, DerivativeWithMemory, ExcitationSecondsLinearInterpolation, get_nonlinearity
 
 
 def get_architecture(args, dt):

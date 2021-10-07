@@ -1,6 +1,7 @@
 import warnings
 import torch
 from torch import nn
+from CoreAudioML.networks import SimpleRNN
 
 
 class DerivativeMLP(nn.Module):
@@ -53,6 +54,12 @@ class DerivativeMLP(nn.Module):
     def input_size(self):
         return self.excitation_size + self.output_size
 
+    def reset_hidden(self):
+        pass
+
+    def detach_hidden(self):
+        pass
+
 
 class DerivativeMLP2(DerivativeMLP):
     def __init__(self, excitation, activation, excitation_size=1, output_size=1, hidden_size=100):
@@ -79,19 +86,119 @@ class ScaledSingleLinearLayer(SingleLinearLayer):
         self.densely_connected_layers = nn.Sequential(nn.Linear(self.input_size, self.output_size, bias=False), activation, scaling)
 
 class DerivativeWithMemory(nn.Module):
-    def __init__(self, excitation, activation, excitation_size=1, output_size=1, hidden_size=10, memory_length=10):
+    def __init__(self, excitation, activation, excitation_size=1, output_size=1, hidden_size=30, memory_length=10):
         super().__init__()
         self.excitation = excitation
         self.excitation_size = excitation_size
         self.output_size = output_size
         self.hidden_size = hidden_size
+        self.memory_length = memory_length
+        self.memory = None
         self.densely_connected_layers = nn.Sequential(
             nn.Linear(self.input_size, self.hidden_size), activation,
             nn.Linear(self.hidden_size, self.hidden_size), activation,
             nn.Linear(self.hidden_size, self.output_size))
 
-    def forward(t, y):
-        raise NotImplementedError
+    def forward(self, t, y):
+        """Return the right-hand side of the ODE
+
+        Parameters
+        ----------
+        t : scalar
+            current time point
+        y : torch.Tensor of the same shape as the y0 supplied to odeint;
+            value of the unknown function at time t
+
+        Returns
+        -------
+        torch.Tensor of shape the same as y
+            derivative of y over time at time t
+        """
+        BATCH_DIMENSION = 0
+        FEATURE_DIMENSION = 1
+
+        if self.memory is None:
+            self.memory = torch.zeros((y.shape[BATCH_DIMENSION], self.input_size), device=y.device)
+        else:
+            self.memory = torch.roll(self.memory, shifts=y.shape[FEATURE_DIMENSION], dims=FEATURE_DIMENSION)
+
+        excitation = self.excitation(t)
+
+        assert y.shape[FEATURE_DIMENSION] == self.output_size
+        assert excitation.shape[FEATURE_DIMENSION] == self.excitation_size
+
+        mlp_input = torch.cat((y, excitation), dim=FEATURE_DIMENSION)
+        self.memory[:, :mlp_input.shape[FEATURE_DIMENSION]] = mlp_input
+        output = self.densely_connected_layers(self.memory)
+
+        assert output.shape[FEATURE_DIMENSION] == self.output_size
+
+        return output
+
+    def set_excitation_data(self, time, excitation_data):
+        self.excitation.set_excitation_data(time, excitation_data)
+
+    @property
+    def input_size(self):
+        return (self.memory_length + 1) * (self.excitation_size + self.output_size)
+
+    def reset_hidden(self):
+        self.memory = None
+
+    def detach_hidden(self):
+        self.memory = self.memory.detach()
+
+class DerivativeLSTM(nn.Module):
+    def __init__(self, excitation, activation, excitation_size=1, output_size=1, hidden_size=16):
+        super().__init__()
+        self.excitation = excitation
+        self.excitation_size = excitation_size
+        self.output_size = output_size
+        self.hidden_size = hidden_size
+        self.rnn = SimpleRNN(self.input_size, self.output_size, unit_type='LSTM', hidden_size=self.hidden_size, skip=0)
+
+    def forward(self, t, y):
+        """Return the right-hand side of the ODE
+
+        Parameters
+        ----------
+        t : scalar
+            current time point
+        y : torch.Tensor of the same shape as the y0 supplied to odeint;
+            value of the unknown function at time t
+
+        Returns
+        -------
+        torch.Tensor of shape the same as y
+            derivative of y over time at time t
+        """
+        BATCH_DIMENSION = 0
+        FEATURE_DIMENSION = 1
+
+        excitation = self.excitation(t)
+
+        assert y.shape[FEATURE_DIMENSION] == self.output_size
+        assert excitation.shape[FEATURE_DIMENSION] == self.excitation_size
+
+        rnn_input = torch.cat((y, excitation), dim=FEATURE_DIMENSION).unsqueeze(0)
+        output = self.rnn(rnn_input).squeeze(0)
+
+        assert output.shape[FEATURE_DIMENSION] == self.output_size
+
+        return output
+
+    def set_excitation_data(self, time, excitation_data):
+        self.excitation.set_excitation_data(time, excitation_data)
+
+    @property
+    def input_size(self):
+        return self.excitation_size + self.output_size
+
+    def reset_hidden(self):
+        self.rnn.reset_hidden()
+
+    def detach_hidden(self):
+        self.rnn.detach_hidden()
 
 
 class ODENet(nn.Module):
@@ -154,9 +261,11 @@ class ODENet(nn.Module):
         self.__true_state = None
         self.time = None
         self.state = None
+        self.derivative_network.reset_hidden()
 
     def detach_hidden(self):
         self.state = self.state.detach()
+        self.derivative_network.detach_hidden()
 
     @property
     def true_state(self):
