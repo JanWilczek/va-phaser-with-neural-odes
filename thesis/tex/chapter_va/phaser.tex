@@ -16,15 +16,14 @@ This section explains the basics of phasing and presents an implementation of th
 
 \begin{figure}
     \centering
-    \vspace{2mm}
-    \input{figures/tikz/phaser.tex}
+    \input{figures/svg/allpass_phaser.pdf_tex}
     \caption{A phaser implementation.}
     \label{fig:phaser}
 \end{figure}
 
 Phaser is typically implemented by summing the input signal processed by a series of notch or allpass filters with a direct path \cite{Zoelzer2011}. Additionally, a feedback connection can be added around the filter chain \cite{Kiiski2016}. The feedback connection makes the phaser behavior more complex by introducing resonances and non-notch frequency boosting.
 
-In \Figure{fig:phaser}, a basic diagram of an allpass-based phaser is depicted. This schematic holds for analog as well as digital phasers \cite{PASPWEB2010}. The direct path consists of a simple scaling by $D$ ("dry" signal). The indirect path is a series of allpass filters followed by a scaling by $W$ ("wet" signal). The allpass filters introduce frequency-dependent delay. Due to these shifts, summation of the two paths causes destructive and constructive interference, resulting in notches and peaks in the magnitude spectrum of the phaser. Scaling factors $D$ and $W$ control the amount of interference. The deepest possible notches appear when $D = W$. To keep the amplitude constant, one typically couples $D$ and $W$ so that $D + W = 1$.
+In \Figure{fig:phaser}, a basic diagram of an allpass-based phaser is depicted. This schematic holds for analog as well as digital phasers \cite{PASPWEB2010}. The direct path consists of a simple scaling by $d$ ("dry" signal). The indirect path is a series of allpass filters modulated by an \ac{LFO} and followed by a scaling by $w$ ("wet" signal). Here, the \ac{LFO} generates a rectified sine signal. The allpass filters introduce a frequency-dependent delay. Due to these shifts, summation of the two paths causes destructive and constructive interference, resulting in notches and peaks in the magnitude spectrum of the phaser. Scaling factors $d$ and $w$ control the amount of interference. The deepest possible notches appear when $d = w$. To keep the amplitude constant, one typically couples $d$ and $w$ so that $d + w = 1$.
 
 To understand phaser's effect on the signal, one should examine the allpass filters first. That is the topic of the next section.
 

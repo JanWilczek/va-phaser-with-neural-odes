@@ -1,0 +1,70 @@
+%% Creator: Inkscape 1.1 (c68e22c387, 2021-05-23), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'allpass_phaser.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{423.00845169bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.42577347)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{figures/svg/allpass_phaser.pdf}}%
+    \put(0.18060584,0.19227413){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{AP\textsubscript{1}}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/allpass_phaser.pdf}}%
+    \put(0.32244694,0.19227413){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{AP\textsubscript{2}}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/allpass_phaser.pdf}}%
+    \put(0.53520859,0.19227413){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{AP\textsubscript{N}}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{figures/svg/allpass_phaser.pdf}}%
+    \put(0.7244707,0.36273636){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$d$}\end{tabular}}}}%
+    \put(0.71737874,0.23862536){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$w$}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{figures/svg/allpass_phaser.pdf}}%
+    \put(0.03299515,0.34500623){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$x[n]$}\end{tabular}}}}%
+    \put(0.90177209,0.34500623){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$y[n]$}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{figures/svg/allpass_phaser.pdf}}%
+  \end{picture}%
+\endgroup%
