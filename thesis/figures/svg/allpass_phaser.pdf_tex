@@ -55,6 +55,7 @@
     \setlength\tabcolsep{0pt}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{figures/svg/allpass_phaser.pdf}}%
     \put(0.18060584,0.19227413){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{AP\textsubscript{1}}\end{tabular}}}}%
+    \put(0.18060584,0.04227413){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{$s_\text{LFO}[n]$}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{figures/svg/allpass_phaser.pdf}}%
     \put(0.32244694,0.19227413){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\semiHuge{AP\textsubscript{2}}\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{figures/svg/allpass_phaser.pdf}}%
