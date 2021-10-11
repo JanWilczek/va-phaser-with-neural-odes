@@ -33,6 +33,83 @@ class DerivativeMLPFE(nn.Module):
     def input_size(self):
         return self.excitation_size + self.output_size
 
+    def reset_hidden(self):
+        pass
+
+    def detach_hidden(self):
+        pass
+
+
+class DerivativeMLP2FE(DerivativeMLPFE):
+    def __init__(self, activation, excitation_size=1, output_size=1, hidden_size=100):
+        super().__init__(activation, excitation_size=excitation_size, output_size=output_size, hidden_size=hidden_size)
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(self.input_size, hidden_size), activation,
+            nn.Linear(hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, 2*hidden_size), activation,
+            nn.Linear(2*hidden_size, hidden_size), activation,
+            nn.Linear(hidden_size, self.output_size))
+
+
+class DerivativeFEWithMemory(nn.Module):
+    def __init__(self, activation, excitation_size=1, output_size=1, hidden_size=30, memory_length=10):
+        super().__init__()
+        self.excitation_size = excitation_size
+        self.output_size = output_size
+        self.memory_length = memory_length
+        self.memory = None
+        self.densely_connected_layers = nn.Sequential(
+            nn.Linear(self.input_size, hidden_size), activation,
+            nn.Linear(hidden_size, hidden_size), activation,
+            nn.Linear(hidden_size, self.output_size))
+
+    def forward(self, t, y):
+        """Return the right-hand side of the ODE
+
+        Parameters
+        ----------
+        t : scalar
+            current time point
+        y : torch.Tensor of the same shape as the y0 supplied to odeint;
+            value of the unknown function at time t
+
+        Returns
+        -------
+        torch.Tensor of shape the same as y
+            derivative of y over time at time t
+        """
+        BATCH_DIMENSION = 0
+        FEATURE_DIMENSION = 1
+
+        if self.memory is None:
+            self.memory = torch.zeros((y.shape[BATCH_DIMENSION], self.input_size), device=y.device)
+        else:
+            self.memory = torch.roll(self.memory, shifts=y.shape[FEATURE_DIMENSION], dims=FEATURE_DIMENSION)
+
+        excitation = self.excitation[t]
+
+        assert y.shape[FEATURE_DIMENSION] == self.output_size
+        assert excitation.shape[FEATURE_DIMENSION] == self.excitation_size
+
+        mlp_input = torch.cat((y, excitation), dim=FEATURE_DIMENSION)
+        self.memory[:, :mlp_input.shape[FEATURE_DIMENSION]] = mlp_input
+        output = self.densely_connected_layers(self.memory)
+
+        assert output.shape[FEATURE_DIMENSION] == self.output_size
+
+        return output
+
+    @property
+    def input_size(self):
+        return (self.memory_length + 1) * (self.excitation_size + self.output_size)
+
+    def reset_hidden(self):
+        self.memory = None
+
+    def detach_hidden(self):
+        self.memory = self.memory.detach()
+
 
 class ScaledODENetFE(nn.Module):
     def __init__(self, derivative_network, sampling_rate):
@@ -100,9 +177,11 @@ class ScaledODENetFE(nn.Module):
         self.__true_state = None
         self.time = None
         self.state = None
+        self.derivative_network.reset_hidden()
 
     def detach_hidden(self):
         self.state = self.state.detach()
+        self.derivative_network.detach_hidden()
 
     @property
     def true_state(self):
