@@ -47,9 +47,9 @@ The loss functions used for the training and the validation were the average dis
 In the case of the phaser models, only the ODENet framework was compared to the baseline: an \ac{LSTM} from \cite{Wright2020} with 16 memory cells (\ac{LSTM}16). For the derivative network a sufficiently large \ac{MLP} was chosen. Its dimensionality was $M + 2 \times 30 \times 60 \times 60\times 60 \times 30\times M$, where $M$ was the manually set size of the state vector. The nonlinearity used was \ac{SELU}. To prevent divergence, we added a weight decay term to the loss function as a regularizer.
 
 \begin{table}[]
-    \caption{Compared network architectures for phaser modeling}
     \centering
     \input{tex/chapter_03/phaser_models_data.tex}
+    \caption{Compared network architectures for phaser modeling}
     \label{tab:phaser_models_data}
 \end{table}
 
@@ -79,9 +79,9 @@ The effect of augmenting the state vector from 1 to 18 entries when training wit
 Test results of phaser modeling are shown in \Table{tab:phaser_results}, where \ac{LSD} was defined in \Equation{eq:log_spectral_distance}, \ac{segSNR} was defined in \Equation{eq:seg_snr}, and \ac{PEAQ} was explained in \Section{subsec:va_evaluation}. The \ac{LSD}  loss was chosen for the final training and comparison, because during a visual inspection of the magnitude \ac{STFT} it resulted in the best match of phaser notches in the output signal of the baseline model. It was assumed that it would enable effective learning for ODENet as well.
 
 \begin{table}[]
-    \caption{Test results of the phaser models.}
     \centering
     \input{tex/chapter_03/phaser_results_table.tex}
+    \caption{Test results of the phaser models.}
     \label{tab:phaser_results}
 \end{table}
 

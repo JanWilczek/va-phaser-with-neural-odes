@@ -50,8 +50,8 @@ Each model is listed with its number of parameters,
 hyperparameter values during training, training time (in epochs and hours), and teacher forcing curriculum in \Table{tab:diode_clipper_models_data}. The curriculum descriptions mean the following: "never" does not use teacher forcing, "always" provides true output for each minibatch at each time step, "bernoulli" uses scheduled sampling, where the probability of using teacher forcing for a minibatch decreases with each epoch. If a binary sample drawn from the Bernoulli distribution determines that teacher forcing should be used for a given minibatch, then the previous true output is supplied at each time step of the processing of that minibatch.
 
 \begin{table}[]
-    \caption{Compared network architectures for diode clipper modeling}
     \input{tex/chapter_03/diode_clipper_models_data.tex}
+    \caption{Compared network architectures for diode clipper modeling}
     \label{tab:diode_clipper_models_data}
 \end{table}
 
@@ -72,8 +72,8 @@ All models were tested on a one long sequence but the implicit Adams scheme cons
 In \Table{tab:diode_clipper_results} the test results of the compared models are shown. The loss and \ac{PEAQ} were rounded to two significant digits, whereas \ac{segSNR} was rounded to one decimal place. The best results are given in bold (lowest loss, highest \ac{segSNR} and \ac{PEAQ}). The models were separately evaluated in terms of the learned model quality (test sampling rate equal to training sampling rate) and performance at sampling rates different from the training sampling rate. 
 
 \begin{table}[]
-    \caption{Test results of the diode clipper models.}
     \input{tex/chapter_03/diode_clipper_results_table.tex}
+    \caption{Test results of the diode clipper models.}
     \label{tab:diode_clipper_results}
 \end{table}
 
@@ -137,8 +137,8 @@ The results of solving the diode clipper \ac{ODE} with the \ac{BDF} solver at 8x
 
 \begin{table}[]
     \centering
-    \caption{Results of numeric solutions to the diode clipper \ac{ODE}.}
     \input{tex/chapter_03/diode_clipper_ode_solvers.tex}
+    \caption{Results of numeric solutions to the diode clipper \ac{ODE}.}
     \label{tab:diode_clipper_ode_solvers}
 \end{table}
 
