@@ -22,7 +22,7 @@ More formally, the $l$-th layer of an \ac{MLP} outputs a vector $\pmb{y}^{(l)}$ 
 \end{equation}
 where $\pmb{W}^{(l)}$ is the weight matrix of the $l$-th layer with the $i$-th row associated with the $i$-th unit in the layer, $\pmb{b}$ is a vector of units' biases, $g(\cdot)$ is a nonlinear function applied element wise, and $\pmb{y}^{(0)}$ is the network's input vector. In this notation, $f(\pmb{y}^{(0)};\pmb{\theta}) = \pmb{y}^{(L)}$, where $L$ denotes the number of layers of the \ac{MLP}.
 
-Most common nonlinearity functions are hyperbolic tangens ($\tanh$), \ac{ReLU} (\Equation{eq:relu}), \ac{SELU} (\Equation{eq:selu}), and the logistic sigmoid function $\sigma$ (\Equation{eq:logistic_sigmoid}) \cite{Goodfellow-et-al-2016}
+Most common nonlinearity functions are hyperbolic tangent ($\tanh$), \ac{ReLU} (\Equation{eq:relu}), \ac{SELU} (\Equation{eq:selu}), and the logistic sigmoid function $\sigma$ (\Equation{eq:logistic_sigmoid}) \cite{Goodfellow-et-al-2016}
 
 \begin{align}
   \text{ReLU}(x) &= \max\{0, x\},\label{eq:relu}\\
