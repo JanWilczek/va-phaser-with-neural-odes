@@ -63,7 +63,7 @@ The goal of phaser modeling was not only to compare ODENet to the approach taken
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{The Impact of State Augmentation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The effect of augmenting the state vector from 1 to 18 entries when training with the average $L_1$ distance in the \ac{STFT} domain can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it may be beneficial to augment the state, even if the training signal is not provided for all of its entries. However, the improvement was not observed when $L_2$ or $LSD_\text{RMS}$ distances were used.
+The effect of augmenting the state vector from 1 to 18 entries when training with the average $L_1$ distance in the \ac{STFT} domain can be seen in \Figure{fig:state_augmentation}. Although no target was provided for the 17 latent entries, the network used them to store meaningful information for each time point. The observed improvement is over two-fold. Therefore, it may be beneficial to augment the state, even if the training signal is not provided for all of its entries. However, the improvement was not observed when $L_2$ or \ac{LSD} distances were used.
 
 \begin{figure}
     \centering
@@ -76,7 +76,7 @@ The effect of augmenting the state vector from 1 to 18 entries when training wit
 \subsubsection{Comparison to the Baseline}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Test results of phaser modeling are shown in \Table{tab:phaser_results}, where $LSD_\text{RMS}$ was defined in \Equation{eq:log_spectral_distance}, \ac{segSNR} was defined in \Equation{eq:seg_snr}, and \ac{PEAQ} was explained in \Section{subsec:va_evaluation}. The $LSD_\text{RMS}$  loss was chosen for the final training and comparison, because during a visual inspection of the magnitude \ac{STFT} it resulted in the best match of phaser notches in the output signal of the baseline model. It was assumed that it would enable effective learning for ODENet as well.
+Test results of phaser modeling are shown in \Table{tab:phaser_results}, where \ac{LSD} was defined in \Equation{eq:log_spectral_distance}, \ac{segSNR} was defined in \Equation{eq:seg_snr}, and \ac{PEAQ} was explained in \Section{subsec:va_evaluation}. The \ac{LSD}  loss was chosen for the final training and comparison, because during a visual inspection of the magnitude \ac{STFT} it resulted in the best match of phaser notches in the output signal of the baseline model. It was assumed that it would enable effective learning for ODENet as well.
 
 \begin{table}[]
     \caption{Test results of the phaser models.}
@@ -90,7 +90,7 @@ In terms of numerical measures, \ac{LSTM}16 significantly outperformed ODENet. T
 \begin{figure}
     \centering
     \input{figures/tikz/phaser_lstm_vs_fe/phaser_lstm_vs_fe.tex}
-    \caption{Average $LSD_\text{RMS}$ of the compared models on the validation set.}
+    \caption{Average \ac{LSD} of the compared models on the validation set.}
     \label{fig:phaser_lstm_vs_fe}
 \end{figure}
 

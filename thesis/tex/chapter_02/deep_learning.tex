@@ -229,9 +229,9 @@ where $w$ is a time-domain window of length $W$, $x$ is the time-domain audio si
 
 Having computed the \ac{STFT} representation, one can calculate the distance in the time-frequency domain between the obtained and desired signals and then average across all time frames and minibatch examples to obtain a single number. That number can be used for gradient calculation.
 
-We used three distance measures: $L_1$ and $L_2$ norms and the root mean square \ac{LSD}, which will be denoted by $LSD_\text{RMS}$. Having two frequency-domain vectors $X_1$ and $X_2$, $LSD_\text{RMS}$ can be computed as \cite{Gray1976}
+We used three distance measures: $L_1$ and $L_2$ norms and the \acf{LSD}. Having two frequency-domain vectors $X_1$ and $X_2$, \ac{LSD} can be computed as \cite{Gray1976}
 \begin{equation}
-  LSD_\text{RMS}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} \Bigl\lvert \ln \bigl\lvert X_1[\omega]\bigr\rvert^2 - \ln \bigl\lvert X_2[\omega]\bigr\rvert^2 \Bigr\rvert^2}.
+  \text{LSD}_\text{rms}(X_1, X_2) = \sqrt{ \frac{1}{N_\text{F}} \sum \limits_{\omega=0}^{N_\text{F}} \Bigl\lvert \ln \bigl\lvert X_1[\omega]\bigr\rvert^2 - \ln \bigl\lvert X_2[\omega]\bigr\rvert^2 \Bigr\rvert^2}.
   \label{eq:log_spectral_distance}
 \end{equation}
 
