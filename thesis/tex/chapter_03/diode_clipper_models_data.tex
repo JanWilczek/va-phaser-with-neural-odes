@@ -1,13 +1,13 @@
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}l|c c c c c c @{}}
+\begin{tabular}{@{}l c c c c c c @{}}
 \toprule
-Model & LSTM8 & \makecell{STN\\3x4\\tanh} & \makecell{ODENet100\\(FE)\\ReLU} & \makecell{ODENet9\\(FE)\\ReLU} & \makecell{ODENet9\\(IA)\\SELU} & \makecell{RINN4\\BB6} \\ \midrule
-Number of   parameters & 361 & 48 & 10501 & 127 & 127 & 67 \\ \midrule
-Learning rate & 0.001 & 0.001 & 0.001 & 0.001 & 0.001 & 0.001 \\ \midrule
-Learning rate schedule & none & none & \makecell{one-cycle\\LR 0.02} & \makecell{one-cycle\\LR 0.02} & \makecell{cyclical\\LR 0.01} & \makecell{one-cycle\\LR 0.02} \\ \midrule
-Epochs in training & 200 & 340 & 300 & 300 & 600 & 600 \\ \midrule
-Hours in training & 1 & 49 & 8 & 10 & 75 & 24 \\ \midrule
-Teacher forcing & never & bernoulli & always & always & always & never \\ \midrule
+\textbf{Model} & \textbf{LSTM8} & \textbf{\makecell{STN\\3x4\\tanh}} & \textbf{\makecell{ODENet100\\(FE)\\ReLU}} & \textbf{\makecell{ODENet9\\(FE)\\ReLU}} & \textbf{\makecell{ODENet9\\(IA)\\SELU}} & \textbf{\makecell{RINN4\\BB6}} \\ \midrule
+Number of   parameters & 361 & 48 & 10501 & 127 & 127 & 67 \\ 
+Learning rate & 0.001 & 0.001 & 0.001 & 0.001 & 0.001 & 0.001 \\ 
+Learning rate schedule & none & none & \makecell{one-cycle\\LR 0.02} & \makecell{one-cycle\\LR 0.02} & \makecell{cyclical\\LR 0.01} & \makecell{one-cycle\\LR 0.02} \\ 
+Epochs in training & 200 & 340 & 300 & 300 & 600 & 600 \\ 
+Hours in training & 1 & 49 & 8 & 10 & 75 & 24 \\ 
+Teacher forcing & never & bernoulli & always & always & always & never \\ 
 Minibatch size & 40 & 256 & 256 & 256 & 256 & 512 \\ \bottomrule
 \end{tabular}%
 }
