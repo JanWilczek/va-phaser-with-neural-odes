@@ -12,7 +12,7 @@ This section describes the proposed extensions to the ODENet framework. The goal
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{The Problem of Initialization}
+\subsection{Initialization Problem}
 \label{subsec:initialization}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -23,7 +23,7 @@ to ensure proper guidance during training. In the context of ODENet, teacher for
 At test time, for most dynamical systems, we could also provide a meaningful initial value. After all, the goal is to predict a future state from some initial state. However, in the context of \ac{VA} modeling, we can only supply the all-zero vector as the \ac{IC} because the framework should predict the entirety of the output from the input. If the true first sample of the output is non-zero, this results in increased test error.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{The Problem of Excitation}
+\subsection{Excitation Problem}
 \label{subsec:excitation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -56,7 +56,7 @@ Although the ODENet framework as a whole may be perceived as a form of an \ac{RN
 These constraints narrow down the space of possible parametrizations of the derivative network to feedforward networks. For the derivative network solely \acp{MLP} are used. In all cases, $i = o + e$, where $i$ is the input layer size, $o$ is the output layer size, and $e$ is the dimensionality of the excitation. All layers are fully connected and apply the same nonlinearity to their output.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{The Problem of Dimensionality}
+\subsection{Dimensionality Problem}
 \label{subsec:dimensionality}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Real-world dynamical systems can be multi-dimensional \cite{Scheinerman1996}. The dimensionality of a dynamical system is expressed by the number of entries in the state vector that describes the system. In analog circuits, a single state is associated with a single capacitor \cite{Parker2019}. Thus, a diode clipper has just 1 state. This state is also the circuit's output \cite{Parker2019}. On the other hand, a phaser circuit has multiple capacitors. For example, the MXR Phase 100 referenced in \cite{Kiiski2016} has 18 capacitors\footnote{\url{http://www.generalguitargadgets.com/pdf/ggg_p100_sc.pdf}, retrieved 20.09.2021.}.
