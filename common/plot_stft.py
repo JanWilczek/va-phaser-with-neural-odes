@@ -39,10 +39,13 @@ def plot_stft(signal, output_filepath, sampling_rate):
 def main():
     ap = ArgumentParser()
     ap.add_argument('filepath', help='.wav file to compute STFT from.')
+    ap.add_argument('--seconds', type=int, default=None, help='Number of initial seconds to take for the STFT computation.')
     args = ap.parse_args()
     filepath = Path(args.filepath)
     data, fs = sf.read(filepath, always_2d=True)
     data = data[:, 0] # Take just the first channel of audio
+    if args.seconds:
+        data = data[:int(args.seconds * fs)]
     output_filename = filepath.name[:-4] + '_stft'
     output_path = filepath.parent / output_filename
     plot_stft(data, output_path, fs)

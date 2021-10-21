@@ -209,7 +209,8 @@ def argument_parser():
             'odeint_euler',
             'odeint_implicit_adams',
             'forward_euler',
-            'trapezoid_rule'], 
+            'trapezoid_rule',
+            'ScaledODENetFE'], 
             required=True,
             help='Method to use for numerical integration of the differential equation.')
     ap.add_argument('--epochs', '-eps', type=int, required=True,

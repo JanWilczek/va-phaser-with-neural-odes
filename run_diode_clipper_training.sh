@@ -26,3 +26,6 @@ python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method forward_euler --batch_size 256 --init_len 0 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.001 --cyclic_lr 0.01 --nonlinearity SELU --dataset_name reverb-diodeclip --teacher_forcing always --validate_every 10 --state_size 1 --hidden_size 100
 
 CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method LSTM --batch_size 64 --init_len 1000 --epochs 600 --learn_rate 0.001 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --dataset_name reverb-diodeclip --hidden_size 8 --validate_every 10 
+
+
+CUDA_VISIBLE_DEVICES=1 python diode_clipper/main.py --method ScaledODENetFE --batch_size 256 --up_fr 2048 --val_chunk 22050 --test_chunk 0 --epochs 600 --learn_rate 0.01 --exponential_lr 0.0001 --teacher_forcing always --dataset_name ht1 --hidden_size 30 --validate_every 10 --loss_function ESR_DC_prefilter --nonlinearity Softsign --derivative_network DerivativeMLP2FE
