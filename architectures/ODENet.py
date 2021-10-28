@@ -201,11 +201,29 @@ class DerivativeLSTM(nn.Module):
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint, dt):
+    def __init__(self, derivative_network, odeint, dt, target_size):
+        """
+        Parameters
+        ----------
+        derivative_network : nn.Module
+            [description]
+        odeint : [type]
+            [description]
+        dt : [type]
+            [description]
+        target_size : int
+            Size of the target in the dataset.
+            If ODENet's output is just audio (first-order diode clipper, phaser), 
+            this number should be 1. 
+            If the dataset contains more states than just the audio (e.g., 2 for 
+            the second-order diode clipper), put this appropriate number. 
+            First target_size elements of the state vector will be returned.
+        """
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
         self.__dt = dt
+        self.target_size = target_size
         self.__true_state = None
         self.time = None
         self.state = None
@@ -220,11 +238,8 @@ class ODENet(nn.Module):
         Returns
         -------
         output : torch.Tensor
-            exactly the same shape as x
+            of shape (x.shape[0], x.shape[1], self.target_size)
         """
-        # The first element of the state is the audio sample output
-        OUTPUT_FEATURE_ID = 0
-
         sequence_length, minibatch_size, feature_count = x.shape
 
         # If there is no state stored from the previous segment computations, initialize the state with 0s.
@@ -250,7 +265,11 @@ class ODENet(nn.Module):
         # Store the last output sample as the initial value for the next segment computation
         self.state = odeint_output[-1]
 
-        return odeint_output[:, :, OUTPUT_FEATURE_ID].unsqueeze(2)
+        target_estimate = odeint_output[:, :, :self.target_size]
+
+        assert target_estimate.shape == (x.shape[0], x.shape[1], self.target_size)
+
+        return target_estimate
 
     def create_time_vector(self, sequence_length):
         if self.time is None or self.time.shape[0] != sequence_length:

@@ -112,10 +112,22 @@ class DerivativeFEWithMemory(nn.Module):
 
 
 class ScaledODENetFE(nn.Module):
-    def __init__(self, derivative_network, sampling_rate):
+    def __init__(self, derivative_network, sampling_rate, target_size):
+        """
+        Parameters
+        ----------
+        x : torch.Tensor
+            must be of shape (sequence_length (e.g., 44100), minibatch_size (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input sample is given))
+
+        Returns
+        -------
+        output : torch.Tensor
+            of shape (x.shape[0], x.shape[1], self.target_size)
+        """
         super().__init__()
         self.derivative_network = derivative_network
         self.sampling_rate = sampling_rate
+        self.target_size = target_size
         self.__true_state = None
         self.time = None
         self.state = None
@@ -130,11 +142,8 @@ class ScaledODENetFE(nn.Module):
         Returns
         -------
         output : torch.Tensor
-            exactly the same shape as x
+            of shape (x.shape[0], x.shape[1], self.target_size)
         """
-        # The first element of the state is the audio sample output
-        OUTPUT_FEATURE_ID = 0
-
         sequence_length, minibatch_size, feature_count = x.shape
 
         # If there is no state stored from the previous segment computations, initialize the state with 0s.
@@ -167,7 +176,11 @@ class ScaledODENetFE(nn.Module):
         # Store the last output sample as the initial value for the next segment computation
         self.state = y[-1]
 
-        return y[:, :, OUTPUT_FEATURE_ID].unsqueeze(2)
+        target_estimate = y[:, :, :self.target_size]
+
+        assert target_estimate.shape == (x.shape[0], x.shape[1], self.target_size)
+
+        return target_estimate
 
     def create_time_vector(self, sequence_length):
         if self.time is None or self.time.shape[0] != sequence_length:
