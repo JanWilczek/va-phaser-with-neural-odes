@@ -162,9 +162,11 @@ def test(session):
     test_output, test_loss = session.test()
     print(f'Test loss: {test_loss}')
     session.writer.add_scalar('Loss/test', test_loss, session.epochs)
-
+    
+    # Flatten the first channel of the output properly to obtain one long frame
+    test_audio = test_output.permute(1, 0, 2)[:, :, 0].flatten()[None, :]
     test_output_path = (session.run_directory / 'test_output.wav').resolve()
-    session.save_audio(test_output_path, test_output[None, :], session.sampling_rate('test'))
+    session.save_audio(test_output_path, test_audio, session.sampling_rate('test'))
 
 
 def get_teacher_forcing_gate(teacher_forcing_description):

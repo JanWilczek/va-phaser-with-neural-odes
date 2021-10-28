@@ -95,8 +95,10 @@ class NetworkTraining:
 
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')
-
-        self.save_audio(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
+        
+        # Flatten the first channel of the output properly to obtain one long frame
+        validation_audio = validation_output.permute(1, 0, 2)[:, :, 0].flatten()[None, :]
+        self.save_audio(self.last_validation_output_path, validation_audio.to('cpu'), self.sampling_rate('validation'))
         
         if validation_loss < self.best_validation_loss:
             self.save_checkpoint(best_validation=True)
@@ -114,8 +116,7 @@ class NetworkTraining:
             output = self.network(self.input_data(subset_name).to(self.device))
             loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
         
-        # Flatten the output properly to obtain one long frame
-        return output.permute(1, 0, 2).flatten(), loss 
+        return output, loss 
 
     def save_checkpoint(self, best_validation=False):
         checkpoint_dict = {
