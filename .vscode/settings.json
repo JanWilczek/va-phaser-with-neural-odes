@@ -1,4 +1,12 @@
 {
     "python.pythonPath": "C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python38\\python.exe",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    // "terminal.integrated.shellArgs.linux": [".vscode/cmd_init.sh"]
+    "terminal.integrated.profiles.linux": {
+        "zsh (login)": {
+          "path": "zsh",
+        //   "args": ["-l", "--init-file", ".vscode/cmd_init.sh"]
+          "args": ["-l", ".vscode/cmd_init.sh"]
+        }
+      }
 }
