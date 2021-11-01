@@ -10,7 +10,7 @@ def get_architecture(args, dt):
     output_size = max(TARGET_SIZE, args.state_size)
     
     if args.method == 'LSTM':
-        network = networks.SimpleRNN(unit_type="LSTM", hidden_size=16, skip=0, input_size=1, output_size=TARGET_SIZE)
+        network = networks.SimpleRNN(unit_type="LSTM", hidden_size=args.hidden_size, skip=0, input_size=1, output_size=TARGET_SIZE)
     elif args.method == 'ResIntRK4':
         network = ResidualIntegrationNetworkRK4(nn.Sequential(BilinearBlock(input_size=3,
                                                               output_size=6,
