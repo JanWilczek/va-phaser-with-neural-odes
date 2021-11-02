@@ -20,16 +20,16 @@ class StateTrajectoryNetwork(nn.Module):
         sequence_length, minibatch_size, feature_count = x.shape
         x = x.permute(1, 0, 2)
 
-        output = torch.zeros_like(x)
+        output = torch.zeros((minibatch_size, sequence_length, self.state_size), device=x.device)
 
         if self.state is None:
-            self.state = torch.zeros((minibatch_size, 1, 1), device=self.device)
+            self.state = torch.zeros((minibatch_size, 1, self.state_size), device=self.device)
 
         for n in range(sequence_length):
             if self.true_state is not None:
                 self.state[:, 0, :] = self.true_state[:, n, :]
 
-            mlp_input = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
+            mlp_input = torch.cat((x[:, n:n+1, :], self.state), dim=2)
 
             # MLPs
             dense_output = self.densely_connected_layers(mlp_input)
@@ -75,3 +75,18 @@ class StateTrajectoryNetwork(nn.Module):
     @property
     def residual_scaling(self):
         return self.test_time_step / self.training_time_step
+
+    @property
+    def state_size(self):
+        return self.densely_connected_layers[-1].out_features
+
+
+class FlexibleStateTrajectoryNetwork(StateTrajectoryNetwork):
+    def __init__(self, layer_sizes, activation=nn.Tanh(), training_time_step=1.0):
+        super().__init__(training_time_step)
+        layers = []
+        for in_size, out_size in zip(layer_sizes[:-1], layer_sizes[1:]):
+            layers.append(nn.Linear(in_size, out_size))
+            layers.append(activation)
+        layers.pop(-1) # Remove the last nonlinearity to have a weighting layer at the output
+        self.densely_connected_layers = nn.Sequential(*layers)

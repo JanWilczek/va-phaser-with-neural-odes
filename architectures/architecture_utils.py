@@ -27,3 +27,12 @@ def get_diode_clipper_architecture(args, dt):
         method = get_method(args)
         network = ODENet(DerivativeMLP(ExcitationSecondsLinearInterpolation(), get_nonlinearity(args), excitation_size=1, output_size=args.state_size, hidden_size=args.hidden_size), method, dt)
     return network
+
+def parse_layer_sizes(description):
+    """
+    Returns a list of integers corresponding to the description.
+
+    Example:
+    description is "1x2x3" string => [1, 2, 3] is returned.
+    """
+    return [int(size) for size in description.split('x')]

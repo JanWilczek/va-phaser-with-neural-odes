@@ -1,8 +1,8 @@
-"""Set up an NN architecture, run its training and test on the phaser data."""
+"""Set up an NN architecture, run its training and test on the second-order diode clipper data."""
 import torch.nn as nn
 import CoreAudioML.networks as networks
 from common import initialize_session, argument_parser, train_and_test, get_method
-from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, DerivativeMLP2, SingleLinearLayer, ScaledSingleLinearLayer, DerivativeLSTM, DerivativeWithMemory, ExcitationSecondsLinearInterpolation, get_nonlinearity, ScaledODENetFE, DerivativeMLPFE, DerivativeMLP2FE, DerivativeFEWithMemory
+from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, DerivativeMLP, DerivativeMLP2, SingleLinearLayer, ScaledSingleLinearLayer, DerivativeLSTM, DerivativeWithMemory, ExcitationSecondsLinearInterpolation, get_nonlinearity, ScaledODENetFE, DerivativeMLPFE, DerivativeMLP2FE, DerivativeFEWithMemory, FlexibleStateTrajectoryNetwork, parse_layer_sizes
 
 
 def get_architecture(args, dt):
@@ -18,6 +18,10 @@ def get_architecture(args, dt):
                                                               BilinearBlock(input_size=6,
                                                               output_size=TARGET_SIZE,
                                                               latent_size=12)), dt=1.0)
+    elif args.method.startswith('STN'):
+        network = FlexibleStateTrajectoryNetwork(layer_sizes=parse_layer_sizes(args.method.replace('STN_', '')),
+                                                activation=get_nonlinearity(args),
+                                                training_time_step=dt)
     elif args.method == 'ScaledODENetFE':
         derivative_network_args = {'activation': get_nonlinearity(args),
                                     'excitation_size': 1,

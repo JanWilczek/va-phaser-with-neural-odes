@@ -114,7 +114,13 @@ class NetworkTraining:
 
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
-            loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
+            target = self.target_data(subset_name).to(self.device)
+
+            # Use only audio output for validation and test
+            audio_output = output[..., :1]
+            audio_target = target[..., :1]
+            
+            loss = self.loss(audio_output, audio_target).item()
         
         return output, loss 
 

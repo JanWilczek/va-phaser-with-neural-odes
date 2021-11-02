@@ -204,7 +204,7 @@ def argument_parser():
         '--method',
         choices=[
             'LSTM',
-            'STN',
+            'STN_3x4x4x4x2',
             'ResIntRK4',
             'odeint_dopri5',
             'odeint_rk4',

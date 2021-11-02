@@ -2,5 +2,5 @@ from .ResidualIntegrationNetworkRK4 import ResidualIntegrationNetworkRK4, Biline
 from .ODENet import *
 from .ODENetFE import *
 from .ExcitationInterpolators import ExcitationSecondsLinearInterpolation
-from .StateTrajectoryNetwork import StateTrajectoryNetwork
-from .architecture_utils import get_nonlinearity, get_diode_clipper_architecture
+from .StateTrajectoryNetwork import StateTrajectoryNetwork, FlexibleStateTrajectoryNetwork
+from .architecture_utils import get_nonlinearity, get_diode_clipper_architecture, parse_layer_sizes
