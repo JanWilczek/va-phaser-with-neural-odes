@@ -18,8 +18,8 @@ def get_architecture(args, dt):
                                                               BilinearBlock(input_size=6,
                                                               output_size=TARGET_SIZE,
                                                               latent_size=12)), dt=1.0)
-    elif args.method.startswith('STN'):
-        network = FlexibleStateTrajectoryNetwork(layer_sizes=parse_layer_sizes(args.method.replace('STN_', '')),
+    elif args.method == 'STN':
+        network = FlexibleStateTrajectoryNetwork(layer_sizes=parse_layer_sizes(args.layers_description),
                                                 activation=get_nonlinearity(args),
                                                 training_time_step=dt)
     elif args.method == 'ScaledODENetFE':

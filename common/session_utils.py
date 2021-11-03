@@ -204,7 +204,7 @@ def argument_parser():
         '--method',
         choices=[
             'LSTM',
-            'STN_3x4x4x4x2',
+            'STN',
             'ResIntRK4',
             'odeint_dopri5',
             'odeint_rk4',
@@ -293,6 +293,7 @@ def argument_parser():
         '\n{:<20}\t{:<20}'.format('L2_STFT', 'L2(STFT_output, STFT_target).') + \
         '\nlog_spectral_distance')
     ap.add_argument('--derivative_network', default='DerivativeMLP2', help='Derivative network to use in case of ODENet.')
+    ap.add_argument('--layers_description', default=None, type=str, help='Description of layers of the network. For example, "1x2x3" denotes an MLP with layers of size 1, 2, and 3, with all but the last one having the activation function applied at their output.')
     return ap
 
 
