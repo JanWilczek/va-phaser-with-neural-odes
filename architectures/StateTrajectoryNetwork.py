@@ -24,10 +24,13 @@ class StateTrajectoryNetwork(nn.Module):
 
         if self.state is None:
             self.state = torch.zeros((minibatch_size, 1, self.state_size), device=self.device)
+            
+        if self.true_state is not None:
+            self.state[:, 0, :] = self.true_state[:, 0, :]
 
         for n in range(sequence_length):
-            if self.true_state is not None:
-                self.state[:, 0, :] = self.true_state[:, n, :]
+            # if self.true_state is not None:
+                # self.state[:, 0, :] = self.true_state[:, n, :]
 
             mlp_input = torch.cat((x[:, n:n+1, :], self.state), dim=2)
 
@@ -88,5 +91,9 @@ class FlexibleStateTrajectoryNetwork(StateTrajectoryNetwork):
         for in_size, out_size in zip(layer_sizes[:-1], layer_sizes[1:]):
             layers.append(nn.Linear(in_size, out_size))
             layers.append(activation)
-        layers.pop(-1) # Remove the last nonlinearity to have a weighting layer at the output
+        # layers.pop(-1) # Remove the last nonlinearity to have a weighting layer at the output
         self.densely_connected_layers = nn.Sequential(*layers)
+        
+    @property
+    def state_size(self):
+        return self.densely_connected_layers[-2].out_features

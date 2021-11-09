@@ -154,6 +154,7 @@ class ScaledODENetFE(nn.Module):
         if self.true_state is not None:
             # If the true state is 1-dimensional, it is just the audio output; preserve the rest of the state for this iteration
             if self.true_state.shape[1] == 1:
+                OUTPUT_FEATURE_ID = 0
                 self.state[:, OUTPUT_FEATURE_ID] = self.true_state.squeeze()
             else:
                 # If the true state is multidimensional, assign it to the first entries of self.state
