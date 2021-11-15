@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=01:00:00
 #SBATCH --gres=gpu:1
-#SBATCH --mem=80000M
+#SBATCH --mem=8000M
 #SBATCH --output=logs/diode2_clipper/scaledodenetfe-%j.txt
 
 HIDDEN_SIZE=30
