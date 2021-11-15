@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from torchdiffeq import odeint, odeint_adjoint
 from solvers import ForwardEuler, trapezoid_rule
 from excitation import ExcitationSeconds, ExcitationSamples, ExcitationSecondsInterpolation0, ExcitationSecondsInterpolation1
+from common import setup_pyplot_for_latex, save_tikz
 
 
 def argument_parser():
@@ -121,17 +122,20 @@ def get_excitation(args, dt):
     return excitation_dict[args.interpolation]
 
 def plot_trajectories(trajectories, time, estimated_trajectories=None):
-    plt.figure()
+    # setup_pyplot_for_latex()
     trajectories_count = trajectories.shape[1]
+    fig = plt.figure()
+    gs = fig.add_gridspec(trajectories_count, ncols=1, hspace=0)
+    axes = gs.subplots(sharex=True, sharey=True)
     for i in range(trajectories_count):
-        plt.subplot(trajectories_count, 1, i+1)
-        plt.plot(time, trajectories[:, i, 0])
+        axes[i].plot(time, trajectories[:, i, 0])
         if estimated_trajectories is not None:
-            plt.plot(time, estimated_trajectories[:, i, 0])
+            axes[i].plot(time, estimated_trajectories[:, i, 0])
+        axes[i].label_outer()   
     
     if estimated_trajectories is not None:
         legend = ["Ground truth", "ODENet"]
-        plt.legend(legend)
+        fig.legend(legend)
 
 
 def main():
@@ -143,7 +147,8 @@ def main():
     excitation_seconds = get_excitation(args, dt)
     oscillator = HarmonicOscillator(m=args.m, k=args.k, c=args.c, F=excitation_seconds, duffing=args.duffing)
 
-    initial_conditions = [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1], [-1, 0.5], [-2, 1]]
+    # initial_conditions = [[1, -1], [2, -0.5], [3, 0], [4, 0.5], [5, 1], [-1, 0.5], [-2, 1]]
+    initial_conditions = [[0, 1], [0, 0]]
     trajectories = torch.empty((args.nsteps, len(initial_conditions), 2))   # time step x number of trajectory segments x number of ODEs
     for i, y0 in enumerate(initial_conditions):
         t_seconds, trajectories[:, i] = oscillator.synthesize(y0=torch.Tensor(y0), t0=0, t1=T, dt=dt)
@@ -173,6 +178,7 @@ def main():
     if args.visualize:
         plot_trajectories(trajectories, t)
         plt.savefig('oscillator_trajectories.png', bbox_inches='tight', dpi=300)
+        save_tikz('oscillator_trajectories')
 
     network = MLP(mlp_excitation)
     network.to(device)

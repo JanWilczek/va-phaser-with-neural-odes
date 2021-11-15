@@ -33,6 +33,13 @@ def count_parameters(model):
 ```
 
 ## Delete all files created today from a directory except for pngs
+
 ```bash
 find DIR -daystart -ctime 0 -type f -not -name '*.png' -print -delete
+```
+
+## Command for generating oscillator trajectories in the DAFX paper
+
+```bash
+python harmonic_oscillator\main.py --epochs 1 --visualize --interpolation linear -c 0.2 --nsteps 1000
 ```
