@@ -45,8 +45,8 @@ def main():
     channels = np.array([left_channel, right_channel]).transpose()
     assert channels.shape[1] == 2
 
-    fs = 44100
-    interpolation = interp1d(np.array(time_channel) * fs, channels, axis=0)
+    fs = 192000
+    interpolation = interp1d(np.array(time_channel) * fs, channels, kind='cubic', axis=0)
 
     length_seconds = 340
     time_samples = np.arange(0, fs * length_seconds, dtype=np.float32)
