@@ -1,4 +1,4 @@
-# Print network parameters' shapes
+## Print network parameters' shapes
 
 ```python
 print([param.shape for param in self.network.parameters()])
@@ -36,3 +36,16 @@ def count_parameters(model):
 ```bash
 find DIR -daystart -ctime 0 -type f -not -name '*.png' -print -delete
 ```
+
+## Triton modules needed to run training sessions
+
+* gcc
+* cuda
+
+`module list` output:
+1) gcc/9.2.0
+2) libiconv/1.16
+3) xz/5.2.5
+4) zlib/1.2.11
+5) libxml2/2.9.12
+6) cuda/11.2.1

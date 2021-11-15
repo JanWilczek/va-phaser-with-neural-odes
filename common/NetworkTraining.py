@@ -30,7 +30,11 @@ class NetworkTraining:
     def run(self):
         """Run full network training."""
         self.transfer_to_device()
+        
+        # Run first validation before training
         self.best_validation_loss = float('inf')
+        self.best_validation_loss = self.run_validation()
+        self.log_loss('validation', validation_loss)
 
         self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
@@ -75,6 +79,7 @@ class NetworkTraining:
 
                 loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates].to(self.device))
                 loss.backward()
+                self.log_gradient_norm()
                 self.optimizer.step()
 
                 self.network.detach_hidden()
@@ -178,6 +183,15 @@ class NetworkTraining:
 
             self.save_audio(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
             self.save_audio(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
+            
+    def gradient_norm(self, **kwargs):
+        gradients = [p.grad.detach() for p in self.network.parameters() if p.requires_grad and p is not None]
+        return torch.linalg.norm(gradients, **kwargs)
+    
+    def log_gradient_norm(self):
+        if self.writer is not None:
+            self.writer.add_scalar(f'Gradient norm', self.gradient_norm(), self.epoch)
+            self.writer.flush()
 
     @property
     def run_directory(self):
