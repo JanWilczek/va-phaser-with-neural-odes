@@ -4,12 +4,12 @@ import numpy as np
 import tikzplotlib
 
 
-def setup_pyplot_for_latex():
+def setup_pyplot_for_latex(font_face='Computer Modern', font_size=12):
     # Use LaTeX font to save the figures in the .png format
     # (they are too big for a tikzfigure)
     rc('text', usetex=True)
-    rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-    plt.rcParams.update({'font.size': 12})
+    rc('font', **{'family': 'serif', 'serif': [font_face]})
+    plt.rcParams.update({'font.size': font_size})
 
 def save_tikz(filename):
     tikz_filename = append_ending(str(filename), '.tex')
