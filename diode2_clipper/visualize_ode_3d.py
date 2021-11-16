@@ -29,7 +29,7 @@ def plot4d(data):
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
-    mask = data > 0.01
+    mask = data > 300
     idx = np.arange(int(np.prod(data.shape)))
     x, y, z = np.unravel_index(idx, data.shape)
     ax.scatter(x, y, z, c=data.flatten(), s=10.0 * mask, edgecolor="face", alpha=0.2, marker="o", cmap="magma", linewidth=0)

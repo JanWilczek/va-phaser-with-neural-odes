@@ -21,10 +21,7 @@ def plot_ode(derivative_magnitude, ylabel='Output'):
     plt.xlabel('Input')
     plt.ylabel(ylabel)
 
-def main():
-    # setup_pyplot_for_latex()
-    
-    # Load model
+def load_session():
     ap = argparse.ArgumentParser()
     ap.add_argument('run_path', help='Path to the directory with the run to analyze model from.')
     session = NetworkTraining()
@@ -36,22 +33,28 @@ def main():
                                         '-bs', str(args_dict['batch_size']),
                                         '--dataset_name', 'diodeclip'])
     args.__dict__.update(args_dict)
-    dt = 1 / 44100
+    dt = 1 / 44100 # This is dataset's time step size
     session.network = get_architecture(args, dt)
     session.optimizer = torch.optim.Adam(
         session.network.parameters(),
         lr=args.learn_rate,
         weight_decay=args.weight_decay)
     session.load_checkpoint(best_validation=True)
+    return session
+    
+def main():
+    # setup_pyplot_for_latex()
+    
+    session = load_session()
     network = session.network.derivative_network
+    figures_dir = session.run_directory / 'figures'
 
     torch.no_grad()
+    
     # Arrange input and state space
-    step = 1e-3
+    step = 1e-3 # Step with which to sample the space (input and individual states' values)
     state1 = torch.arange(-1, 1, step).unsqueeze(1)
     input = torch.arange(-1, 1, step).unsqueeze(1).unsqueeze(2).repeat(1, state1.shape[0], 1)
-    
-    figures_dir = 'figures'
     
     for state2 in [-1.5, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0]:
         state_full = torch.cat((state1, state2 * torch.ones_like(state1)), dim=1)
@@ -68,10 +71,10 @@ def main():
         test_img[0, :] = -1 # bottom row
         test_img[:, 0] = 1 # leftmost column
 
-        plot_ode(derivative_magnitude[..., 0].detach().numpy(), 'dy1')
-        plt.savefig(session.run_directory / figures_dir / f'dy1_{state2:.2f}.png', bbox_inches='tight', dpi=300)
-        plot_ode(derivative_magnitude[..., 1].detach().numpy(), 'dy2')
-        plt.savefig(session.run_directory / figures_dir / f'dy2_{state2:.2f}.png', bbox_inches='tight', dpi=300)
+        plot_ode(derivative_magnitude[..., 0].detach().numpy(), 'y1')
+        plt.savefig(figures_dir / f'dy1_{state2:.2f}.png', bbox_inches='tight', dpi=300)
+        plot_ode(derivative_magnitude[..., 1].detach().numpy(), 'y1')
+        plt.savefig(figures_dir / f'dy2_{state2:.2f}.png', bbox_inches='tight', dpi=300)
         # save_tikz(session.run_directory / 'ode_derivative')
 
         # WARNING: This function is dangerous, may delete your valuable content.
