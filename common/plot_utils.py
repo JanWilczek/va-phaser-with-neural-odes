@@ -60,7 +60,6 @@ def plot_spectrum(data, axis, sampling_rate):
     # frequencies = medfilt(frequencies, step)
     
     axis.semilogx(frequencies, spectrum, 'C2', linewidth=2)
-    axis.set_ylabel('Magnitude [dB]')
     axis.grid()
     axis.set_ylim([-80, 0])
     axis.set_yticks([-60, -40, -20, 0])
