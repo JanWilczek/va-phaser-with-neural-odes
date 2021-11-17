@@ -43,11 +43,12 @@ def load_session():
     return session
     
 def main():
-    # setup_pyplot_for_latex()
+    setup_pyplot_for_latex()
     
     session = load_session()
     network = session.network.derivative_network
     figures_dir = session.run_directory / 'figures'
+    figures_dir.mkdir(exist_ok=True)
 
     torch.no_grad()
     
@@ -73,9 +74,10 @@ def main():
 
         plot_ode(derivative_magnitude[..., 0].detach().numpy(), 'y1')
         plt.savefig(figures_dir / f'dy1_{state2:.2f}.png', bbox_inches='tight', dpi=300)
+        save_tikz(figures_dir / f'dy1_{state2:.2f}.tex')
         plot_ode(derivative_magnitude[..., 1].detach().numpy(), 'y1')
         plt.savefig(figures_dir / f'dy2_{state2:.2f}.png', bbox_inches='tight', dpi=300)
-        # save_tikz(session.run_directory / 'ode_derivative')
+        save_tikz(figures_dir / f'dy2_{state2:.2f}.tex')
 
         # WARNING: This function is dangerous, may delete your valuable content.
         # clean_up(session.run_directory)
