@@ -82,7 +82,10 @@ class NetworkTraining:
                 
                 if i == 0 and subsequence_id == 0: # Log only for the first subsequence in the epoch
                     self.log_gradient_norm()
-                    
+                
+                # Clip unreasonably large gradients
+                torch.nn.utils.clip_grad_norm_(self.network.parameters(), 10.0)
+                
                 self.optimizer.step()
 
                 self.network.detach_hidden()

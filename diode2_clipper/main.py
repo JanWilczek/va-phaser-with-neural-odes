@@ -58,6 +58,9 @@ def main():
 
     session = initialize_session('diode2_clipper', args, get_architecture)
 
+    if session.device != 'cuda':
+        raise RuntimeException('CUDA not available.')
+
     train_and_test(session)
 
 
