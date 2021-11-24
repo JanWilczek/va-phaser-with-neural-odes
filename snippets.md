@@ -49,3 +49,9 @@ find DIR -daystart -ctime 0 -type f -not -name '*.png' -print -delete
 4) zlib/1.2.11
 5) libxml2/2.9.12
 6) cuda/11.2.1
+
+## Triton Interactive Shell
+
+```bash
+srun -p interactive --time=01:00:00 --gres=gpu:1 --mem=3000M --pty bash
+```

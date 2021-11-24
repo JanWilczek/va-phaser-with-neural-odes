@@ -57,6 +57,8 @@ class NetworkTraining:
         true_state = self.true_train_state
 
         for i in range(self.minibatch_count):
+            batch_loss = 0.0
+            
             input_minibatch, target_minibatch, true_state_minibatch = self.get_minibatch(i, segments_order, true_state)
             
             should_include_teacher_forcing = self.enable_teacher_forcing(self.epoch / self.epochs)
@@ -84,7 +86,7 @@ class NetworkTraining:
                     self.log_gradient_norm()
                 
                 # Clip unreasonably large gradients
-                torch.nn.utils.clip_grad_norm_(self.network.parameters(), 10.0)
+                # torch.nn.utils.clip_grad_norm_(self.network.parameters(), 100.0) # TODO: Make clip value a command-line argument. Additionally: this line will probably backfire one day...
                 
                 self.optimizer.step()
 
@@ -92,9 +94,13 @@ class NetworkTraining:
 
                 subsegment_start += self.samples_between_updates
                 epoch_loss += loss.item()
+                batch_loss += loss.item()
+                
             
             if self.scheduler is not None:
                 self.scheduler.step()
+            
+            print(f'Epoch {self.epoch}; Minibatch {i}/{self.minibatch_count}; Minibatch loss: {batch_loss/self.subsegments_count}')
 
         self.timer.epoch_ended()
         self.save_checkpoint()

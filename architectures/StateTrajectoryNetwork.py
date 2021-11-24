@@ -77,7 +77,8 @@ class StateTrajectoryNetwork(nn.Module):
 
     @property
     def residual_scaling(self):
-        return self.test_time_step / self.training_time_step
+        AMPLITUDE_RANGE = 2.0
+        return AMPLITUDE_RANGE * self.test_time_step / self.training_time_step
 
     @property
     def state_size(self):
