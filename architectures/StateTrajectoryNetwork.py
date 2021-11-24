@@ -18,32 +18,28 @@ class StateTrajectoryNetwork(nn.Module):
 
     def forward(self, x):
         sequence_length, minibatch_size, feature_count = x.shape
-        x = x.permute(1, 0, 2)
 
-        output = torch.zeros((minibatch_size, sequence_length, self.state_size), device=x.device)
+        output = torch.zeros((sequence_length, minibatch_size, self.state_size), device=x.device)
 
         if self.state is None:
-            self.state = torch.zeros((minibatch_size, 1, self.state_size), device=self.device)
+            self.state = torch.zeros((minibatch_size, self.state_size), device=self.device)
             
         if self.true_state is not None:
-            self.state[:, 0, :] = self.true_state[:, 0, :]
+            self.state = self.true_state[0]
 
         for n in range(sequence_length):
-            # if self.true_state is not None:
-                # self.state[:, 0, :] = self.true_state[:, n, :]
-
-            mlp_input = torch.cat((x[:, n:n+1, :], self.state), dim=2)
+            mlp_input = torch.cat((x[n], self.state), dim=1)
 
             # MLPs
             dense_output = self.densely_connected_layers(mlp_input)
 
-            # Residual connection
-            output[:, n, :] = self.residual_scaling * dense_output[:, 0, :] + self.state[:, 0, :]
+            # Residual connection and state update
+            self.state = self.residual_scaling * dense_output + self.state
 
-            # State update
-            self.state[:, 0, :] = output[:, n, :]
+            # Output sample assignment
+            output[n] = self.state
 
-        return output.permute(1, 0, 2)
+        return output
 
     def reset_hidden(self):
         self.state = None
@@ -62,10 +58,7 @@ class StateTrajectoryNetwork(nn.Module):
 
     @true_state.setter
     def true_state(self, true_state):
-        if true_state is None:
-            self.__true_state = true_state
-        else:
-            self.__true_state = true_state.permute(1, 0, 2)
+        self.__true_state = true_state
 
     @property
     def dt(self):
@@ -77,7 +70,8 @@ class StateTrajectoryNetwork(nn.Module):
 
     @property
     def residual_scaling(self):
-        AMPLITUDE_RANGE = 2.0
+        # AMPLITUDE_RANGE = 2.0
+        AMPLITUDE_RANGE = 1.5 # TODO: TEMPORARY
         return AMPLITUDE_RANGE * self.test_time_step / self.training_time_step
 
     @property
