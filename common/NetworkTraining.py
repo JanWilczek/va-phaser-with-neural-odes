@@ -20,7 +20,7 @@ class NetworkTraining:
         self.epochs = -1
         self.segments_in_a_batch = -1
         self.samples_between_updates = -1
-        self.initialization_length = -1
+        self.initialization_length = 0
         self.enable_teacher_forcing = lambda epochs_progress: False
         self.writer = None
         self.__run_directory = None
@@ -51,15 +51,15 @@ class NetworkTraining:
     def train_epoch(self):
         self.timer.epoch_started()
         
-        segments_order = torch.randperm(self.segments_count)
+        segments_order = torch.randperm(self.segments_count) #!
         epoch_loss = 0.0
 
-        true_state = self.true_train_state
+        true_state = self.true_train_state #!
 
         for i in range(self.minibatch_count):
             batch_loss = 0.0
             
-            input_minibatch, target_minibatch, true_state_minibatch = self.get_minibatch(i, segments_order, true_state)
+            input_minibatch, target_minibatch, true_state_minibatch = self.get_minibatch(i, segments_order, true_state) #!
             
             should_include_teacher_forcing = self.enable_teacher_forcing(self.epoch / self.epochs)
 
@@ -131,7 +131,7 @@ class NetworkTraining:
 
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
-            target = self.target_data(subset_name).to(self.device)
+            target = self.target_data(subset_name).to(self.device) #!
 
             # Use only audio output for validation and test
             audio_output = output[..., :1]

@@ -54,4 +54,5 @@ find DIR -daystart -ctime 0 -type f -not -name '*.png' -print -delete
 
 ```bash
 srun -p interactive --time=01:00:00 --gres=gpu:1 --mem=3000M --pty bash
+srun -p interactive --time=01:00:00 --mem=3000M --pty bash
 ```

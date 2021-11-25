@@ -107,9 +107,8 @@ if __name__ == "__main__":
 
     assert torch.amax(training_dataset.data[1]) == 1.405284
     assert torch.amin(training_dataset.data[1]) == -1.558538
-
-    network = STN(hidden_size=20)
-    network.set_samp_rate(44100)
+    
+    network = FlexibleStateTrajectoryNetwork([3, 20, 2], nn.Tanh())
 
     optimizer = torch.optim.Adam(network.parameters(), lr=0.0005)
 
@@ -124,7 +123,7 @@ if __name__ == "__main__":
             'optimizer_state_dict': optimizer.state_dict()
         }
 
-        torch.save(checkpoint_dict, Path('diode2_clipper', 'runs', 'diode2clip','stn','alec_dc2', 'checkpoint2.pth'))
+        torch.save(checkpoint_dict, Path('diode2_clipper', 'runs', 'diode2clip','stn','jan_dc2', 'checkpoint.pth'))
         
         shuffle = torch.randperm(training_dataset.data[0].shape[1])
 
@@ -136,20 +135,14 @@ if __name__ == "__main__":
 
             batch_loss = 0
             for chunk in range(int((batch.shape[0]-1)/up_fr)):
+                network.true_state = target[chunk * up_fr:(chunk+1)*up_fr]
+                output = network(batch[chunk * up_fr:(chunk+1)*up_fr])
 
-                network.set_state(target[chunk*up_fr, :, :])
-                output = torch.empty((up_fr, target.shape[1], target.shape[2]))
-                for sample in range(up_fr):
-                    output[sample, :, :] = network(batch[chunk * up_fr + sample, :, :])
-
-
-                #loss = loss_fn(output, target[1 + chunk*up_fr:1 + (chunk+1)*up_fr, :, :])
-                # loss = loss_fn(output, target[chunk * up_fr:1 + (chunk) * up_fr, :, :])
-                loss = loss_fn(output, target[chunk * up_fr:(chunk + 1) * up_fr]) # Jan
+                loss = loss_fn(output, target[chunk * up_fr:(chunk + 1) * up_fr])
                 loss.backward()
                 optimizer.step()
                 network.zero_grad()
-                network.state = network.state.detach()
+                network.state = network.detach_hidden()
                 batch_loss += loss.item()
 
             epoch_loss += batch_loss/(chunk+1)
@@ -164,10 +157,8 @@ if __name__ == "__main__":
         
         if epochs % 5 == 0:
             with torch.no_grad():
-                val_out = torch.empty_like(val_dataset.data[1])
-                network.set_state(torch.zeros((1, 2)))
-                for each in range(val_dataset.data[0].shape[0]):
-                    val_out[each, :, :] = network(val_dataset.data[0][each, :, :])
+                network.reset_hidden()
+                val_out = network(val_dataset.data[0])
                 val_loss_state1 = loss_fn(val_out[:, :, 0], val_dataset.data[1][:, :, 0])
                 val_loss_state2 = loss_fn(val_out[:, :, 1], val_dataset.data[1][:, :, 1])
                 print('Epoch' + str(epochs + 1) + ', val loss 1: ' + str(val_loss_state1.item()))

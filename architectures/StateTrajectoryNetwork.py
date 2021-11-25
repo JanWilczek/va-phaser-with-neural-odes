@@ -19,7 +19,7 @@ class StateTrajectoryNetwork(nn.Module):
     def forward(self, x):
         sequence_length, minibatch_size, feature_count = x.shape
 
-        output = torch.zeros((sequence_length, minibatch_size, self.state_size), device=x.device)
+        output = torch.empty((sequence_length, minibatch_size, self.state_size), device=x.device)
 
         if self.state is None:
             self.state = torch.zeros((minibatch_size, self.state_size), device=self.device)
@@ -83,13 +83,13 @@ class FlexibleStateTrajectoryNetwork(StateTrajectoryNetwork):
     def __init__(self, layer_sizes, activation=nn.Tanh(), training_time_step=1.0):
         super().__init__(training_time_step)
         # gain = torch.nn.init.calculate_gain(type(activation).__name__.lower()) # PyTorch's recommended gain calculation
-        gain = 0.00001 # This is an arbitrary gain chosen empirically
+        # gain = 0.00001 # This is an arbitrary gain chosen empirically
         layers = []
         for in_size, out_size in zip(layer_sizes[:-1], layer_sizes[1:]):
             linear_layer = nn.Linear(in_size, out_size)
-            torch.nn.init.xavier_uniform_(linear_layer.weight, gain)
-            with torch.no_grad():
-                linear_layer.bias.fill_(0.)
+            # torch.nn.init.xavier_uniform_(linear_layer.weight, gain)
+            # with torch.no_grad():
+                # linear_layer.bias.fill_(0.)
             layers.append(linear_layer)
             layers.append(activation)
         # layers.pop(-1) # Remove the last nonlinearity to have a weighting layer at the output
