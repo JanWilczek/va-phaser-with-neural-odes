@@ -132,11 +132,7 @@ def attach_scheduler(args, session):
 def load_checkpoint(args, session, model_directory):
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
-        try:
-            session.load_checkpoint(best_validation=True)
-        except BaseException:
-            print("Failed to load a best validation checkpoint. Reverting to the last checkpoint.")
-            session.load_checkpoint(best_validation=False)
+        session.load_checkpoint(best_validation=args.best_validation)
         if session.scheduler is None:
             # Scheduler's learning rate is not loaded but overwritten
             for param_group in session.optimizer.param_groups:
@@ -298,6 +294,7 @@ def argument_parser():
         '\nlog_spectral_distance')
     ap.add_argument('--derivative_network', default='DerivativeMLP2', help='Derivative network to use in case of ODENet.')
     ap.add_argument('--layers_description', default=None, type=str, help='Description of layers of the network. For example, "1x2x3" denotes an MLP with layers of size 1, 2, and 3, with all but the last one having the activation function applied at their output.')
+    ap.add_argument('--best_validation', action='store_true', help='If provided the best validation checkpoint is loaded. Otherwise, the last checkpoint is loaded.')
     return ap
 
 
