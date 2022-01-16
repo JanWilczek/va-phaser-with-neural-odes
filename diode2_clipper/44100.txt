@@ -4,4 +4,4 @@ diode2clip/scaledodenetfe/November05_16-37-58_gpu13.int.triton.aalto.fi_Hidden10
 diode2clip/scaledodenetfe/November03_13-01-31_gpu21.int.triton.aalto.fi_Hidden20_CONT
 diode2clip/scaledodenetfe/November01_16-17-57_gpu31.int.triton.aalto.fi_Hidden30_CONT
 diode2clip/scaledodenetfe/November05_16-03-51_gpu14.int.triton.aalto.fi_hidden40
-diode2clip/stn/November29_09-51-15_gpu22.int.triton.aalto.fi_Hidden30
+diode2clip/stn/January16_20-42-49_jawi-Dell-7510_Test44100
