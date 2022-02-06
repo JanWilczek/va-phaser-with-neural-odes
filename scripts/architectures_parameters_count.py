@@ -29,6 +29,9 @@ def main():
                 ScaledODENetFE(DerivativeMLPFE(activation=nn.Softsign(), excitation_size=1, output_size=2, hidden_size=40), int(1/dt), 2),
                 FlexibleStateTrajectoryNetwork(layer_sizes=parse_layer_sizes('3x20x20x20x2'),
                                                 activation=nn.Tanh(),
+                                                training_time_step=dt),
+                FlexibleStateTrajectoryNetwork(layer_sizes=parse_layer_sizes('3x30x30x2'),
+                                                activation=nn.Tanh(),
                                                 training_time_step=dt)]
 
     print('Number of parameters of each model\n' \
