@@ -209,6 +209,7 @@ def argument_parser():
             'forward_euler',
             'trapezoid_rule',
             'ScaledODENetFE',
+            'ScaledODENetRK4',
             'ScaledODENet_dopri5',
             'ScaledODENet_rk4',
             'ScaledODENet_euler',

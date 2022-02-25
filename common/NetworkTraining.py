@@ -10,6 +10,7 @@ from .TrainingTimeLogger import TrainingTimeLogger
 
 class NetworkTraining:
     def __init__(self):
+        self.best_validation_loss = float('inf')
         self.epoch = 0
         self.device = 'cpu'
         self.network = None
@@ -95,8 +96,7 @@ class NetworkTraining:
                 subsegment_start += self.samples_between_updates
                 epoch_loss += loss.item()
                 batch_loss += loss.item()
-                
-            
+
             if self.scheduler is not None:
                 self.scheduler.step()
             
