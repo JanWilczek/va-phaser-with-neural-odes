@@ -113,17 +113,6 @@ class DerivativeFEWithMemory(nn.Module):
 
 class ScaledODENetFE(nn.Module):
     def __init__(self, derivative_network, sampling_rate, target_size):
-        """
-        Parameters
-        ----------
-        x : torch.Tensor
-            must be of shape (sequence_length (e.g., 44100), minibatch_size (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input sample is given))
-
-        Returns
-        -------
-        output : torch.Tensor
-            of shape (x.shape[0], x.shape[1], self.target_size)
-        """
         super().__init__()
         self.derivative_network = derivative_network
         self.sampling_rate = sampling_rate
@@ -137,7 +126,8 @@ class ScaledODENetFE(nn.Module):
         Parameters
         ----------
         x : torch.Tensor
-            must be of shape (sequence_length (e.g., 44100), minibatch_size (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input sample is given))
+            must be of shape (sequence_length (e.g., 44100), minibatch_size
+            (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input sample is given))
 
         Returns
         -------
@@ -146,33 +136,11 @@ class ScaledODENetFE(nn.Module):
         """
         sequence_length, minibatch_size, feature_count = x.shape
 
-        # If there is no state stored from the previous segment computations, initialize the state with 0s.
-        if self.state is None:
-            self.state = torch.zeros((minibatch_size, self.state_size), device=self.device)
-
-        # If there is a ground-truth state provided, use it.
-        if self.true_state is not None:
-            # If the true state is 1-dimensional, it is just the audio output; preserve the rest of the state for this iteration
-            if self.true_state.shape[1] == 1:
-                OUTPUT_FEATURE_ID = 0
-                self.state[:, OUTPUT_FEATURE_ID] = self.true_state.squeeze()
-            else:
-                # If the true state is multidimensional, assign it to the first entries of self.state
-                self.state[:, :self.true_state.shape[1]] = self.true_state            
-
+        self.prepare_state(minibatch_size)
         self.create_time_vector(sequence_length)
         self.derivative_network.excitation = x
 
-        y = torch.empty((self.time.shape[0], *self.state.shape), dtype=self.state.dtype, device=self.device)
-        y[0] = self.state
-        y0 = self.sampling_rate * self.state
-
-        n = 1
-        for t0, t1 in zip(self.time[:-1], self.time[1:]):
-            y1 = y0 + self.derivative_network(t0, y0 / self.sampling_rate)
-            y[n] = y1 / self.sampling_rate
-            n += 1
-            y0 = y1
+        y = self.ode_solve()
 
         # Store the last output sample as the initial value for the next segment computation
         self.state = y[-1]
@@ -182,6 +150,33 @@ class ScaledODENetFE(nn.Module):
         assert target_estimate.shape == (x.shape[0], x.shape[1], self.target_size)
 
         return target_estimate
+
+    def ode_solve(self):
+        y = torch.empty((self.time.shape[0], *self.state.shape), dtype=self.state.dtype, device=self.device)
+        y[0] = self.state
+        y0 = self.sampling_rate * self.state
+        n = 1
+        for t0, t1 in zip(self.time[:-1], self.time[1:]):
+            y1 = y0 + self.derivative_network(t0, y0 / self.sampling_rate)
+            y[n] = y1 / self.sampling_rate
+            n += 1
+            y0 = y1
+        return y
+
+    def prepare_state(self, minibatch_size):
+        # If there is no state stored from the previous segment computations, initialize the state with 0s.
+        if self.state is None:
+            self.state = torch.zeros((minibatch_size, self.state_size), device=self.device)
+        # If there is a ground-truth state provided, use it.
+        if self.true_state is not None:
+            # If the true state is 1-dimensional, it is just the audio output; preserve the rest of the state for
+            # this iteration
+            if self.true_state.shape[1] == 1:
+                OUTPUT_FEATURE_ID = 0
+                self.state[:, OUTPUT_FEATURE_ID] = self.true_state.squeeze()
+            else:
+                # If the true state is multidimensional, assign it to the first entries of self.state
+                self.state[:, :self.true_state.shape[1]] = self.true_state
 
     def create_time_vector(self, sequence_length):
         if self.time is None or self.time.shape[0] != sequence_length:
@@ -203,7 +198,8 @@ class ScaledODENetFE(nn.Module):
 
     @true_state.setter
     def true_state(self, true_state):
-        self.__true_state = true_state[1] # First true output sample (check NetworkTraining.true_train_state for details)
+        # First true output sample (check NetworkTraining.true_train_state for details)
+        self.__true_state = true_state[1]
 
     @property
     def device(self):
