@@ -66,9 +66,11 @@ class ScaledODENetRK4(ScaledODENetFE):
             scaled_y1 = scaled_y0 + 1 / 6 * (u1 + 2 * u2 + 2 * u3 + u4)
 
             # Assign to output
-            y[n] = scaled_y1 / self.sampling_rate
+            y1 = scaled_y1 / self.sampling_rate
+            y[n] = y1
 
             # Update the loop variables
+            y0 = y1
             scaled_y0 = scaled_y1
             n += 1
         return y
