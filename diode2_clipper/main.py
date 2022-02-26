@@ -2,7 +2,7 @@
 import torch.nn as nn
 import CoreAudioML.networks as networks
 from common import initialize_session, argument_parser, train_and_test, get_method
-from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, ExcitationSecondsLinearInterpolation, get_nonlinearity, ScaledODENetFE, DerivativeMLPFE, DerivativeMLP2FE, DerivativeFEWithMemory, DerivativeMLPRK4, FlexibleStateTrajectoryNetwork, parse_layer_sizes, ScaledODENet, ScaledODENetRK4
+from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, ExcitationSecondsLinearInterpolation, get_nonlinearity, ScaledODENetFE, DerivativeMLPFE, DerivativeMLP2FE, DerivativeFEWithMemory, DerivativeMLPRK4, FlexibleStateTrajectoryNetwork, parse_layer_sizes, ScaledODENet, ScaledODENetRK4, ScaledODENetMidpoint
 
 
 def get_architecture(args, dt):
@@ -22,22 +22,14 @@ def get_architecture(args, dt):
         network = FlexibleStateTrajectoryNetwork(layer_sizes=parse_layer_sizes(args.layers_description),
                                                 activation=get_nonlinearity(args),
                                                 training_time_step=dt)
-    elif args.method == 'ScaledODENetFE':
+    elif args.method in ['ScaledODENetFE', 'ScaledODENetRK4', 'ScaledODENetMidpoint']:
         derivative_network_args = {'activation': get_nonlinearity(args),
                                     'excitation_size': 1,
                                     'output_size': output_size,
                                     'hidden_size': args.hidden_size}
         # Initialize the derivative network by name
         derivative_network = globals()[args.derivative_network](**derivative_network_args)
-        network = ScaledODENetFE(derivative_network, int(1/dt), TARGET_SIZE)
-    elif args.method == 'ScaledODENetRK4':
-        derivative_network_args = {'activation': get_nonlinearity(args),
-                                   'excitation_size': 1,
-                                   'output_size': output_size,
-                                   'hidden_size': args.hidden_size}
-        # Initialize the derivative network by name
-        derivative_network = globals()[args.derivative_network](**derivative_network_args)
-        network = ScaledODENetRK4(derivative_network, int(1 / dt), TARGET_SIZE)
+        network = globals()[args.method](derivative_network, int(1/dt), TARGET_SIZE)
     elif args.method.startswith('ScaledODENet'):
         method = get_method(args)
         derivative_network_args = {'excitation': ExcitationSecondsLinearInterpolation(),

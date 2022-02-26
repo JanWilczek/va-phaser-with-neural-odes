@@ -210,6 +210,7 @@ def argument_parser():
             'trapezoid_rule',
             'ScaledODENetFE',
             'ScaledODENetRK4',
+            'ScaledODENetMidpoint',
             'ScaledODENet_dopri5',
             'ScaledODENet_rk4',
             'ScaledODENet_euler',
