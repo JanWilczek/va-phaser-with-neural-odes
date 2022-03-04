@@ -31,7 +31,7 @@ def initialize_session(model_name, args, get_architecture):
     session.enable_teacher_forcing = get_teacher_forcing_gate(args.teacher_forcing)
     session.loss = get_loss_function(args.loss_function)
 
-    session.device = get_device()
+    session.device = get_device(args.device)
     session.network = get_architecture(args, 1 / session.sampling_rate('train'))
     session.transfer_to_device()
     session.optimizer = torch.optim.Adam(
@@ -140,8 +140,8 @@ def load_checkpoint(args, session, model_directory):
                 param_group['lr'] = args.learn_rate
 
 
-def get_device():
-    return 'cuda' if torch.cuda.is_available() else 'cpu'
+def get_device(device):
+    return 'cuda' if torch.cuda.is_available() and device == 'gpu' else 'cpu'
 
 
 def save_args(session, args):
@@ -298,6 +298,8 @@ def argument_parser():
     ap.add_argument('--derivative_network', default='DerivativeMLP2', help='Derivative network to use in case of ODENet.')
     ap.add_argument('--layers_description', default=None, type=str, help='Description of layers of the network. For example, "1x2x3" denotes an MLP with layers of size 1, 2, and 3, with all but the last one having the activation function applied at their output.')
     ap.add_argument('--best_validation', action='store_true', help='If provided the best validation checkpoint is loaded. Otherwise, the last checkpoint is loaded.')
+    ap.add_argument('--device', '-d', choices=['cpu', 'gpu'], default='gpu',
+                    help='Device to run the training on (default: %(default)).')
     return ap
 
 
