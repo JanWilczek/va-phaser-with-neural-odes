@@ -2,6 +2,7 @@ import os
 import json
 import math
 import torch
+import traceback
 import torchaudio
 import socket
 from datetime import datetime
@@ -309,6 +310,7 @@ def train_and_test(session):
     except RuntimeError as err:
         error_message = f'RuntimeError: {err}\n{session.debug_string()}'
         print(error_message)
+        traceback.print_last()
 
     print('Test started.')
     try:
