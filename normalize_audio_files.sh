@@ -2,7 +2,8 @@
 
 set -x
 
-for filename in ../Presentations/Final/audio/phaser/cropped/*.wav
+for filename in ../Paper/Audio\ examples/Diode\ clipper/192000/*.flac
 do
-    python -m scripts.normalize_audio_file $filename --target_loudness -23
+#  echo $filename
+    python scripts/normalize_audio_file.py --target_loudness -12 "$filename"
 done
