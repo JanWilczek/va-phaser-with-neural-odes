@@ -85,7 +85,7 @@ class NetworkTraining:
                 
                 if i == 0 and subsequence_id == 0: # Log only for the first subsequence in the epoch
                     self.log_gradient_norm()
-                
+
                 # Clip unreasonably large gradients
                 # torch.nn.utils.clip_grad_norm_(self.network.parameters(), 100.0) # TODO: Make clip value a command-line argument. Additionally: this line will probably backfire one day...
                 
@@ -195,9 +195,12 @@ class NetworkTraining:
 
             self.save_audio(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
             self.save_audio(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
-            
+
+    def gradient(self):
+        return torch.cat([p.grad.detach().flatten() for p in self.network.parameters() if p.requires_grad and p is not None], dim=0)
+
     def gradient_norm(self, **kwargs):
-        gradients = torch.cat([p.grad.detach().flatten() for p in self.network.parameters() if p.requires_grad and p is not None], dim=0)
+        gradients = self.gradient()
         return torch.linalg.norm(gradients, **kwargs)
     
     def log_gradient_norm(self):
@@ -277,5 +280,14 @@ class NetworkTraining:
     def save_audio(self, path, tensor, sampling_rate):
         data = tensor.squeeze().cpu().detach().numpy()
         wavfile.write(path, sampling_rate, data)
+
+    def debug_string(self):
+        return 'Network parameters: ' \
+               '\n'.join([f"Parameter {i}: {p}" for i, p in enumerate(self.network.parameters())]) + \
+               '\n' \
+               f'Epoch: {self.epoch}/{self.epochs}\n' \
+               f'Learning rate: {self.scheduler.get_last_lr()[0]}\n' \
+               f'Gradient norm: {self.gradient_norm()}\n' \
+               f'Gradient: {self.gradient()}\n'
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'

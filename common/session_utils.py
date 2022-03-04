@@ -306,6 +306,9 @@ def train_and_test(session):
         session.run()
     except KeyboardInterrupt:
         print('Training interrupted.')
+    except RuntimeError as err:
+        error_message = f'RuntimeError: {err}\n{session.debug_string()}'
+        print(error_message)
 
     print('Test started.')
     try:
