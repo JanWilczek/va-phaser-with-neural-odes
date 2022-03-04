@@ -128,6 +128,11 @@ def attach_scheduler(args, session):
         session.scheduler = torch.optim.lr_scheduler.ExponentialLR(session.optimizer,
                                                                    gamma=math.exp(math.log(args.exponential_lr / args.learn_rate) / (session.epochs * session.minibatch_count)),
                                                                    last_epoch = max(-1, session.minibatch_count * (session.epoch - 1)))
+    elif args.step_lr is not None:
+        session.scheduler = torch.optim.lr_scheduler.StepLR(session.optimizer,
+                                                            step_size=args.step_lr[0],
+                                                            gamma=args.step_lr[1],
+                                                            last_epoch=(session.epoch - 1))
 
 
 def load_checkpoint(args, session, model_directory):
@@ -244,6 +249,15 @@ def argument_parser():
         type=float,
         default=None,
         help='If given, uses the exponential learning rate schedule: exponentially decreases the learning rate from the one given in the learn_rate argument to the one specified in this argument.'
+    )
+    ap.add_argument(
+        '--step_lr',
+        '-slr',
+        nargs=2,
+        type=float,
+        default=None,
+        help='If given, uses the step learning rate schedule: every step_size epochs '
+             '(first parameter) multiplies the learning rate by gamma (second parameter).'
     )
     ap.add_argument('--init_len', '-il', type=int, default=0,
                     help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
