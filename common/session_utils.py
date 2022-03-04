@@ -3,13 +3,11 @@ import json
 import math
 import torch
 import traceback
-import torchaudio
 import socket
 from datetime import datetime
 import argparse
 from pathlib import Path
 import CoreAudioML.dataset as dataset
-from CoreAudioML import training
 from .resample import resample_test_files
 from .NetworkTraining import NetworkTraining
 from .loss import get_loss_function
@@ -106,6 +104,7 @@ def create_dataset(dataset_path: Path, dataset_name: str, train_frame_len=22050,
     d.load_file(test_filename, set_names='test')
 
     return d
+
 
 def attach_scheduler(args, session):
     if args.one_cycle_lr is not None:
