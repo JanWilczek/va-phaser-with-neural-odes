@@ -138,10 +138,11 @@ def load_checkpoint(args, session, model_directory):
     if args.checkpoint is not None:
         session.run_directory = model_directory / args.checkpoint
         session.load_checkpoint(best_validation=args.best_validation)
-        if session.scheduler is None:
+        if session.scheduler is None or args.overwrite_lr:
+            learn_rate = args.overwrite_lr if args.overwrite_lr else args.learn_rate
             # Scheduler's learning rate is not loaded but overwritten
             for param_group in session.optimizer.param_groups:
-                param_group['lr'] = args.learn_rate
+                param_group['lr'] = learn_rate
 
 
 def get_device(device):
@@ -233,21 +234,25 @@ def argument_parser():
         '-y',
         type=float,
         default=None,
-        help='If given, uses the cyclic learning rate schedule by Smith. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
+        help='If given, uses the cyclic learning rate schedule by Smith. Given learning rate '
+             'parameter is used as the base learning rate, and max learning rate is this argument'
         's parameter.')
     ap.add_argument(
         '--one_cycle_lr',
         '-oc',
         type=float,
         default=None,
-        help='If given, uses the one cycle learning rate schedule. Given learning rate parameter is used as the base learning rate, and max learning rate is this argument'
+        help='If given, uses the one cycle learning rate schedule. Given learning rate parameter '
+             'is used as the base learning rate, and max learning rate is this argument'
         's parameter.')
     ap.add_argument(
         '--exponential_lr',
         '-elr',
         type=float,
         default=None,
-        help='If given, uses the exponential learning rate schedule: exponentially decreases the learning rate from the one given in the learn_rate argument to the one specified in this argument.'
+        help='If given, uses the exponential learning rate schedule: exponentially decreases '
+             'the learning rate from the one given in the learn_rate argument to the one '
+             'specified in this argument.'
     )
     ap.add_argument(
         '--step_lr',
@@ -258,10 +263,18 @@ def argument_parser():
         help='If given, uses the step learning rate schedule: every step_size epochs '
              '(first parameter) multiplies the learning rate by gamma (second parameter).'
     )
+    ap.add_argument('--overwrite_lr',
+                    '-olr',
+                    type=float,
+                    default=None,
+                    help='If given, will overwrite the instantaneous learning rate. Can be used to '
+                         'rapidly decrease the learning rate if the training diverged.')
     ap.add_argument('--init_len', '-il', type=int, default=0,
-                    help='Number of sequence samples to process before starting weight updates (default: %(default)s).')
+                    help='Number of sequence samples to process before starting weight updates '
+                         '(default: %(default)s).')
     ap.add_argument('--up_fr', '-uf', type=int, default=2048,
-                    help='For recurrent models, number of samples to run in between updating network weights, i.e the '
+                    help='For recurrent models, number of samples to run in between updating '
+                         'network weights, i.e the '
                     'default argument updates every %(default)s samples (default: %(default)s).')
     ap.add_argument('--val_chunk', '-vs', type=int, default=22050, help='Number of sequence samples to process'
                     'in each chunk of validation (default: %(default)s).')
@@ -284,14 +297,18 @@ def argument_parser():
             'always',
             'never',
             'bernoulli'],
-        help='Enable ground truth initialization of the first output sample in the minibatch. \n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according to the fraction epochs passed.\n(default: %(default)s)')
+        help='Enable ground truth initialization of the first output sample in the minibatch. '
+             '\n\'always\' uses teacher forcing in each minibatch;\n\'never\' never uses '
+             'teacher forcing;\n\'bernoulli\' includes teacher forcing more rarely according '
+             'to the fraction epochs passed.\n(default: %(default)s)')
     ap.add_argument(
         '--hidden_size',
         default=100,
         type=int,
         help='The size of the hidden layers (model-dependent) (default: %(default)s).')
     ap.add_argument('--test_sampling_rate', type=int, default=44100,
-                    help='Sampling rate to use at test time. (default: %(default)s, same as in the training set).')
+                    help='Sampling rate to use at test time. (default: %(default)s, '
+                         'same as in the training set).')
     ap.add_argument(
         '--save_sets',
         action='store_true',
