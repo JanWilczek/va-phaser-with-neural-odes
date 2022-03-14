@@ -1,7 +1,4 @@
-diode2clip/lstm/November03_16-24-41_gpu10.int.triton.aalto.fi_November02_13-16-07_gpu9.int.triton.aalto.fi_Hidden32_CONT
 diode2clip/lstm/November03_12-55-23_gpu21.int.triton.aalto.fi_October29_13-39-19_gpu37.int.triton.aalto.fi_Hidden16_CONT
-diode2clip/scaledodenetfe/November05_16-37-58_gpu13.int.triton.aalto.fi_Hidden10
 diode2clip/scaledodenetfe/November03_13-01-31_gpu21.int.triton.aalto.fi_Hidden20_CONT
 diode2clip/scaledodenetfe/November01_16-17-57_gpu31.int.triton.aalto.fi_Hidden30_CONT
-diode2clip/scaledodenetfe/November05_16-03-51_gpu14.int.triton.aalto.fi_hidden40
 diode2clip/stn/January16_20-42-49_jawi-Dell-7510_Test44100

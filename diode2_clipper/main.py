@@ -1,7 +1,7 @@
 """Set up an NN architecture, run its training and test on the second-order diode clipper data."""
 import torch.nn as nn
 import CoreAudioML.networks as networks
-from common import initialize_session, argument_parser, train_and_test, get_method
+from common import initialize_session, argument_parser, parse_args, train_and_test, get_method
 from architectures import ResidualIntegrationNetworkRK4, BilinearBlock, ODENet, ExcitationSecondsLinearInterpolation, get_nonlinearity, ScaledODENetFE, DerivativeMLPFE, DerivativeMLP2FE, DerivativeFEWithMemory, DerivativeMLPRK4, FlexibleStateTrajectoryNetwork, parse_layer_sizes, ScaledODENet, ScaledODENetRK4, ScaledODENetMidpoint
 
 
@@ -54,7 +54,7 @@ def get_architecture(args, dt):
 
 
 def main():
-    args = argument_parser().parse_args()
+    args = parse_args()
 
     session = initialize_session('diode2_clipper', args, get_architecture)
 

@@ -200,8 +200,20 @@ def get_run_name(suffix=''):
         name += '_' + suffix
     return name
 
-def argument_parser():
-    ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+
+def parse_args():
+    config_file_parser = argparse.ArgumentParser(add_help=False)
+    config_file_parser.add_argument('-cf', '--config_file', default=None)
+    args, unknown = config_file_parser.parse_known_args()
+    parser = argument_parser(parents=[config_file_parser], add_help=False)
+    if args.config_file:
+        config = json.load(open(args.config_file))
+        parser.set_defaults(**config)
+    return parser.parse_args()
+
+
+def argument_parser(*args, **kwargs):
+    ap = argparse.ArgumentParser(*args, **kwargs, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument(
         '--method',
         choices=[
@@ -221,11 +233,11 @@ def argument_parser():
             'ScaledODENet_rk4',
             'ScaledODENet_euler',
             'ScaledODENet_implicit_adams'], 
-            required=True,
+            required=False,
             help='Method to use for numerical integration of the differential equation.')
-    ap.add_argument('--epochs', '-eps', type=int, required=True,
+    ap.add_argument('--epochs', '-eps', type=int, required=False,
                     help='Max number of training epochs to run.')
-    ap.add_argument('--batch_size', '-bs', type=int, required=True,
+    ap.add_argument('--batch_size', '-bs', type=int, required=False,
                     help='Training mini-batch size.')
     ap.add_argument('--learn_rate', '-lr', type=float, default=1e-3,
                     help='Initial learning rate (default: %(default)s).')
@@ -316,7 +328,7 @@ def argument_parser():
     ap.add_argument(
         '--dataset_name',
         help='Name of the dataset to use for modeling.',
-        required=True)
+        required=False)
     ap.add_argument('--nonlinearity', default='ReLU', help='Name of the torch.nn nonlinearity to use in the ODENet derivative network if that method is used (default: %(default)s).')
     ap.add_argument('--validate_every', default=1, type=int, help='Number of epochs to calculate validation loss after (default: %(default)s).')
     ap.add_argument('--state_size', default=1, type=int, help='Number of elements of the state vector of the dynamical system. The first element is always taken as the audio output of the system (default: %(default)s).')
