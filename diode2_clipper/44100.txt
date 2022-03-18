@@ -1,0 +1,9 @@
+diode2clip/lstm/March14_20-22-06_jawi-Dell-7510 # sampling rate tests already run
+diode2clip/stn/January16_20-42-49_jawi-Dell-7510_Test44100
+diode2clip/scaledodenetmidpoint/March14_09-13-37_jawi-Dell-7510_Hidden30
+diode2clip/scaledodenetfe/March14_15-38-15_deeplearning-1-vm
+diode2clip/scaledodenetrk4/March14_15-47-30_deeplearning-1-vm_Hidden30
+# Still running
+diode2clip/scaledodenetrk4/March16_07-41-46_jawi-Dell-7510_Hidden20
+diode2clip/scaledodenetfe/March18_07-14-16_deeplearning-1-vm
+diode2clip/scaledodenetmidpoint/March18_11-16-29_deeplearning-1-vm_Hidden20
