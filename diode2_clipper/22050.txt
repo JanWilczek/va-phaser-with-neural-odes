@@ -1,0 +1,16 @@
+# NEW
+diode2_clipper/runs/diode2clip/stn/January16_19-17-34_jawi-Dell-7510_Test22050/test_output.wav
+lstm\March18_12-23-29_jawi-Dell-7510_Test22050
+scaledodenetfe\March18_16-00-54_jawi-Dell-7510_Test22050 
+scaledodenetfe\March19_07-52-21_jawi-Dell-7510_Test22050
+scaledodenetmidpoint\March20_09-38-20_jawi-Dell-7510_Test22050
+scaledodenetmidpoint\March18_13-00-21_jawi-Dell-7510_Test22050
+scaledodenetrk4\March20_17-06-51_jawi-Dell-7510_Test22050
+
+scaledodenetrk4\March18_17-37-18_jawi-Dell-7510_Test22050 
+# OLD
+diode2_clipper/runs/diode2clip/lstm/November08_15-35-32_gpu37.int.triton.aalto.fi_Hidden16Test22050Hz
+diode2clip/lstm/November08_16-07-46_dgx6.int.triton.aalto.fi_Hidden32Test22050Hz
+diode2_clipper/runs/diode2clip/scaledodenetfe/November08_17-28-18_gpu10.int.triton.aalto.fi_Hidden10Test22050
+diode2_clipper/runs/diode2clip/scaledodenetfe/November08_17-43-43_gpu28.int.triton.aalto.fi_Hidden20Test22050
+diode2_clipper/runs/diode2clip/scaledodenetfe/November08_17-56-51_gpu33.int.triton.aalto.fi_Hidden40Test22050/test_output.wav

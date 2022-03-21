@@ -201,11 +201,29 @@ class DerivativeLSTM(nn.Module):
 
 
 class ODENet(nn.Module):
-    def __init__(self, derivative_network, odeint, dt):
+    def __init__(self, derivative_network, odeint, dt, target_size):
+        """
+        Parameters
+        ----------
+        derivative_network : nn.Module
+            [description]
+        odeint : [type]
+            [description]
+        dt : [type]
+            [description]
+        target_size : int
+            Size of the target in the dataset.
+            If ODENet's output is just audio (first-order diode clipper, phaser), 
+            this number should be 1. 
+            If the dataset contains more states than just the audio (e.g., 2 for 
+            the second-order diode clipper), put this appropriate number. 
+            First target_size elements of the state vector will be returned.
+        """
         super().__init__()
         self.derivative_network = derivative_network
         self.odeint = odeint
         self.__dt = dt
+        self.target_size = target_size
         self.__true_state = None
         self.time = None
         self.state = None
@@ -220,11 +238,8 @@ class ODENet(nn.Module):
         Returns
         -------
         output : torch.Tensor
-            exactly the same shape as x
+            of shape (x.shape[0], x.shape[1], self.target_size)
         """
-        # The first element of the state is the audio sample output
-        OUTPUT_FEATURE_ID = 0
-
         sequence_length, minibatch_size, feature_count = x.shape
 
         # If there is no state stored from the previous segment computations, initialize the state with 0s.
@@ -250,7 +265,11 @@ class ODENet(nn.Module):
         # Store the last output sample as the initial value for the next segment computation
         self.state = odeint_output[-1]
 
-        return odeint_output[:, :, OUTPUT_FEATURE_ID].unsqueeze(2)
+        target_estimate = odeint_output[:, :, :self.target_size]
+
+        assert target_estimate.shape == (x.shape[0], x.shape[1], self.target_size)
+
+        return target_estimate
 
     def create_time_vector(self, sequence_length):
         if self.time is None or self.time.shape[0] != sequence_length:
@@ -294,3 +313,55 @@ class ODENet(nn.Module):
     @property
     def excitation_size(self):
         return self.derivative_network.excitation_size
+
+
+class ScaledODENet(ODENet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def forward(self, x):
+        """
+        Parameters
+        ----------
+        x : torch.Tensor
+            must be of shape (sequence_length (e.g., 44100), minibatch_size (no. of sequences in the minibatch), feature_count (e.g., 1 if just an input sample is given))
+
+        Returns
+        -------
+        output : torch.Tensor
+            of shape (x.shape[0], x.shape[1], self.target_size)
+        """
+        sequence_length, minibatch_size, feature_count = x.shape
+
+        # If there is no state stored from the previous segment computations, initialize the state with 0s.
+        if self.state is None:
+            self.state = torch.zeros((minibatch_size, self.state_size), device=self.device)
+
+        # If there is a ground-truth state provided, use it.
+        if self.true_state is not None:
+            # If the true state is 1-dimensional, it is just the audio output; preserve the rest of the state for this iteration
+            if self.true_state.shape[1] == 1:
+                self.state[:, OUTPUT_FEATURE_ID] = self.true_state.squeeze()
+            else:
+                # If the true state is multidimensional, assign it to the first entries of self.state
+                self.state[:, :self.true_state.shape[1]] = self.true_state            
+
+        self.create_time_vector(sequence_length)
+
+        self.derivative_network.set_excitation_data(self.time, x)
+
+        odeint_output = self.odeint(lambda t, y: self.derivative_network(t, y * self.dt), self.state, self.time)
+        # returned tensor is of shape (time_point_count, minibatch_size, other y0 dimensions)
+
+        # Store the last output sample as the initial value for the next segment computation
+        self.state = odeint_output[-1]
+
+        target_estimate = odeint_output[:, :, :self.target_size] * self.dt
+
+        assert target_estimate.shape == (x.shape[0], x.shape[1], self.target_size)
+
+        return target_estimate
+
+    def create_time_vector(self, sequence_length):
+        if self.time is None or self.time.shape[0] != sequence_length:
+            self.time = torch.arange(0, sequence_length, device=self.device, dtype=torch.double)

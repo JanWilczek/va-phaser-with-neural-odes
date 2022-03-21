@@ -70,7 +70,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "internalConsole"
         },
         {
             "name": "Python: diode_ode_numerical",
@@ -248,6 +248,49 @@
                 "ScaledSingleLinearLayer",
                 "--name",
                 "TEST_RUN"
+            ]
+        },
+        {
+            "name": "Python: diode2_clipper",
+            "type": "python",
+            "python": "/home/wilczej1/.conda/envs/vavnode/bin/python3.9",
+            "request": "launch",
+            "program": "${workspaceFolder}/diode2_clipper/main.py",
+            "console": "internalConsole",
+            "cwd": "${workspaceFolder}",
+            // "postDebugTask": "clean_test_run_phaser",
+            "args": [
+                "--method",
+                "STN",
+                "--batch_size",
+                "25",
+                "--val_chunk",
+                "22050",
+                "--test_chunk",
+                "22050",
+                "--init_len",
+                "0",
+                "--up_fr",
+                "100",
+                "--learn_rate",
+                "0.0005",
+                "--teacher_forcing", "always",
+                "--epochs",
+                "100",
+                "--dataset_name",
+                "diode2clip",
+                "--layers_description",
+                "3x20x2",
+                "--nonlinearity",
+                "Tanh",
+                "--loss_function",
+                "ESRLoss",
+                "--name",
+                "TEST_RUN",
+                "--validate_every",
+                "1",
+                "--checkpoint",
+                "jan_dc2"
             ]
         }
     ]

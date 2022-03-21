@@ -10,6 +10,7 @@ from .TrainingTimeLogger import TrainingTimeLogger
 
 class NetworkTraining:
     def __init__(self):
+        self.best_validation_loss = float('inf')
         self.epoch = 0
         self.device = 'cpu'
         self.network = None
@@ -20,7 +21,7 @@ class NetworkTraining:
         self.epochs = -1
         self.segments_in_a_batch = -1
         self.samples_between_updates = -1
-        self.initialization_length = -1
+        self.initialization_length = 0
         self.enable_teacher_forcing = lambda epochs_progress: False
         self.writer = None
         self.__run_directory = None
@@ -30,7 +31,11 @@ class NetworkTraining:
     def run(self):
         """Run full network training."""
         self.transfer_to_device()
+        
+        # Run first validation before training
         self.best_validation_loss = float('inf')
+        self.best_validation_loss = self.run_validation()
+        self.log_loss('validation', self.best_validation_loss)
 
         self.timer = TrainingTimeLogger(self.writer, self.epoch)
         for self.epoch in range(self.epoch + 1, self.epochs + 1):
@@ -47,13 +52,15 @@ class NetworkTraining:
     def train_epoch(self):
         self.timer.epoch_started()
         
-        segments_order = torch.randperm(self.segments_count)
+        segments_order = torch.randperm(self.segments_count) #!
         epoch_loss = 0.0
 
-        true_state = self.true_train_state
+        true_state = self.true_train_state #!
 
         for i in range(self.minibatch_count):
-            input_minibatch, target_minibatch, true_state_minibatch = self.get_minibatch(i, segments_order, true_state)
+            batch_loss = 0.0
+            
+            input_minibatch, target_minibatch, true_state_minibatch = self.get_minibatch(i, segments_order, true_state) #!
             
             should_include_teacher_forcing = self.enable_teacher_forcing(self.epoch / self.epochs)
 
@@ -75,15 +82,25 @@ class NetworkTraining:
 
                 loss = self.loss(output, target_minibatch[subsegment_start:subsegment_start + self.samples_between_updates].to(self.device))
                 loss.backward()
+                
+                if i == 0 and subsequence_id == 0: # Log only for the first subsequence in the epoch
+                    self.log_gradient_norm()
+
+                # Clip unreasonably large gradients
+                # torch.nn.utils.clip_grad_norm_(self.network.parameters(), 100.0) # TODO: Make clip value a command-line argument. Additionally: this line will probably backfire one day...
+                
                 self.optimizer.step()
 
                 self.network.detach_hidden()
 
                 subsegment_start += self.samples_between_updates
                 epoch_loss += loss.item()
-            
+                batch_loss += loss.item()
+
             if self.scheduler is not None:
                 self.scheduler.step()
+            
+            print(f'Epoch {self.epoch}; Minibatch {i}/{self.minibatch_count}; Minibatch loss: {batch_loss/self.subsegments_count}')
 
         self.timer.epoch_ended()
         self.save_checkpoint()
@@ -95,8 +112,10 @@ class NetworkTraining:
 
     def run_validation(self):
         validation_output, validation_loss = self.test('validation')
-
-        self.save_audio(self.last_validation_output_path, validation_output[None, :].to('cpu'), self.sampling_rate('validation'))
+        
+        # Flatten the first channel of the output properly to obtain one long frame
+        validation_audio = validation_output.permute(1, 0, 2)[:, :, 0].flatten()[None, :]
+        self.save_audio(self.last_validation_output_path, validation_audio.to('cpu'), self.sampling_rate('validation'))
         
         if validation_loss < self.best_validation_loss:
             self.save_checkpoint(best_validation=True)
@@ -112,10 +131,15 @@ class NetworkTraining:
 
         with torch.no_grad():
             output = self.network(self.input_data(subset_name).to(self.device))
-            loss = self.loss(output, self.target_data(subset_name).to(self.device)).item()
+            target = self.target_data(subset_name).to(self.device) #!
+
+            # Use only audio output for validation and test
+            audio_output = output[..., :1]
+            audio_target = target[..., :1]
+            
+            loss = self.loss(audio_output, audio_target).item()
         
-        # Flatten the output properly to obtain one long frame
-        return output.permute(1, 0, 2).flatten(), loss 
+        return output, loss 
 
     def save_checkpoint(self, best_validation=False):
         checkpoint_dict = {
@@ -171,6 +195,18 @@ class NetworkTraining:
 
             self.save_audio(self.run_directory / (subset_name + '-input.wav'), input_data.to('cpu'), self.sampling_rate(subset_name))
             self.save_audio(self.run_directory / (subset_name + '-target.wav'), self.target_data(subset_name).permute(1, 0, 2).flatten()[None, :].to('cpu'), self.sampling_rate(subset_name))
+
+    def gradient(self):
+        return torch.cat([p.grad.detach().flatten() for p in self.network.parameters() if p.requires_grad and p is not None], dim=0)
+
+    def gradient_norm(self, **kwargs):
+        gradients = self.gradient()
+        return torch.linalg.norm(gradients, **kwargs)
+    
+    def log_gradient_norm(self):
+        if self.writer is not None:
+            self.writer.add_scalar(f'Gradient norm', self.gradient_norm(), self.epoch)
+            self.writer.flush()
 
     @property
     def run_directory(self):
@@ -244,5 +280,14 @@ class NetworkTraining:
     def save_audio(self, path, tensor, sampling_rate):
         data = tensor.squeeze().cpu().detach().numpy()
         wavfile.write(path, sampling_rate, data)
+
+    def debug_string(self):
+        return 'Network parameters: ' \
+               '\n'.join([f"Parameter {i}: {p}" for i, p in enumerate(self.network.parameters())]) + \
+               '\n' \
+               f'Epoch: {self.epoch}/{self.epochs}\n' \
+               f'Learning rate: {self.scheduler.get_last_lr()[0]}\n' \
+               f'Gradient norm: {self.gradient_norm()}\n' \
+               f'Gradient: {self.gradient()}\n'
 
     SCHEDULER_STATE_DICT_KEY = 'scheduler_state_dict'

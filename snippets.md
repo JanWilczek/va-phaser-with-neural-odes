@@ -1,4 +1,4 @@
-# Print network parameters' shapes
+## Print network parameters' shapes
 
 ```python
 print([param.shape for param in self.network.parameters()])
@@ -42,4 +42,24 @@ find DIR -daystart -ctime 0 -type f -not -name '*.png' -print -delete
 
 ```bash
 python harmonic_oscillator\main.py --epochs 1 --visualize --interpolation linear -c 0.2 --nsteps 1000
+```
+
+## Triton modules needed to run training sessions
+
+* gcc
+* cuda
+
+`module list` output:
+1) gcc/9.2.0
+2) libiconv/1.16
+3) xz/5.2.5
+4) zlib/1.2.11
+5) libxml2/2.9.12
+6) cuda/11.2.1
+
+## Triton Interactive Shell
+
+```bash
+srun -p interactive --time=01:00:00 --gres=gpu:1 --mem=3000M --pty bash
+srun -p interactive --time=01:00:00 --mem=3000M --pty bash
 ```

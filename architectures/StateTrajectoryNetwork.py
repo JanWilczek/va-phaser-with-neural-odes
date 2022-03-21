@@ -18,29 +18,28 @@ class StateTrajectoryNetwork(nn.Module):
 
     def forward(self, x):
         sequence_length, minibatch_size, feature_count = x.shape
-        x = x.permute(1, 0, 2)
 
-        output = torch.zeros_like(x)
+        output = torch.empty((sequence_length, minibatch_size, self.state_size), device=x.device)
 
         if self.state is None:
-            self.state = torch.zeros((minibatch_size, 1, 1), device=self.device)
+            self.state = torch.zeros((minibatch_size, self.state_size), device=self.device)
+            
+        if self.true_state is not None:
+            self.state = self.true_state[0]
 
         for n in range(sequence_length):
-            if self.true_state is not None:
-                self.state[:, 0, :] = self.true_state[:, n, :]
-
-            mlp_input = torch.cat((x[:, n, :].unsqueeze(1), self.state), dim=2)
+            mlp_input = torch.cat((x[n], self.state), dim=1)
 
             # MLPs
             dense_output = self.densely_connected_layers(mlp_input)
 
-            # Residual connection
-            output[:, n, :] = self.residual_scaling * dense_output[:, 0, :] + self.state[:, 0, :]
+            # Residual connection and state update
+            self.state = self.residual_scaling * dense_output + self.state
 
-            # State update
-            self.state[:, 0, :] = output[:, n, :]
+            # Output sample assignment
+            output[n] = self.state
 
-        return output.permute(1, 0, 2)
+        return output
 
     def reset_hidden(self):
         self.state = None
@@ -59,10 +58,7 @@ class StateTrajectoryNetwork(nn.Module):
 
     @true_state.setter
     def true_state(self, true_state):
-        if true_state is None:
-            self.__true_state = true_state
-        else:
-            self.__true_state = true_state.permute(1, 0, 2)
+        self.__true_state = true_state
 
     @property
     def dt(self):
@@ -74,4 +70,31 @@ class StateTrajectoryNetwork(nn.Module):
 
     @property
     def residual_scaling(self):
-        return self.test_time_step / self.training_time_step
+        # AMPLITUDE_RANGE = 2.0
+        AMPLITUDE_RANGE = 1.5 # TODO: TEMPORARY
+        return AMPLITUDE_RANGE * self.test_time_step / self.training_time_step
+
+    @property
+    def state_size(self):
+        return self.densely_connected_layers[-1].out_features
+
+
+class FlexibleStateTrajectoryNetwork(StateTrajectoryNetwork):
+    def __init__(self, layer_sizes, activation=nn.Tanh(), training_time_step=1.0):
+        super().__init__(training_time_step)
+        # gain = torch.nn.init.calculate_gain(type(activation).__name__.lower()) # PyTorch's recommended gain calculation
+        # gain = 0.00001 # This is an arbitrary gain chosen empirically
+        layers = []
+        for in_size, out_size in zip(layer_sizes[:-1], layer_sizes[1:]):
+            linear_layer = nn.Linear(in_size, out_size)
+            # torch.nn.init.xavier_uniform_(linear_layer.weight, gain)
+            # with torch.no_grad():
+                # linear_layer.bias.fill_(0.)
+            layers.append(linear_layer)
+            layers.append(activation)
+        # layers.pop(-1) # Remove the last nonlinearity to have a weighting layer at the output
+        self.densely_connected_layers = nn.Sequential(*layers)
+        
+    @property
+    def state_size(self):
+        return self.densely_connected_layers[-2].out_features

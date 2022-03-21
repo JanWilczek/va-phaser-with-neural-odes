@@ -4,9 +4,9 @@ from solvers import ForwardEuler, trapezoid_rule
 
 
 def get_method(args):
-    if args.method.startswith('odeint'):
+    if args.method.startswith('odeint') or args.method.startswith('ScaledODENet'):
         odeint_method = odeint_adjoint if args.adjoint else odeint
-        method_name = args.method[(len('odeint') + 1):]
+        method_name = args.method[(args.method.index('_') + 1):]
         return partial(odeint_method, method=method_name)
 
     method_dict = {"forward_euler": ForwardEuler(),
