@@ -18,8 +18,11 @@ class DerivativeMLPRK4(nn.Module):
 
         if t.is_floating_point():
             floor_t = t.int()
-            ceil_t = t.int() + 1
-            excitation = 0.5 * (self.excitation[floor_t] + self.excitation[ceil_t])
+            ceil_t = floor_t + 1
+            if ceil_t < self.excitation.shape[0]:
+                excitation = (ceil_t - t) * self.excitation[floor_t] + (t - floor_t) * self.excitation[ceil_t]
+            else:
+                excitation = self.excitation[floor_t] # very dirty, I know
         else:
             excitation = self.excitation[t]
 
