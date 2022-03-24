@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import soundfile as sf
 import pyloudnorm as pyln
+import numpy as np
 
 
 def argument_parser():
@@ -12,6 +13,11 @@ def argument_parser():
 
 
 def normalize_audio_file(filepath: Path, target_loudness: int):
+    PROCESSED_FILE_SUFFIX = '_normalized'
+    
+    if filepath.stem.endswith(PROCESSED_FILE_SUFFIX):
+        return
+    
     data, rate = sf.read(filepath)
 
     # measure the loudness first 
@@ -19,7 +25,10 @@ def normalize_audio_file(filepath: Path, target_loudness: int):
     loudness = meter.integrated_loudness(data)
     loudness_normalized_audio = pyln.normalize.loudness(data, loudness, target_loudness)
 
-    normalized_filepath = filepath.with_name(filepath.stem + '_normalized' + filepath.suffix)
+    normalized_filepath = filepath.with_name(filepath.stem + PROCESSED_FILE_SUFFIX + filepath.suffix)
+
+    if (np.any(np.abs(np.array(loudness_normalized_audio)) >= 1.0)):
+        print(f"WARNING! Clipping detected in {normalized_filepath}.")
 
     sf.write(normalized_filepath, loudness_normalized_audio, rate)
 
