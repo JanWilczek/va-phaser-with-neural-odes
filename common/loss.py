@@ -35,16 +35,20 @@ def log_spectral_distance(output, target):
 
 
 def normalized_mean_squared_error(output, target):
-    return torch.mean(torch.div(torch.square(output - target), torch.square(target)))
+    return torch.mean(torch.div(torch.square(output - target), stabilize(torch.square(target))))
+
+
+def stabilize(tensor):
+    return torch.maximum(tensor, torch.ones_like(tensor) * 1e-5)
 
 
 def signal_to_distortion_ratio(output, target):
     return 10 * torch.log10(torch.div(torch.square(torch.linalg.norm(target, ord=2)),
-                                      torch.square(torch.linalg.norm(output - target, ord=2))))
+                                      stabilize(torch.square(torch.linalg.norm(output - target, ord=2)))))
 
 
 def to_db(signal):
-    return 10 * torch.log10(torch.maximum(signal, torch.tensor(1e-5)))
+    return 10 * torch.log10(stabilize(signal))
 
 
 def get_loss_function(loss_function_name):

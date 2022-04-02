@@ -1,8 +1,8 @@
-diode2clip/lstm/March14_20-22-06_jawi-Dell-7510
-diode2clip/stn/January16_20-42-49_jawi-Dell-7510_Test44100
-diode2clip/scaledodenetfe/March14_15-38-15_deeplearning-1-vm
-diode2clip/scaledodenetfe/March14_15-16-54_deeplearning-1-vm
-diode2clip/scaledodenetmidpoint/March18_11-16-29_deeplearning-1-vm_Hidden20
-diode2clip/scaledodenetmidpoint/March14_09-13-37_jawi-Dell-7510_Hidden30
-diode2clip/scaledodenetrk4\March20_19-03-51_jawi-Dell-7510_Test44100
-diode2clip/scaledodenetrk4/March14_15-47-30_deeplearning-1-vm_Hidden30
+diode2_clipper/runs/diode2clip/lstm/March14_20-22-06_jawi-Dell-7510
+diode2_clipper/runs/diode2clip/stn/January16_20-42-49_jawi-Dell-7510_Test44100
+diode2_clipper/runs/diode2clip/scaledodenetfe/March14_15-38-15_deeplearning-1-vm
+diode2_clipper/runs/diode2clip/scaledodenetfe/March14_15-16-54_deeplearning-1-vm
+diode2_clipper/runs/diode2clip/scaledodenetmidpoint/March18_11-16-29_deeplearning-1-vm_Hidden20
+diode2_clipper/runs/diode2clip/scaledodenetmidpoint/March14_09-13-37_jawi-Dell-7510_Hidden30
+diode2_clipper/runs/diode2clip/scaledodenetrk4\March20_19-03-51_jawi-Dell-7510_Test44100
+diode2_clipper/runs/diode2clip/scaledodenetrk4/March14_15-47-30_deeplearning-1-vm_Hidden30

@@ -1,7 +1,7 @@
-lstm\March18_12-27-57_jawi-Dell-7510_Test192000
-scaledodenetfe\March18_16-21-50_jawi-Dell-7510_Test192000
-scaledodenetfe\March19_08-16-35_jawi-Dell-7510_Test192000
-scaledodenetmidpoint\March21_07-22-12_jawi-Dell-7510_Test192000
-scaledodenetmidpoint\March21_02-43-50_jawi-Dell-7510_Test192000
-scaledodenetrk4\March20_23-40-50_jawi-Dell-7510_Test192000
-scaledodenetrk4\March21_04-19-09_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/lstm\March18_12-27-57_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/scaledodenetfe\March18_16-21-50_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/scaledodenetfe\March19_08-16-35_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/scaledodenetmidpoint\March21_07-22-12_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/scaledodenetmidpoint\March21_02-43-50_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/scaledodenetrk4\March20_23-40-50_jawi-Dell-7510_Test192000
+diode2_clipper/runs/diode2clip/scaledodenetrk4\March21_04-19-09_jawi-Dell-7510_Test192000

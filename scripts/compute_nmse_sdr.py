@@ -1,5 +1,4 @@
 import argparse
-import numpy as np
 import json
 from pathlib import Path
 import torch
@@ -12,7 +11,10 @@ class Object(object):
 
 
 def root_repository_dir():
-    return Path().absolute().parent
+    current = Path().absolute()
+    if current.name == 'scripts':
+        current = current.parent
+    return current
 
 
 class MeasureExporter:
@@ -165,8 +167,10 @@ if __name__=='__main__':
     for directory_name in args.run_directories:
         directory_path = root_repository_dir() / Path(directory_name)
         # compute NMSE and SDR between the test_output and the target
-        nmse_db, sdr = get_measures(directory_path)
-
-        exporter.append([directory_name, nmse_db, sdr])
+        try:
+            nmse_db, sdr = get_measures(directory_path)
+            exporter.append([directory_name, nmse_db, sdr])
+        except FileNotFoundError:
+            print(f'Skipped {directory_path}')
 
     exporter.export(root_repository_dir() / 'nmse_sdr')
