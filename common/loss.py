@@ -11,6 +11,7 @@ def l1_stft(output, target):
     stft_target = torch.stft(target.squeeze(2).transpose(0, 1), **stft_kwargs)
     return nn.L1Loss(reduction='mean')(stft_output, stft_target)
 
+
 def l2_stft(output, target):
     """L2 distance between the complex STFT of output and target."""
     n_fft = min(1024, output.shape[0])
@@ -18,6 +19,7 @@ def l2_stft(output, target):
     stft_output = torch.stft(output.squeeze(2).transpose(0, 1), **stft_kwargs)
     stft_target = torch.stft(target.squeeze(2).transpose(0, 1), **stft_kwargs)
     return nn.MSELoss(reduction='mean')(torch.view_as_real(stft_output), torch.view_as_real(stft_target))
+
 
 def log_spectral_distance(output, target):
     n_fft = min(1024, output.shape[0])
@@ -31,6 +33,20 @@ def log_spectral_distance(output, target):
     NORMALIZATION_CONSTANT = 3  # Peak average log spectral distance for LSTM at training was 2.85. Thus, 3 seems like a natural normalization constant.
     return average_log_spectral_distance / NORMALIZATION_CONSTANT
 
+
+def normalized_mean_squared_error(output, target):
+    return torch.mean(torch.div(torch.square(output - target), torch.square(target)))
+
+
+def signal_to_distortion_ratio(output, target):
+    return 10 * torch.log10(torch.div(torch.square(torch.linalg.norm(target, ord=2)),
+                                      torch.square(torch.linalg.norm(output - target, ord=2))))
+
+
+def to_db(signal):
+    return 10 * torch.log10(torch.maximum(signal, torch.tensor(1e-5)))
+
+
 def get_loss_function(loss_function_name):
     loss_function_name = loss_function_name.lower()
     if loss_function_name == 'esr_dc_prefilter':
@@ -43,3 +59,4 @@ def get_loss_function(loss_function_name):
         return globals()[loss_function_name]
     else:
         raise RuntimeError('Invalid loss function name.')
+

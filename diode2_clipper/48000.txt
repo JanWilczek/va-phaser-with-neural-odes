@@ -1,20 +1,7 @@
-# NEW
-
 lstm\March18_12-24-57_jawi-Dell-7510_Test48000
-
-scaledodenetfe\March18_16-07-10_jawi-Dell-7510_Test48000 
+scaledodenetfe\March18_16-07-10_jawi-Dell-7510_Test48000
 scaledodenetfe\March19_07-59-46_jawi-Dell-7510_Test48000
 scaledodenetmidpoint\March20_09-54-46_jawi-Dell-7510_Test48000
-
-scaledodenetmidpoint\March18_13-15-49_jawi-Dell-7510_Test48000 
+scaledodenetmidpoint\March18_13-15-49_jawi-Dell-7510_Test48000
 scaledodenetrk4\March20_17-32-46_jawi-Dell-7510_Test48000
-
-scaledodenetrk4\March18_18-01-27_jawi-Dell-7510_Test48000 
-# OLD
-diode2_clipper/runs/diode2clip/lstm/November08_15-35-32_dgx6.int.triton.aalto.fi_Hidden16Test48000Hz
-diode2clip/lstm/November08_16-07-38_dgx7.int.triton.aalto.fi_Hidden32Test48000Hz
-diode2_clipper/runs/diode2clip/scaledodenetfe/November08_17-31-18_gpu10.int.triton.aalto.fi_Hidden10Test48000
-diode2_clipper/runs/diode2clip/scaledodenetfe/November08_17-46-46_gpu28.int.triton.aalto.fi_Hidden20Test48000/test_output.wav
-diode2_clipper/runs/diode2clip/scaledodenetfe/November09_14-57-13_gpu27.int.triton.aalto.fi_Hidden30Test48000/test_output.wav
-diode2_clipper/runs/diode2clip/scaledodenetfe/November08_17-59-52_gpu33.int.triton.aalto.fi_Hidden40Test48000/test_output.wav
-diode2_clipper/runs/diode2clip/stn/January16_19-21-20_jawi-Dell-7510_Test48000/test_output.wav
+scaledodenetrk4\March18_18-01-27_jawi-Dell-7510_Test48000

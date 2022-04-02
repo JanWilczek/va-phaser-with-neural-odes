@@ -1,52 +1,16 @@
 """Compute segmental SNR and frequency-weighted segmental SNR"""
-"""python compute_measures.py -c diode_clipper/data/test/diodeclip-target.wav -e diode_clipper/runs/diodeclip/forward_euler/August12_08-14-18_axel_Hidden9Test44100/test_output.wav"""
+"""python compute_measures.py -c diode_clipper/data/test/diodeclip-target.wav -e \
+diode_clipper/runs/diodeclip/forward_euler/August12_08-14-18_axel_Hidden9Test44100/test_output.wav"""
 import argparse
 import subprocess
 import re
 from pathlib import Path
 import numpy as np
-from scipy.io import wavfile
 import torch
-import torchaudio
-from CoreAudioML import training, dataset
+from CoreAudioML import training
 import pysepm
-from common import convert_audio_file_float32_to_int16
+from presenters import append_int16, get_signals, argument_parser
 
-
-def _append_int16(filepath):
-    filepath = Path(filepath)
-    dir = filepath.parent
-    filename = filepath.name[:-4] + '_int16.wav'
-    return dir / filename
-
-def argument_parser():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--clean_signal_path', '-c', required=True)
-    ap.add_argument('--estimated_signal_path', '-e', required=True)
-    return ap
-
-def get_convert_signal(filepath : str):
-    fs, signal = wavfile.read(filepath)
-
-    if signal.dtype == np.int16:
-        signal = dataset.audio_converter(signal)
-    else:
-        convert_audio_file_float32_to_int16(filepath, _append_int16(filepath))
-
-    return fs, signal
-
-def get_signals(args):
-    fs, estimated_signal  = get_convert_signal(args.estimated_signal_path)
-    fs_clean, clean_signal  = get_convert_signal(args.clean_signal_path)
-
-    assert fs == fs_clean, 'Clean and estimated signal must have the same sampling rate.'
-
-    # Trim signals to common length
-    shorter_length = min(clean_signal.shape[0], estimated_signal.shape[0])
-    clean_signal = clean_signal[:shorter_length]
-    estimated_signal = estimated_signal[:shorter_length]
-
-    return fs, clean_signal, estimated_signal
 
 def get_losses(clean_signal, estimated_signal):
     clean_signal_tensor = torch.Tensor(clean_signal)
@@ -59,8 +23,8 @@ def get_losses(clean_signal, estimated_signal):
 
 
 def get_peaq_measures(args):
-    estimated_signal_int16_path = _append_int16(args.estimated_signal_path)
-    clean_signal_int16_path = _append_int16(args.clean_signal_path)
+    estimated_signal_int16_path = append_int16(args.estimated_signal_path)
+    clean_signal_int16_path = append_int16(args.clean_signal_path)
 
     clean_signal_path = clean_signal_int16_path if clean_signal_int16_path.exists() else Path(args.clean_signal_path)
     estimated_signal_path = estimated_signal_int16_path if estimated_signal_int16_path.exists() else Path(args.estimated_signal_path)
