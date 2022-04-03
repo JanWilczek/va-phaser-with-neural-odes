@@ -5,3 +5,4 @@ diode2_clipper/runs/diode2clip/scaledodenetmidpoint\March20_09-54-46_jawi-Dell-7
 diode2_clipper/runs/diode2clip/scaledodenetmidpoint\March18_13-15-49_jawi-Dell-7510_Test48000
 diode2_clipper/runs/diode2clip/scaledodenetrk4\March20_17-32-46_jawi-Dell-7510_Test48000
 diode2_clipper/runs/diode2clip/scaledodenetrk4\March18_18-01-27_jawi-Dell-7510_Test48000
+diode2_clipper/runs/diode2clip/stn/January16_19-21-20_jawi-Dell-7510_Test48000/test_output.wav

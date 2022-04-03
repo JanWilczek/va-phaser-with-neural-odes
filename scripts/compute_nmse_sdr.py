@@ -1,3 +1,4 @@
+from collections import defaultdict
 import argparse
 import json
 from pathlib import Path
@@ -8,6 +9,19 @@ from presenters import get_signals
 
 class Object(object):
     pass
+
+
+NICE_NAMES = defaultdict(lambda: 'null')
+NICE_NAMES.update({'STN100': 'STN 3x4',
+                    'LSTM8': 'LSTM8',
+                    'LSTM16': 'LSTM16',
+                    'forward_euler9': 'ODENet9-FE',
+                    'odeint_implicit_adams9': 'ODENet9-IA',
+                    'ScaledODENetFE30': 'ODENet30-FE',
+                    'ScaledODENetMidpoint30': 'ODENet30-TR',
+                    'ScaledODENetRK420':'ODENet20-RK4 ',
+                    'ScaledODENetRK430': 'ODENet30-RK4',
+                    'STN100-3x30x30x2': 'STN 2x30'})
 
 
 def root_repository_dir():
@@ -51,7 +65,9 @@ class CSVExporter(MeasureExporter):
 class LatexTableExporter(MeasureExporter):
     def transform(self):
         table_lines = []
-        table_lines.append('\\begin{tabular}')
+        table_lines.append('\\begin{tabular}{l ' +
+                           ''.join(['c ' for i in range(1, len(self.labels))]) +
+                           '}')
         table_lines.append(r'\toprule')
         table_lines.append(' & '.join([r'\textbf{' + label + r'}' for label in self.labels]))
         table_lines.append(r'\\ \midrule')
@@ -159,10 +175,14 @@ class SessionInfo:
     def __init__(self, configuration: dict):
         self.configuration = configuration
         self.normalized_mean_squared_error = None
-        self.signal_to_distortion = None
+        self.signal_to_distortion_ratio = None
 
     def model_name(self):
-        return self.configuration['method'] + str(self.configuration['hidden_size'])
+        name = self.configuration['method'] + str(self.configuration['hidden_size'])
+        if 'layers_description' in self.configuration.keys() and \
+                self.configuration['layers_description']:
+            name += '-' + self.configuration['layers_description']
+        return name
 
     def test_sampling_rate(self):
         return self.configuration['test_sampling_rate']
@@ -187,13 +207,16 @@ class ModelFormatter:
                 raise RuntimeWarning(f'More than one value of a sampling rate test '
                                      f'for model {session_info.model_name()}')
             self.sampling_rate_test_results[session_info.test_sampling_rate()] = \
-                f'{measure_value:.2f}'
+                f'{measure_value:.1f}'
 
     def get_data_row(self):
-        return [self.model_name, self.sampling_rate_test_results[44100],
+        return [NICE_NAMES[self.model_name], self.sampling_rate_test_results[44100],
                 self.sampling_rate_test_results[22050],
                 self.sampling_rate_test_results[48000],
                 self.sampling_rate_test_results[192000]]
+
+    def has_all_sampling_rate_tests(self):
+        return self.sampling_rate_test_results.keys() == {22050, 44100, 48000, 192000}
 
 
 if __name__ == '__main__':
@@ -206,30 +229,30 @@ if __name__ == '__main__':
                              'directories containing the trained models.')
     args = parser.parse_args()
 
-    exporter = LatexTableExporter()
-    exporter.set_labels(['Model path', 'Normalized mean squared error [dB]',
-                         'Signal-to-distortion ratio [dB]'])
+    for measure_name in ['normalized_mean_squared_error', 'signal_to_distortion_ratio']:
+        for dataset_name in ['diodeclip', 'diode2clip']:
+            exporter = LatexTableExporter()
+            exporter.set_labels([r'\makecell{Test sampling\\rate [kHz]}', '44.1', '22.05', '48', '192'])
+            diode_clipper_models = dict()
+            for directory_name in args.run_directories:
+                directory_path = root_repository_dir() / Path(directory_name)
+                # compute NMSE and SDR between the test_output and the target
+                try:
+                    session_info = get_session_info(directory_path)
+                    if session_info.dataset_name() == dataset_name:
+                        name = session_info.model_name()
+                        if not name in diode_clipper_models.keys():
+                            diode_clipper_models[name] = ModelFormatter(name, measure_name, dataset_name)
+                        nmse_db, sdr = get_measures(directory_path)
+                        session_info.normalized_mean_squared_error = nmse_db
+                        session_info.signal_to_distortion_ratio = sdr
+                        diode_clipper_models[name].add_result(session_info)
 
-    diode_clipper_models = dict()
-    measure_name = 'normalized_mean_squared_error'
+                except FileNotFoundError:
+                    print(f'Skipped {directory_path}')
 
-    for directory_name in args.run_directories:
-        directory_path = root_repository_dir() / Path(directory_name)
-        # compute NMSE and SDR between the test_output and the target
-        try:
-            session_info = get_session_info(directory_path)
-            name = session_info.model_name()
-            if (not name in diode_clipper_models.keys()) and (session_info.dataset_name() == 'diodeclip'):
-                diode_clipper_models[name] = ModelFormatter(name, measure_name, 'diodeclip')
-            nmse_db, sdr = get_measures(directory_path)
-            session_info.normalized_mean_squared_error = nmse_db
-            session_info.signal_to_distortion = sdr
-            diode_clipper_models[name].add_result(session_info)
-
-        except FileNotFoundError:
-            print(f'Skipped {directory_path}')
-
-    # Diode clipper
-    for model in diode_clipper_models.values():
-        exporter.append(model.get_data_row())
-    exporter.export(root_repository_dir() / 'diode_clipper_results_nmse')
+            for model in diode_clipper_models.values():
+                if model.has_all_sampling_rate_tests():
+                    exporter.append(model.get_data_row())
+            output_filename = dataset_name + '_results_' + measure_name
+            exporter.export(root_repository_dir() / output_filename)
