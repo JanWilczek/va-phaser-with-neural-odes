@@ -229,29 +229,33 @@ if __name__ == '__main__':
                              'directories containing the trained models.')
     args = parser.parse_args()
 
-    for measure_name in ['normalized_mean_squared_error', 'signal_to_distortion_ratio']:
-        for dataset_name in ['diodeclip', 'diode2clip']:
+    for dataset_name in ['diodeclip', 'diode2clip']:
+        nmse_models = dict()
+        sdr_models = dict()
+        for directory_name in args.run_directories:
+            directory_path = root_repository_dir() / Path(directory_name)
+            # compute NMSE and SDR between the test_output and the target
+            try:
+                session_info = get_session_info(directory_path)
+                if session_info.dataset_name() == dataset_name:
+                    name = session_info.model_name()
+                    if not name in nmse_models.keys():
+                        nmse_models[name] = ModelFormatter(name, 'normalized_mean_squared_error', dataset_name)
+                        sdr_models[name] = ModelFormatter(name, 'signal_to_distortion_ratio', dataset_name)
+                    nmse_db, sdr = get_measures(directory_path)
+                    session_info.normalized_mean_squared_error = nmse_db
+                    session_info.signal_to_distortion_ratio = sdr
+                    nmse_models[name].add_result(session_info)
+                    sdr_models[name].add_result(session_info)
+
+            except FileNotFoundError:
+                print(f'Skipped {directory_path}')
+
+        for model_dict in [nmse_models, sdr_models]:
+            measure_name = list(model_dict.values())[0].measure_name
             exporter = LatexTableExporter()
             exporter.set_labels([r'\makecell{Test sampling\\rate [kHz]}', '44.1', '22.05', '48', '192'])
-            diode_clipper_models = dict()
-            for directory_name in args.run_directories:
-                directory_path = root_repository_dir() / Path(directory_name)
-                # compute NMSE and SDR between the test_output and the target
-                try:
-                    session_info = get_session_info(directory_path)
-                    if session_info.dataset_name() == dataset_name:
-                        name = session_info.model_name()
-                        if not name in diode_clipper_models.keys():
-                            diode_clipper_models[name] = ModelFormatter(name, measure_name, dataset_name)
-                        nmse_db, sdr = get_measures(directory_path)
-                        session_info.normalized_mean_squared_error = nmse_db
-                        session_info.signal_to_distortion_ratio = sdr
-                        diode_clipper_models[name].add_result(session_info)
-
-                except FileNotFoundError:
-                    print(f'Skipped {directory_path}')
-
-            for model in diode_clipper_models.values():
+            for model in model_dict.values():
                 if model.has_all_sampling_rate_tests():
                     exporter.append(model.get_data_row())
             output_filename = dataset_name + '_results_' + measure_name

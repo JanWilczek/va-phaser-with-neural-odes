@@ -35,7 +35,9 @@ def log_spectral_distance(output, target):
 
 
 def normalized_mean_squared_error(output, target):
-    return torch.mean(torch.div(torch.square(output - target), stabilize(torch.square(target))))
+    return torch.div(
+        torch.mean(torch.square(output - target)),
+        stabilize(torch.mean(torch.square(target))))
 
 
 def stabilize(tensor):
