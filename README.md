@@ -7,6 +7,19 @@ The publication is available on [arxiv](https://arxiv.org/abs/2205.01897) or on 
 
 Audio examples can be found at [the publication's examples page.](https://thewolfsound.com/publications/dafx2022/)
 
+## Bibtex Citation
+
+When you cite this work, please use the following bibliographical data:
+
+```bibtex
+@InProceedings{Wilczeketal2022,
+  author    = {Wilczek, Jan and Wright, Alec and Välimäki, Vesa and Habets, Emanuël},
+  booktitle = {Proceedings of the 25th International Conference on Digital Audio Effects (DAFx-22), Vienna, Austria, September 2020-22},
+  title     = {Virtual {A}nalog {M}odeling of {D}istortion {C}ircuits {U}sing {N}eural {O}rdinary {D}ifferential {E}quations},
+  year      = {2022}
+}
+```
+
 ## Authors
 
 * Jan Wilczek
