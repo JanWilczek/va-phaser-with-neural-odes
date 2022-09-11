@@ -14,7 +14,7 @@ When you cite this work, please use the following bibliographical data:
 ```bibtex
 @InProceedings{Wilczeketal2022,
   author    = {Wilczek, Jan and Wright, Alec and Välimäki, Vesa and Habets, Emanuël},
-  booktitle = {Proceedings of the 25th International Conference on Digital Audio Effects (DAFx-22), Vienna, Austria, September 2020-22},
+  booktitle = {Proceedings of the 25th International Conference on Digital Audio Effects (DAFx20in22), Vienna, Austria, September 2020-22},
   title     = {Virtual {A}nalog {M}odeling of {D}istortion {C}ircuits {U}sing {N}eural {O}rdinary {D}ifferential {E}quations},
   year      = {2022}
 }
